@@ -3,69 +3,252 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <meta name="description" content="ToolBoxPro - fast, free online calculators and utility tools."/>
-  <title>ToolBoxPro — Free Online Tools</title>
+
+  <!-- ── Primary SEO ── -->
+  <title>ToolBoxPro — Free Online Calculators &amp; Everyday Tools</title>
+  <meta name="description" content="Free online calculators and everyday tools — EMI, GST, Age, Percentage, BMI, Unit Converter and more. Fast, mobile-friendly, no sign-up required."/>
+  <meta name="keywords" content="EMI calculator, GST calculator, age calculator, percentage calculator, BMI calculator, unit converter, online tools, free calculators India"/>
+  <meta name="author" content="ToolBoxPro"/>
+  <link rel="canonical" href="https://toolboxpro.in/"/>
+
+  <!-- ── Open Graph ── -->
+  <meta property="og:type" content="website"/>
+  <meta property="og:url" content="https://toolboxpro.in/"/>
+  <meta property="og:title" content="ToolBoxPro — Free Online Calculators &amp; Everyday Tools"/>
+  <meta property="og:description" content="12+ free online tools — EMI, GST, Age, BMI, Percentage, Unit Converter and more. Fast and mobile-friendly."/>
+  <meta property="og:image" content="https://toolboxpro.in/og-image.png"/>
+  <meta property="og:image:width" content="1200"/>
+  <meta property="og:image:height" content="630"/>
+  <meta property="og:locale" content="en_IN"/>
+  <meta property="og:site_name" content="ToolBoxPro"/>
+
+  <!-- ── Twitter Card ── -->
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:url" content="https://toolboxpro.in/"/>
+  <meta name="twitter:title" content="ToolBoxPro — Free Online Calculators &amp; Everyday Tools"/>
+  <meta name="twitter:description" content="12+ free online tools — EMI, GST, Age, BMI, Percentage, Unit Converter and more."/>
+  <meta name="twitter:image" content="https://toolboxpro.in/og-image.png"/>
+
+  <!-- ── PWA ── -->
+  <link rel="manifest" href="manifest.json"/>
+  <meta name="theme-color" content="#635bff"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+  <meta name="apple-mobile-web-app-title" content="ToolBoxPro"/>
+  <link rel="apple-touch-icon" href="icons/icon-192.png"/>
+
+  <!-- ── Favicons ── -->
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>✦</text></svg>"/>
+
+  <!-- ── Performance: resource hints ── -->
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="preload" href="styles.css" as="style"/>
+  <link rel="preload" href="app.js" as="script"/>
+
+  <!-- ── Fonts ── -->
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap"/>
+
+  <!-- ── Styles ── -->
   <link rel="stylesheet" href="styles.css"/>
+
+  <!-- ── Structured Data: WebSite ── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "ToolBoxPro",
+    "url": "https://toolboxpro.in/",
+    "description": "Free online calculators and everyday tools — EMI, GST, Age, Percentage, BMI, Unit Converter and more.",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": {
+        "@type": "EntryPoint",
+        "urlTemplate": "https://toolboxpro.in/?q={search_term_string}"
+      },
+      "query-input": "required name=search_term_string"
+    }
+  }
+  </script>
+
+  <!-- ── Structured Data: ItemList of Tools ── -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ItemList",
+    "name": "Free Online Tools",
+    "url": "https://toolboxpro.in/",
+    "itemListElement": [
+      {"@type":"ListItem","position":1,"name":"EMI Calculator","url":"https://toolboxpro.in/emi-calculator"},
+      {"@type":"ListItem","position":2,"name":"GST Calculator","url":"https://toolboxpro.in/gst-calculator"},
+      {"@type":"ListItem","position":3,"name":"Age Calculator","url":"https://toolboxpro.in/age-calculator"},
+      {"@type":"ListItem","position":4,"name":"Percentage Calculator","url":"https://toolboxpro.in/percentage-calculator"},
+      {"@type":"ListItem","position":5,"name":"BMI Calculator","url":"https://toolboxpro.in/bmi-calculator"},
+      {"@type":"ListItem","position":6,"name":"Unit Converter","url":"https://toolboxpro.in/unit-converter"},
+      {"@type":"ListItem","position":7,"name":"Discount Calculator","url":"https://toolboxpro.in/discount-calculator"},
+      {"@type":"ListItem","position":8,"name":"Tip Calculator","url":"https://toolboxpro.in/tip-calculator"},
+      {"@type":"ListItem","position":9,"name":"Salary Calculator","url":"https://toolboxpro.in/salary-calculator"},
+      {"@type":"ListItem","position":10,"name":"Date Difference Calculator","url":"https://toolboxpro.in/date-difference-calculator"},
+      {"@type":"ListItem","position":11,"name":"Ratio Calculator","url":"https://toolboxpro.in/ratio-calculator"},
+      {"@type":"ListItem","position":12,"name":"Number Converter","url":"https://toolboxpro.in/number-converter"}
+    ]
+  }
+  </script>
+
+  <!-- ── Analytics placeholder (replace UA with your GA4 ID) ── -->
+  <!--
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+  -->
 </head>
 <body>
-<header class="nav">
-  <a class="logo" href="#"><span>✦</span> ToolBoxPro</a>
-  <nav>
-    <a href="#tools">Tools</a><a href="#popular">Popular</a><a href="#about">About</a>
+
+<!-- ── Accessibility: skip navigation link ── -->
+<a href="#main-content" class="skip-link">Skip to main content</a>
+
+<header class="nav" role="banner">
+  <a class="logo" href="#" aria-label="ToolBoxPro home"><span aria-hidden="true">✦</span> ToolBoxPro</a>
+  <nav aria-label="Primary navigation">
+    <a href="#tools">Tools</a>
+    <a href="#popular">Popular</a>
+    <a href="#about">About</a>
   </nav>
-  <button id="theme" class="icon-btn" aria-label="Toggle theme">☾</button>
+  <button id="theme" class="icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button>
 </header>
 
-<main>
-<section class="hero">
-  <div class="hero-copy">
-    <div class="eyebrow">⚡ Fast • Free • Mobile friendly</div>
-    <h1>Small tools.<br><em>Big productivity.</em></h1>
-    <p>Useful calculators and everyday online tools — simple, fast and completely free.</p>
-    <div class="search-wrap">
-      <span>⌕</span><input id="search" placeholder="Search a tool, e.g. EMI, GST, age..." autocomplete="off"/>
-      <kbd>⌘ K</kbd>
+<main id="main-content">
+  <section class="hero" aria-label="Hero section">
+    <div class="hero-copy">
+      <div class="eyebrow" aria-hidden="true">⚡ Fast • Free • Mobile friendly</div>
+      <h1>Small tools.<br><em>Big productivity.</em></h1>
+      <p>Useful calculators and everyday online tools — simple, fast and completely free. No sign-up required.</p>
+      <div class="search-wrap" role="search">
+        <span aria-hidden="true">⌕</span>
+        <label for="search" class="sr-only">Search tools</label>
+        <input
+          id="search"
+          type="search"
+          placeholder="Search a tool, e.g. EMI, GST, age…"
+          autocomplete="off"
+          aria-label="Search tools"
+          spellcheck="false"
+        />
+        <kbd aria-label="Keyboard shortcut Ctrl K">⌘ K</kbd>
+      </div>
+      <div class="quick" role="group" aria-label="Popular quick searches">
+        <span>Popular:</span>
+        <button type="button" data-query="EMI">EMI</button>
+        <button type="button" data-query="GST">GST</button>
+        <button type="button" data-query="Age">Age</button>
+        <button type="button" data-query="Percentage">Percentage</button>
+      </div>
     </div>
-    <div class="quick">
-      <span>Popular:</span><button data-query="EMI">EMI</button><button data-query="GST">GST</button><button data-query="Age">Age</button><button data-query="Percentage">Percentage</button>
+    <div class="hero-art" aria-hidden="true">
+      <div class="orb orb1"></div><div class="orb orb2"></div>
+      <div class="glass-card card-main"><div class="mini-icon">%</div><strong>Percentage</strong><span>Calculate instantly</span><b>42.5%</b></div>
+      <div class="glass-card card-float"><div class="mini-icon">₹</div><strong>EMI Calculator</strong><span>Monthly payment</span><b>₹ 8,421</b></div>
     </div>
-  </div>
-  <div class="hero-art">
-    <div class="orb orb1"></div><div class="orb orb2"></div>
-    <div class="glass-card card-main"><div class="mini-icon">%</div><strong>Percentage</strong><span>Calculate instantly</span><b>42.5%</b></div>
-    <div class="glass-card card-float"><div class="mini-icon">₹</div><strong>EMI Calculator</strong><span>Monthly payment</span><b>₹ 8,421</b></div>
-  </div>
-</section>
+  </section>
 
-<section class="ad-slot"><span>ADVERTISEMENT</span></section>
-
-<section id="tools" class="section">
-  <div class="section-head"><div><p class="eyebrow">THE TOOLKIT</p><h2>Everything you need, <span>in one place.</span></h2></div><span id="count" class="count">12 tools</span></div>
-  <div class="chips">
-    <button class="chip active" data-cat="all">All</button><button class="chip" data-cat="finance">Finance</button><button class="chip" data-cat="math">Math</button><button class="chip" data-cat="utility">Utility</button>
+  <!-- ── Ad slot (replace with approved AdSense code) ── -->
+  <div class="ad-slot" role="complementary" aria-label="Advertisement">
+    <span>ADVERTISEMENT</span>
+    <!-- <ins class="adsbygoogle" ...></ins> -->
   </div>
-  <div id="grid" class="tool-grid"></div>
-  <div id="empty" class="empty hidden">No tools found. Try another search.</div>
-</section>
 
-<section id="popular" class="section popular">
-  <div class="section-head"><div><p class="eyebrow">MOST USED</p><h2>Popular tools</h2></div></div>
-  <div class="popular-grid">
-    <article><span>🧮</span><h3>Percentage Calculator</h3><p>Find percentages, increases and decreases in seconds.</p></article>
-    <article><span>💰</span><h3>EMI Calculator</h3><p>Estimate your monthly loan payment and total interest.</p></article>
-    <article><span>🧾</span><h3>GST Calculator</h3><p>Add or remove GST from any amount instantly.</p></article>
-  </div>
-</section>
+  <section id="tools" class="section" aria-labelledby="tools-heading">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">THE TOOLKIT</p>
+        <h2 id="tools-heading">Everything you need, <span>in one place.</span></h2>
+      </div>
+      <span id="count" class="count" aria-live="polite" aria-atomic="true">12 tools</span>
+    </div>
+    <div class="chips" role="group" aria-label="Filter by category">
+      <button class="chip active" data-cat="all" aria-pressed="true" type="button">All</button>
+      <button class="chip" data-cat="finance" aria-pressed="false" type="button">Finance</button>
+      <button class="chip" data-cat="math" aria-pressed="false" type="button">Math</button>
+      <button class="chip" data-cat="utility" aria-pressed="false" type="button">Utility</button>
+    </div>
+    <div id="grid" class="tool-grid" role="list" aria-label="Tool cards"></div>
+    <div id="empty" class="empty hidden" role="status" aria-live="polite">No tools found. Try another search.</div>
+  </section>
 
-<section class="cta">
-  <div><p class="eyebrow">BUILT FOR EVERYDAY USE</p><h2>Free tools that just work.</h2><p>No complicated forms. No unnecessary steps.</p></div>
-  <a href="#tools" class="primary">Explore tools →</a>
-</section>
+  <section id="popular" class="section popular" aria-labelledby="popular-heading">
+    <div class="section-head">
+      <div>
+        <p class="eyebrow">MOST USED</p>
+        <h2 id="popular-heading">Popular tools</h2>
+      </div>
+    </div>
+    <div class="popular-grid">
+      <article>
+        <span aria-hidden="true">🧮</span>
+        <h3>Percentage Calculator</h3>
+        <p>Find percentages, increases and decreases in seconds.</p>
+      </article>
+      <article>
+        <span aria-hidden="true">💰</span>
+        <h3>EMI Calculator</h3>
+        <p>Estimate your monthly loan payment and total interest paid.</p>
+      </article>
+      <article>
+        <span aria-hidden="true">🧾</span>
+        <h3>GST Calculator</h3>
+        <p>Add or remove GST from any amount instantly.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="cta" aria-labelledby="cta-heading">
+    <div>
+      <p class="eyebrow">BUILT FOR EVERYDAY USE</p>
+      <h2 id="cta-heading">Free tools that just work.</h2>
+      <p>No complicated forms. No unnecessary steps. No sign-up.</p>
+    </div>
+    <a href="#tools" class="primary" role="button">Explore tools →</a>
+  </section>
 </main>
 
-<footer id="about"><div class="footer-top"><a class="logo" href="#"><span>✦</span> ToolBoxPro</a><p>Simple tools for everyday problems.</p></div><div class="footer-bottom"><span>© 2026 ToolBoxPro</span><div><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Contact</a></div></div></footer>
+<footer id="about" role="contentinfo">
+  <div class="footer-top">
+    <a class="logo" href="#" aria-label="ToolBoxPro home"><span aria-hidden="true">✦</span> ToolBoxPro</a>
+    <p>Simple tools for everyday problems. Always free.</p>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 ToolBoxPro</span>
+    <nav aria-label="Footer navigation">
+      <a href="privacy.html">Privacy</a>
+      <a href="terms.html">Terms</a>
+      <a href="contact.html">Contact</a>
+    </nav>
+  </div>
+</footer>
 
-<div id="modal" class="modal hidden"><div class="modal-box"><button id="close" class="close">×</button><div id="toolContent"></div></div></div>
-<script src="app.js"></script>
+<!-- ── Tool Modal ── -->
+<div
+  id="modal"
+  class="modal hidden"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="modal-title"
+  aria-describedby="toolContent"
+>
+  <div class="modal-box">
+    <button id="close" class="close" aria-label="Close tool">×</button>
+    <div id="toolContent"></div>
+  </div>
+</div>
+
+<!-- ── Toast notification ── -->
+<div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<script src="app.js" defer></script>
 </body>
 </html>
