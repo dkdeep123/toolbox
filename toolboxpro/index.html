@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="description" content="ToolBoxPro - fast, free online calculators and utility tools."/>
+  <title>ToolBoxPro — Free Online Tools</title>
+  <link rel="stylesheet" href="styles.css"/>
+</head>
+<body>
+<header class="nav">
+  <a class="logo" href="#"><span>✦</span> ToolBoxPro</a>
+  <nav>
+    <a href="#tools">Tools</a><a href="#popular">Popular</a><a href="#about">About</a>
+  </nav>
+  <button id="theme" class="icon-btn" aria-label="Toggle theme">☾</button>
+</header>
+
+<main>
+<section class="hero">
+  <div class="hero-copy">
+    <div class="eyebrow">⚡ Fast • Free • Mobile friendly</div>
+    <h1>Small tools.<br><em>Big productivity.</em></h1>
+    <p>Useful calculators and everyday online tools — simple, fast and completely free.</p>
+    <div class="search-wrap">
+      <span>⌕</span><input id="search" placeholder="Search a tool, e.g. EMI, GST, age..." autocomplete="off"/>
+      <kbd>⌘ K</kbd>
+    </div>
+    <div class="quick">
+      <span>Popular:</span><button data-query="EMI">EMI</button><button data-query="GST">GST</button><button data-query="Age">Age</button><button data-query="Percentage">Percentage</button>
+    </div>
+  </div>
+  <div class="hero-art">
+    <div class="orb orb1"></div><div class="orb orb2"></div>
+    <div class="glass-card card-main"><div class="mini-icon">%</div><strong>Percentage</strong><span>Calculate instantly</span><b>42.5%</b></div>
+    <div class="glass-card card-float"><div class="mini-icon">₹</div><strong>EMI Calculator</strong><span>Monthly payment</span><b>₹ 8,421</b></div>
+  </div>
+</section>
+
+<section class="ad-slot"><span>ADVERTISEMENT</span></section>
+
+<section id="tools" class="section">
+  <div class="section-head"><div><p class="eyebrow">THE TOOLKIT</p><h2>Everything you need, <span>in one place.</span></h2></div><span id="count" class="count">12 tools</span></div>
+  <div class="chips">
+    <button class="chip active" data-cat="all">All</button><button class="chip" data-cat="finance">Finance</button><button class="chip" data-cat="math">Math</button><button class="chip" data-cat="utility">Utility</button>
+  </div>
+  <div id="grid" class="tool-grid"></div>
+  <div id="empty" class="empty hidden">No tools found. Try another search.</div>
+</section>
+
+<section id="popular" class="section popular">
+  <div class="section-head"><div><p class="eyebrow">MOST USED</p><h2>Popular tools</h2></div></div>
+  <div class="popular-grid">
+    <article><span>🧮</span><h3>Percentage Calculator</h3><p>Find percentages, increases and decreases in seconds.</p></article>
+    <article><span>💰</span><h3>EMI Calculator</h3><p>Estimate your monthly loan payment and total interest.</p></article>
+    <article><span>🧾</span><h3>GST Calculator</h3><p>Add or remove GST from any amount instantly.</p></article>
+  </div>
+</section>
+
+<section class="cta">
+  <div><p class="eyebrow">BUILT FOR EVERYDAY USE</p><h2>Free tools that just work.</h2><p>No complicated forms. No unnecessary steps.</p></div>
+  <a href="#tools" class="primary">Explore tools →</a>
+</section>
+</main>
+
+<footer id="about"><div class="footer-top"><a class="logo" href="#"><span>✦</span> ToolBoxPro</a><p>Simple tools for everyday problems.</p></div><div class="footer-bottom"><span>© 2026 ToolBoxPro</span><div><a href="#">Privacy</a><a href="#">Terms</a><a href="#">Contact</a></div></div></footer>
+
+<div id="modal" class="modal hidden"><div class="modal-box"><button id="close" class="close">×</button><div id="toolContent"></div></div></div>
+<script src="app.js"></script>
+</body>
+</html>
