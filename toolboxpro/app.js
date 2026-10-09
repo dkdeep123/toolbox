@@ -1,6 +1,37 @@
 'use strict';
 
 /* ─────────────────────────────────────────
+   Security Utilities
+───────────────────────────────────────── */
+/**
+ * Escape a string for safe insertion into HTML context.
+ * Prevents XSS from any user-supplied or computed text.
+ */
+function escapeHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/** Allowed tool IDs — validated before any innerHTML render. */
+const ALLOWED_TOOL_IDS = new Set([
+  'age','emi','percentage','gst','unit','bmi','discount',
+  'tip','ratio','number','date','salary','imgcompress','imgresize',
+]);
+
+/** Max file size accepted by image tools: 20 MB */
+const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
+
+/** Allowed MIME types for image tools */
+const ALLOWED_IMAGE_TYPES = new Set([
+  'image/jpeg','image/png','image/webp','image/gif','image/bmp',
+]);
+
+
+/* ─────────────────────────────────────────
    Tool Registry
 ───────────────────────────────────────── */
 const TOOLS = [
@@ -143,6 +174,8 @@ document.querySelectorAll('.quick button').forEach(btn => {
    Modal
 ───────────────────────────────────────── */
 function openTool(id) {
+  // Validate id against known allowlist to prevent prototype pollution / unexpected renders
+  if (!ALLOWED_TOOL_IDS.has(id)) return;
   const tool = TOOLS.find(t => t.id === id);
   if (!tool) return;
 
@@ -222,9 +255,15 @@ function showToast(msg, duration = 2500) {
 }
 
 /* ─────────────────────────────────────────
-   Clipboard Copy
+   Clipboard Copy (rate-limited)
 ───────────────────────────────────────── */
+let _copyLastMs = 0;
 function copyResult(text) {
+  // Rate-limit: one copy per 1 s to prevent spam
+  const now = Date.now();
+  if (now - _copyLastMs < 1000) return;
+  _copyLastMs = now;
+
   if (!navigator.clipboard) {
     showToast('⚠️ Clipboard not available');
     return;
@@ -247,7 +286,8 @@ function showResult(html, plainText) {
 
 function showError(msg) {
   const res = document.getElementById('res');
-  res.innerHTML = `<span style="color:var(--danger);font-size:14px;font-weight:500">⚠ ${msg}</span>`;
+  // escapeHtml prevents XSS if msg ever contains user-supplied content
+  res.innerHTML = `<span style="color:var(--danger);font-size:14px;font-weight:500">⚠ ${escapeHtml(msg)}</span>`;
   res.classList.remove('hidden');
 }
 
@@ -783,12 +823,28 @@ function icHandleDrop(e) {
   e.preventDefault();
   document.getElementById('ic-drop').classList.remove('drag-over');
   const file = e.dataTransfer.files[0];
-  if (file && file.type.startsWith('image/')) icLoadFile(file);
-  else showToast('⚠️ Please drop a valid image file.');
+  if (!file) return;
+  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+    showToast('⚠️ Unsupported file type. Please use JPEG, PNG, WebP, GIF, or BMP.');
+    return;
+  }
+  if (file.size > MAX_IMAGE_BYTES) {
+    showToast(`⚠️ File too large (max ${MAX_IMAGE_BYTES / 1024 / 1024} MB).`);
+    return;
+  }
+  icLoadFile(file);
 }
 
 function icLoadFile(file) {
   if (!file) return;
+  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+    showToast('⚠️ Unsupported file type.');
+    return;
+  }
+  if (file.size > MAX_IMAGE_BYTES) {
+    showToast(`⚠️ File too large (max ${MAX_IMAGE_BYTES / 1024 / 1024} MB).`);
+    return;
+  }
   _icOrigFile = file;
   const reader = new FileReader();
   reader.onload = (e) => {
@@ -876,12 +932,28 @@ function irHandleDrop(e) {
   e.preventDefault();
   document.getElementById('ir-drop').classList.remove('drag-over');
   const file = e.dataTransfer.files[0];
-  if (file && file.type.startsWith('image/')) irLoadFile(file);
-  else showToast('⚠️ Please drop a valid image file.');
+  if (!file) return;
+  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+    showToast('⚠️ Unsupported file type. Please use JPEG, PNG, WebP, GIF, or BMP.');
+    return;
+  }
+  if (file.size > MAX_IMAGE_BYTES) {
+    showToast(`⚠️ File too large (max ${MAX_IMAGE_BYTES / 1024 / 1024} MB).`);
+    return;
+  }
+  irLoadFile(file);
 }
 
 function irLoadFile(file) {
   if (!file) return;
+  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+    showToast('⚠️ Unsupported file type.');
+    return;
+  }
+  if (file.size > MAX_IMAGE_BYTES) {
+    showToast(`⚠️ File too large (max ${MAX_IMAGE_BYTES / 1024 / 1024} MB).`);
+    return;
+  }
   _irOrigFile = file;
   const reader = new FileReader();
   reader.onload = (e) => {
