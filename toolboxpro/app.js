@@ -19,7 +19,7 @@ function escapeHtml(str) {
 /** Allowed tool IDs — validated before any innerHTML render. */
 const ALLOWED_TOOL_IDS = new Set([
   'age','emi','percentage','gst','unit','bmi','discount',
-  'tip','ratio','number','date','salary','imgcompress','imgresize',
+  'tip','ratio','number','date','salary','imgcompress','imgresize','imgtopdf',
 ]);
 
 /** Max file size accepted by image tools: 20 MB */
@@ -49,6 +49,7 @@ const TOOLS = [
   { id: 'salary',     name: 'Salary Calculator',      icon: '💵', cat: 'finance', desc: 'Estimate monthly and annual salary breakdown.' },
   { id: 'imgcompress', name: 'Image Compressor',      icon: '🗜️', cat: 'image',   desc: 'Compress images online — reduce file size while keeping quality.' },
   { id: 'imgresize',   name: 'Image Resizer',         icon: '🖼️', cat: 'image',   desc: 'Resize images to exact dimensions or by percentage.' },
+  { id: 'imgtopdf',    name: 'Image to PDF',          icon: '📄', cat: 'image',   desc: 'Convert JPG or PNG images directly to a PDF document.' },
 ];
 
 /* ─────────────────────────────────────────
@@ -134,6 +135,19 @@ function render() {
 search.addEventListener('input', render);
 search.addEventListener('search', render);   // fires when native ❌ clear button is clicked
 search.addEventListener('keyup', render);    // fallback for all browsers
+
+// Open top result on Enter
+search.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    const q = search.value.toLowerCase().trim();
+    const list = TOOLS.filter(t =>
+      (category === 'all' || t.cat === category) &&
+      (t.name + ' ' + t.desc).toLowerCase().includes(q)
+    );
+    if (list.length > 0) openTool(list[0].id);
+  }
+});
 
 // Keyboard shortcut ⌘K / Ctrl+K
 document.addEventListener('keydown', e => {
@@ -458,6 +472,38 @@ function buildForm(id) {
         <div><label for="ctc">Annual CTC (₹)</label><input id="ctc" type="number" min="1" placeholder="600000" aria-required="true"/></div>
         <button class="primary" type="button" onclick="calcSalary()">Calculate</button>
         <div id="res" class="result hidden"></div>
+      </div>`,
+
+    imgtopdf: `
+      <h2>📄 Image to PDF</h2>
+      <p>Convert JPG or PNG images into a PDF document instantly.</p>
+      <div class="form">
+        <div
+          id="i2p-drop"
+          class="img-drop-zone"
+          role="button"
+          tabindex="0"
+          aria-label="Drop image here or click to select"
+          onclick="document.getElementById('i2p-file').click()"
+          onkeydown="if(event.key==='Enter'||event.key===' ')document.getElementById('i2p-file').click()"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="i2pHandleDrop(event)"
+        >
+          <div class="drop-icon" aria-hidden="true">📂</div>
+          <p>Drag &amp; drop an image here<br><small>or click to browse</small></p>
+          <p class="drop-formats">Supports JPEG, PNG</p>
+        </div>
+        <input id="i2p-file" type="file" accept="image/jpeg, image/png" class="hidden" aria-hidden="true" onchange="i2pLoadFile(this.files[0])"/>
+        <div id="i2p-preview-wrap" class="img-preview-wrap hidden">
+          <div class="img-preview-panel" style="margin: 0 auto;">
+            <div class="img-preview-label">Preview</div>
+            <img id="i2p-orig-img" alt="Image preview" />
+            <div id="i2p-orig-info" class="img-info"></div>
+          </div>
+          <button class="primary" type="button" id="i2p-download-btn" onclick="i2pConvert()">⬇ Convert & Download PDF</button>
+          <button class="secondary-btn" type="button" onclick="i2pReset()">↩ Choose Another Image</button>
+        </div>
       </div>`,
 
     imgcompress: `
@@ -1062,6 +1108,128 @@ function irReset() {
   document.getElementById('ir-controls').classList.add('hidden');
   document.getElementById('ir-preview-wrap').classList.add('hidden');
   document.getElementById('ir-file').value = '';
+}
+
+/* ─────────────────────────────────────────
+   Image to PDF
+───────────────────────────────────────── */
+let _i2pImg = null;
+let _i2pOrigFile = null;
+
+function i2pHandleDrop(e) {
+  e.preventDefault();
+  document.getElementById('i2p-drop').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
+    showToast('⚠️ Unsupported file type. Please use JPEG or PNG.');
+    return;
+  }
+  if (file.size > MAX_IMAGE_BYTES) {
+    showToast(`⚠️ File too large (max ${MAX_IMAGE_BYTES / 1024 / 1024} MB).`);
+    return;
+  }
+  i2pLoadFile(file);
+}
+
+function i2pLoadFile(file) {
+  if (!file) return;
+  if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
+    showToast('⚠️ Unsupported file type.');
+    return;
+  }
+  if (file.size > MAX_IMAGE_BYTES) {
+    showToast(`⚠️ File too large (max ${MAX_IMAGE_BYTES / 1024 / 1024} MB).`);
+    return;
+  }
+  _i2pOrigFile = file;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      _i2pImg = img;
+      document.getElementById('i2p-drop').classList.add('hidden');
+      document.getElementById('i2p-preview-wrap').classList.remove('hidden');
+      document.getElementById('i2p-orig-img').src = e.target.result;
+      document.getElementById('i2p-orig-info').textContent =
+        `${img.naturalWidth} × ${img.naturalHeight}px — ${fmtBytes(file.size)}`;
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function i2pConvert() {
+  if (!_i2pImg || !window.jspdf) {
+    if (!window.jspdf) showToast('⚠️ PDF library is still loading. Please try again in a moment.');
+    return;
+  }
+  try {
+    const { jsPDF } = window.jspdf;
+    
+    // A4 size in mm
+    const a4w = 210;
+    const a4h = 297;
+    
+    // Calculate aspect ratio
+    const imgRatio = _i2pImg.naturalWidth / _i2pImg.naturalHeight;
+    const a4Ratio = a4w / a4h;
+    
+    let pdfW, pdfH;
+    let orient = 'p'; // portrait
+    
+    // Auto-rotate if image is landscape
+    if (imgRatio > 1) {
+      orient = 'l'; // landscape
+      pdfW = a4h; // 297
+      pdfH = a4w; // 210
+    } else {
+      pdfW = a4w;
+      pdfH = a4h;
+    }
+    
+    const doc = new jsPDF({
+      orientation: orient,
+      unit: 'mm',
+      format: 'a4'
+    });
+    
+    let renderW = pdfW;
+    let renderH = pdfH;
+    let renderRatio = renderW / renderH;
+    
+    if (imgRatio > renderRatio) {
+      renderH = renderW / imgRatio;
+    } else {
+      renderW = renderH * imgRatio;
+    }
+    
+    const x = (pdfW - renderW) / 2;
+    const y = (pdfH - renderH) / 2;
+    
+    const canvas = document.createElement('canvas');
+    canvas.width = _i2pImg.naturalWidth;
+    canvas.height = _i2pImg.naturalHeight;
+    const ctx = canvas.getContext('2d');
+    ctx.drawImage(_i2pImg, 0, 0);
+    const imgData = canvas.toDataURL('image/jpeg', 0.95);
+    
+    doc.addImage(imgData, 'JPEG', x, y, renderW, renderH);
+    
+    const origName = _i2pOrigFile ? _i2pOrigFile.name.replace(/\.[^.]+$/, '') : 'image';
+    doc.save(`${origName}.pdf`);
+    showToast('✓ PDF downloaded!');
+  } catch (err) {
+    showToast('⚠️ Error converting to PDF.');
+    console.error(err);
+  }
+}
+
+function i2pReset() {
+  _i2pImg = null; _i2pOrigFile = null;
+  document.getElementById('i2p-drop').classList.remove('hidden');
+  document.getElementById('i2p-preview-wrap').classList.add('hidden');
+  document.getElementById('i2p-file').value = '';
 }
 
 /* ─────────────────────────────────────────
