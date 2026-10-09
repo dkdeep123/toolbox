@@ -16,6 +16,8 @@ const TOOLS = [
   { id: 'number',     name: 'Number Converter',       icon: '🔁', cat: 'math',    desc: 'Convert numbers between common formats.' },
   { id: 'date',       name: 'Date Difference',        icon: '📅', cat: 'utility', desc: 'Find the number of days between two dates.' },
   { id: 'salary',     name: 'Salary Calculator',      icon: '💵', cat: 'finance', desc: 'Estimate monthly and annual salary breakdown.' },
+  { id: 'imgcompress', name: 'Image Compressor',      icon: '🗜️', cat: 'image',   desc: 'Compress images online — reduce file size while keeping quality.' },
+  { id: 'imgresize',   name: 'Image Resizer',         icon: '🖼️', cat: 'image',   desc: 'Resize images to exact dimensions or by percentage.' },
 ];
 
 /* ─────────────────────────────────────────
@@ -99,6 +101,8 @@ function render() {
    Search & Filter
 ───────────────────────────────────────── */
 search.addEventListener('input', render);
+search.addEventListener('search', render);   // fires when native ❌ clear button is clicked
+search.addEventListener('keyup', render);    // fallback for all browsers
 
 // Keyboard shortcut ⌘K / Ctrl+K
 document.addEventListener('keydown', e => {
@@ -415,6 +419,134 @@ function buildForm(id) {
         <button class="primary" type="button" onclick="calcSalary()">Calculate</button>
         <div id="res" class="result hidden"></div>
       </div>`,
+
+    imgcompress: `
+      <h2>🗜️ Image Compressor</h2>
+      <p>Reduce image file size while preserving visual quality. Works 100% in your browser — no upload to servers.</p>
+      <div class="form">
+        <div
+          id="ic-drop"
+          class="img-drop-zone"
+          role="button"
+          tabindex="0"
+          aria-label="Drop image here or click to select"
+          onclick="document.getElementById('ic-file').click()"
+          onkeydown="if(event.key==='Enter'||event.key===' ')document.getElementById('ic-file').click()"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="icHandleDrop(event)"
+        >
+          <div class="drop-icon" aria-hidden="true">📂</div>
+          <p>Drag &amp; drop an image here<br><small>or click to browse</small></p>
+          <p class="drop-formats">Supports JPEG, PNG, WebP, GIF, BMP</p>
+        </div>
+        <input id="ic-file" type="file" accept="image/*" class="hidden" aria-hidden="true" onchange="icLoadFile(this.files[0])"/>
+        <div id="ic-preview-wrap" class="img-preview-wrap hidden">
+          <div class="img-preview-pair">
+            <div class="img-preview-panel">
+              <div class="img-preview-label">Original</div>
+              <img id="ic-orig-img" alt="Original image preview" />
+              <div id="ic-orig-info" class="img-info"></div>
+            </div>
+            <div class="img-preview-panel">
+              <div class="img-preview-label">Compressed</div>
+              <img id="ic-comp-img" alt="Compressed image preview" />
+              <div id="ic-comp-info" class="img-info"></div>
+            </div>
+          </div>
+          <div class="img-slider-wrap">
+            <label for="ic-quality" class="img-slider-label">
+              Quality: <span id="ic-quality-val">80</span>%
+            </label>
+            <input id="ic-quality" type="range" min="1" max="100" value="80" class="img-slider" oninput="icUpdateQuality(this.value)" aria-label="Compression quality"/>
+            <div class="img-slider-ticks"><span>Low</span><span>Medium</span><span>High</span></div>
+          </div>
+          <div class="img-format-row">
+            <label for="ic-format">Output format</label>
+            <select id="ic-format" onchange="icCompress()" aria-label="Output image format">
+              <option value="image/jpeg">JPEG</option>
+              <option value="image/png">PNG</option>
+              <option value="image/webp">WebP</option>
+            </select>
+          </div>
+          <button class="primary" type="button" id="ic-download-btn" onclick="icDownload()" style="display:none">⬇ Download Compressed Image</button>
+          <button class="secondary-btn" type="button" onclick="icReset()">↩ Choose Another Image</button>
+        </div>
+      </div>`,
+
+    imgresize: `
+      <h2>🖼️ Image Resizer</h2>
+      <p>Resize images to exact pixel dimensions or by percentage — no quality loss for PNG. Works entirely in your browser.</p>
+      <div class="form">
+        <div
+          id="ir-drop"
+          class="img-drop-zone"
+          role="button"
+          tabindex="0"
+          aria-label="Drop image here or click to select"
+          onclick="document.getElementById('ir-file').click()"
+          onkeydown="if(event.key==='Enter'||event.key===' ')document.getElementById('ir-file').click()"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="irHandleDrop(event)"
+        >
+          <div class="drop-icon" aria-hidden="true">📂</div>
+          <p>Drag &amp; drop an image here<br><small>or click to browse</small></p>
+          <p class="drop-formats">Supports JPEG, PNG, WebP, GIF, BMP</p>
+        </div>
+        <input id="ir-file" type="file" accept="image/*" class="hidden" aria-hidden="true" onchange="irLoadFile(this.files[0])"/>
+        <div id="ir-controls" class="hidden">
+          <div id="ir-orig-info" class="img-orig-info"></div>
+          <div class="resize-mode-tabs" role="group" aria-label="Resize mode">
+            <button id="ir-tab-px" class="resize-tab active" type="button" onclick="irSwitchMode('px')" aria-pressed="true">Pixels</button>
+            <button id="ir-tab-pct" class="resize-tab" type="button" onclick="irSwitchMode('pct')" aria-pressed="false">Percentage</button>
+          </div>
+          <div id="ir-px-mode">
+            <div class="resize-dim-row">
+              <div>
+                <label for="ir-w">Width (px)</label>
+                <input id="ir-w" type="number" min="1" placeholder="800" aria-required="true" oninput="irSyncDim('w')"/>
+              </div>
+              <div class="resize-lock" id="ir-lock-btn" onclick="irToggleLock()" title="Lock aspect ratio" aria-label="Lock aspect ratio" role="button" tabindex="0" onkeydown="if(event.key==='Enter')irToggleLock()">
+                🔒
+              </div>
+              <div>
+                <label for="ir-h">Height (px)</label>
+                <input id="ir-h" type="number" min="1" placeholder="600" aria-required="true" oninput="irSyncDim('h')"/>
+              </div>
+            </div>
+          </div>
+          <div id="ir-pct-mode" class="hidden">
+            <label for="ir-pct">Scale (%)</label>
+            <input id="ir-pct" type="number" min="1" max="1000" value="50" placeholder="50" aria-required="true"/>
+          </div>
+          <div class="img-format-row">
+            <label for="ir-format">Output format</label>
+            <select id="ir-format" aria-label="Output image format">
+              <option value="image/png">PNG</option>
+              <option value="image/jpeg">JPEG</option>
+              <option value="image/webp">WebP</option>
+            </select>
+          </div>
+          <button class="primary" type="button" onclick="irResize()">Resize Image</button>
+          <div id="ir-preview-wrap" class="img-preview-wrap hidden">
+            <div class="img-preview-pair">
+              <div class="img-preview-panel">
+                <div class="img-preview-label">Original</div>
+                <img id="ir-orig-img" alt="Original image preview" />
+                <div id="ir-orig-info2" class="img-info"></div>
+              </div>
+              <div class="img-preview-panel">
+                <div class="img-preview-label">Resized</div>
+                <img id="ir-out-img" alt="Resized image preview" />
+                <div id="ir-out-info" class="img-info"></div>
+              </div>
+            </div>
+            <button class="primary" type="button" id="ir-download-btn" onclick="irDownload()">⬇ Download Resized Image</button>
+          </div>
+          <button class="secondary-btn" type="button" onclick="irReset()">↩ Choose Another Image</button>
+        </div>
+      </div>`,
   };
 
   const tool = TOOLS.find(t => t.id === id);
@@ -632,6 +764,232 @@ function calcSalary() {
 ───────────────────────────────────────── */
 function fmt(n) {
   return Number(n).toLocaleString('en-IN');
+}
+
+function fmtBytes(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+}
+
+/* ─────────────────────────────────────────
+   Image Compressor
+───────────────────────────────────────── */
+let _icImg = null;      // HTMLImageElement
+let _icOrigFile = null; // original File object
+let _icCompBlob = null; // latest compressed Blob
+
+function icHandleDrop(e) {
+  e.preventDefault();
+  document.getElementById('ic-drop').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) icLoadFile(file);
+  else showToast('⚠️ Please drop a valid image file.');
+}
+
+function icLoadFile(file) {
+  if (!file) return;
+  _icOrigFile = file;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      _icImg = img;
+      document.getElementById('ic-drop').classList.add('hidden');
+      document.getElementById('ic-preview-wrap').classList.remove('hidden');
+      document.getElementById('ic-orig-img').src = e.target.result;
+      document.getElementById('ic-orig-info').textContent =
+        `${img.naturalWidth} × ${img.naturalHeight}px — ${fmtBytes(file.size)}`;
+      // Auto-detect format
+      const fmt = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+      document.getElementById('ic-format').value = fmt;
+      icCompress();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function icUpdateQuality(val) {
+  document.getElementById('ic-quality-val').textContent = val;
+  icCompress();
+}
+
+function icCompress() {
+  if (!_icImg) return;
+  const quality = parseInt(document.getElementById('ic-quality').value, 10) / 100;
+  const format  = document.getElementById('ic-format').value;
+  const canvas  = document.createElement('canvas');
+  canvas.width  = _icImg.naturalWidth;
+  canvas.height = _icImg.naturalHeight;
+  const ctx = canvas.getContext('2d');
+  // For PNG transparency
+  if (format === 'image/png') ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.drawImage(_icImg, 0, 0);
+  canvas.toBlob((blob) => {
+    _icCompBlob = blob;
+    const url = URL.createObjectURL(blob);
+    const compImg = document.getElementById('ic-comp-img');
+    if (compImg._prevUrl) URL.revokeObjectURL(compImg._prevUrl);
+    compImg._prevUrl = url;
+    compImg.src = url;
+    const savings = Math.max(0, ((_icOrigFile.size - blob.size) / _icOrigFile.size * 100));
+    document.getElementById('ic-comp-info').innerHTML =
+      `${_icImg.naturalWidth} × ${_icImg.naturalHeight}px — ${fmtBytes(blob.size)}
+       <span class="img-savings ${savings > 0 ? 'positive' : 'negative'}">
+         ${savings > 0 ? '↓' : '↑'} ${Math.abs(savings).toFixed(1)}% ${savings > 0 ? 'smaller' : 'larger'}
+       </span>`;
+    document.getElementById('ic-download-btn').style.display = '';
+  }, format, format === 'image/png' ? undefined : quality);
+}
+
+function icDownload() {
+  if (!_icCompBlob) return;
+  const format = document.getElementById('ic-format').value;
+  const ext    = format.split('/')[1];
+  const origName = _icOrigFile ? _icOrigFile.name.replace(/\.[^.]+$/, '') : 'image';
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(_icCompBlob);
+  a.download = `${origName}-compressed.${ext}`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  showToast('✓ Image downloaded!');
+}
+
+function icReset() {
+  _icImg = null; _icOrigFile = null; _icCompBlob = null;
+  document.getElementById('ic-drop').classList.remove('hidden');
+  document.getElementById('ic-preview-wrap').classList.add('hidden');
+  document.getElementById('ic-file').value = '';
+}
+
+/* ─────────────────────────────────────────
+   Image Resizer
+───────────────────────────────────────── */
+let _irImg = null;
+let _irOrigFile = null;
+let _irOutBlob = null;
+let _irLocked = true; // aspect ratio lock
+let _irMode = 'px';   // 'px' or 'pct'
+
+function irHandleDrop(e) {
+  e.preventDefault();
+  document.getElementById('ir-drop').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (file && file.type.startsWith('image/')) irLoadFile(file);
+  else showToast('⚠️ Please drop a valid image file.');
+}
+
+function irLoadFile(file) {
+  if (!file) return;
+  _irOrigFile = file;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      _irImg = img;
+      document.getElementById('ir-drop').classList.add('hidden');
+      document.getElementById('ir-controls').classList.remove('hidden');
+      document.getElementById('ir-orig-img').src = e.target.result;
+      document.getElementById('ir-orig-info').textContent =
+        `Original: ${img.naturalWidth} × ${img.naturalHeight}px — ${fmtBytes(file.size)}`;
+      document.getElementById('ir-orig-info2').textContent =
+        `${img.naturalWidth} × ${img.naturalHeight}px — ${fmtBytes(file.size)}`;
+      document.getElementById('ir-w').value = img.naturalWidth;
+      document.getElementById('ir-h').value = img.naturalHeight;
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function irSwitchMode(mode) {
+  _irMode = mode;
+  document.getElementById('ir-px-mode').classList.toggle('hidden', mode !== 'px');
+  document.getElementById('ir-pct-mode').classList.toggle('hidden', mode !== 'pct');
+  document.getElementById('ir-tab-px').classList.toggle('active', mode === 'px');
+  document.getElementById('ir-tab-pct').classList.toggle('active', mode === 'pct');
+  document.getElementById('ir-tab-px').setAttribute('aria-pressed', mode === 'px');
+  document.getElementById('ir-tab-pct').setAttribute('aria-pressed', mode === 'pct');
+}
+
+function irToggleLock() {
+  _irLocked = !_irLocked;
+  const btn = document.getElementById('ir-lock-btn');
+  btn.textContent = _irLocked ? '🔒' : '🔓';
+  btn.title = _irLocked ? 'Lock aspect ratio' : 'Unlock aspect ratio';
+}
+
+function irSyncDim(changed) {
+  if (!_irLocked || !_irImg) return;
+  const aspect = _irImg.naturalWidth / _irImg.naturalHeight;
+  if (changed === 'w') {
+    const w = parseFloat(document.getElementById('ir-w').value);
+    if (!isNaN(w) && w > 0) document.getElementById('ir-h').value = Math.round(w / aspect);
+  } else {
+    const h = parseFloat(document.getElementById('ir-h').value);
+    if (!isNaN(h) && h > 0) document.getElementById('ir-w').value = Math.round(h * aspect);
+  }
+}
+
+function irResize() {
+  safeCalc(() => {
+    if (!_irImg) throw new Error('Please load an image first.');
+    let outW, outH;
+    if (_irMode === 'pct') {
+      const pct = parseFloat(document.getElementById('ir-pct').value);
+      if (isNaN(pct) || pct <= 0) throw new Error('Please enter a valid percentage.');
+      outW = Math.round(_irImg.naturalWidth  * pct / 100);
+      outH = Math.round(_irImg.naturalHeight * pct / 100);
+    } else {
+      outW = parseInt(document.getElementById('ir-w').value, 10);
+      outH = parseInt(document.getElementById('ir-h').value, 10);
+      if (isNaN(outW) || outW <= 0) throw new Error('Please enter a valid width.');
+      if (isNaN(outH) || outH <= 0) throw new Error('Please enter a valid height.');
+    }
+    const format = document.getElementById('ir-format').value;
+    const canvas = document.createElement('canvas');
+    canvas.width  = outW;
+    canvas.height = outH;
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(_irImg, 0, 0, outW, outH);
+    canvas.toBlob((blob) => {
+      _irOutBlob = blob;
+      const url = URL.createObjectURL(blob);
+      const outImg = document.getElementById('ir-out-img');
+      if (outImg._prevUrl) URL.revokeObjectURL(outImg._prevUrl);
+      outImg._prevUrl = url;
+      outImg.src = url;
+      document.getElementById('ir-out-info').textContent =
+        `${outW} × ${outH}px — ${fmtBytes(blob.size)}`;
+      document.getElementById('ir-preview-wrap').classList.remove('hidden');
+      showToast('✓ Image resized successfully!');
+    }, format, format === 'image/jpeg' ? 0.92 : undefined);
+  });
+}
+
+function irDownload() {
+  if (!_irOutBlob) return;
+  const format = document.getElementById('ir-format').value;
+  const ext    = format.split('/')[1];
+  const origName = _irOrigFile ? _irOrigFile.name.replace(/\.[^.]+$/, '') : 'image';
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(_irOutBlob);
+  a.download = `${origName}-resized.${ext}`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  showToast('✓ Image downloaded!');
+}
+
+function irReset() {
+  _irImg = null; _irOrigFile = null; _irOutBlob = null;
+  _irLocked = true; _irMode = 'px';
+  document.getElementById('ir-drop').classList.remove('hidden');
+  document.getElementById('ir-controls').classList.add('hidden');
+  document.getElementById('ir-preview-wrap').classList.add('hidden');
+  document.getElementById('ir-file').value = '';
 }
 
 /* ─────────────────────────────────────────
