@@ -28,17 +28,34 @@ if (cursorDot && cursorOutline) {
     }
   });
 
+  let currentAngle = 0;
+
   const animateCursor = () => {
     // Fast follow for dot
     dotX += (mouseX - dotX) * 0.5;
     dotY += (mouseY - dotY) * 0.5;
     
+    const dx = mouseX - outlineX;
+    const dy = mouseY - outlineY;
+    
     // Smooth, slightly delayed follow for outline
-    outlineX += (mouseX - outlineX) * 0.15;
-    outlineY += (mouseY - outlineY) * 0.15;
+    outlineX += dx * 0.15;
+    outlineY += dy * 0.15;
+    
+    // Calculate angle for fish to point towards movement
+    if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+      // SVG points right by default.
+      const targetAngle = Math.atan2(dy, dx) * (180 / Math.PI);
+      
+      // Smooth rotation (handling wrap-around)
+      let diff = targetAngle - currentAngle;
+      while (diff < -180) diff += 360;
+      while (diff > 180) diff -= 360;
+      currentAngle += diff * 0.15;
+    }
     
     cursorDot.style.transform = `translate(calc(${dotX}px - 50%), calc(${dotY}px - 50%))`;
-    cursorOutline.style.transform = `translate(calc(${outlineX}px - 50%), calc(${outlineY}px - 50%))`;
+    cursorOutline.style.transform = `translate(calc(${outlineX}px - 50%), calc(${outlineY}px - 50%)) rotate(${currentAngle}deg)`;
     
     requestAnimationFrame(animateCursor);
   };

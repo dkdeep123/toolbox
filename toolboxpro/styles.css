@@ -137,17 +137,22 @@ input, button, select, textarea { font: inherit; }
 }
 
 .cursor-outline {
-  width: 40px;
-  height: 40px;
-  border: 1.5px solid var(--accent);
-  transition: opacity 0.2s ease-in-out, width 0.2s, height 0.2s, background-color 0.2s, transform 0.15s ease-out;
+  /* No more border/width here, it's driven by the SVG */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s ease-in-out, transform 0.1s ease-out, filter 0.2s;
+  /* Will handle rotation via JS */
 }
 
-.cursor-outline.hover {
-  width: 60px;
-  height: 60px;
-  background-color: rgba(91, 79, 255, 0.1);
-  border-color: rgba(91, 79, 255, 0.5);
+.cursor-outline svg {
+  transition: transform 0.2s, stroke 0.2s;
+}
+
+.cursor-outline.hover svg {
+  transform: scale(1.5);
+  stroke: var(--accent2);
+  filter: drop-shadow(0 0 8px rgba(91, 79, 255, 0.6));
 }
 
 /* Focus ring — visible for keyboard users, hidden for mouse */
