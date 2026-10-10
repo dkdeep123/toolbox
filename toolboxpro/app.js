@@ -27,7 +27,7 @@ const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
 
 /** Allowed MIME types for image tools */
 const ALLOWED_IMAGE_TYPES = new Set([
-  'image/jpeg','image/png','image/webp','image/gif','image/bmp',
+  'image/jpeg','image/png','image/webp','image/gif','image/bmp', 'image/jpg', 'image/svg+xml'
 ]);
 
 
@@ -870,7 +870,7 @@ function icHandleDrop(e) {
   document.getElementById('ic-drop').classList.remove('drag-over');
   const file = e.dataTransfer.files[0];
   if (!file) return;
-  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+  if (!file.type.startsWith('image/')) {
     showToast('⚠️ Unsupported file type. Please use JPEG, PNG, WebP, GIF, or BMP.');
     return;
   }
@@ -883,7 +883,7 @@ function icHandleDrop(e) {
 
 function icLoadFile(file) {
   if (!file) return;
-  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+  if (!file.type.startsWith('image/')) {
     showToast('⚠️ Unsupported file type.');
     return;
   }
@@ -979,7 +979,7 @@ function irHandleDrop(e) {
   document.getElementById('ir-drop').classList.remove('drag-over');
   const file = e.dataTransfer.files[0];
   if (!file) return;
-  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+  if (!file.type.startsWith('image/')) {
     showToast('⚠️ Unsupported file type. Please use JPEG, PNG, WebP, GIF, or BMP.');
     return;
   }
@@ -992,7 +992,7 @@ function irHandleDrop(e) {
 
 function irLoadFile(file) {
   if (!file) return;
-  if (!ALLOWED_IMAGE_TYPES.has(file.type)) {
+  if (!file.type.startsWith('image/')) {
     showToast('⚠️ Unsupported file type.');
     return;
   }
