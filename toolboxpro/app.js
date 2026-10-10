@@ -1,6 +1,53 @@
 'use strict';
 
 /* ─────────────────────────────────────────
+   Custom Cursor Animation
+───────────────────────────────────────── */
+const cursorDot = document.getElementById('cursor-dot');
+const cursorOutline = document.getElementById('cursor-outline');
+
+if (cursorDot && cursorOutline) {
+  let mouseX = 0;
+  let mouseY = 0;
+  let dotX = 0;
+  let dotY = 0;
+  let outlineX = 0;
+  let outlineY = 0;
+
+  window.addEventListener('mousemove', (e) => {
+    mouseX = e.clientX;
+    mouseY = e.clientY;
+    
+    // Check if hovering over interactive elements
+    const target = e.target;
+    const isInteractive = target.closest('a, button, input, select, textarea, [role="button"], [tabindex="0"]');
+    if (isInteractive) {
+      cursorOutline.classList.add('hover');
+    } else {
+      cursorOutline.classList.remove('hover');
+    }
+  });
+
+  const animateCursor = () => {
+    // Fast follow for dot
+    dotX += (mouseX - dotX) * 0.5;
+    dotY += (mouseY - dotY) * 0.5;
+    
+    // Smooth, slightly delayed follow for outline
+    outlineX += (mouseX - outlineX) * 0.15;
+    outlineY += (mouseY - outlineY) * 0.15;
+    
+    cursorDot.style.transform = `translate(calc(${dotX}px - 50%), calc(${dotY}px - 50%))`;
+    cursorOutline.style.transform = `translate(calc(${outlineX}px - 50%), calc(${outlineY}px - 50%))`;
+    
+    requestAnimationFrame(animateCursor);
+  };
+  
+  // Start animation loop
+  requestAnimationFrame(animateCursor);
+}
+
+/* ─────────────────────────────────────────
    Security Utilities
 ───────────────────────────────────────── */
 /**

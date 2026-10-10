@@ -108,6 +108,48 @@ input, button, select, textarea { font: inherit; }
 }
 .skip-link:focus { top: 0; }
 
+/* ── Custom Cursor ── */
+@media (pointer: fine) {
+  body { cursor: none; }
+  a, button, input, select, textarea, [role="button"], [tabindex="0"] { cursor: none; }
+}
+
+.cursor-dot,
+.cursor-outline {
+  position: fixed;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  z-index: 9999;
+  pointer-events: none;
+  display: none;
+}
+@media (pointer: fine) {
+  .cursor-dot, .cursor-outline { display: block; }
+}
+
+.cursor-dot {
+  width: 8px;
+  height: 8px;
+  background-color: var(--accent);
+  transition: opacity 0.2s ease-in-out, transform 0.05s linear;
+}
+
+.cursor-outline {
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid var(--accent);
+  transition: opacity 0.2s ease-in-out, width 0.2s, height 0.2s, background-color 0.2s, transform 0.15s ease-out;
+}
+
+.cursor-outline.hover {
+  width: 60px;
+  height: 60px;
+  background-color: rgba(91, 79, 255, 0.1);
+  border-color: rgba(91, 79, 255, 0.5);
+}
+
 /* Focus ring — visible for keyboard users, hidden for mouse */
 :focus-visible {
   outline: 2.5px solid var(--accent);
