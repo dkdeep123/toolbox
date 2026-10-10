@@ -494,7 +494,7 @@ function buildForm(id) {
           <p>Drag &amp; drop an image here<br><small>or click to browse</small></p>
           <p class="drop-formats">Supports JPEG, PNG</p>
         </div>
-        <input id="i2p-file" type="file" accept="image/jpeg, image/png" class="hidden" aria-hidden="true" onchange="i2pLoadFile(this.files[0])"/>
+        <input id="i2p-file" type="file" accept="image/jpeg, image/png" class="sr-only" aria-hidden="true" onchange="i2pLoadFile(this.files[0])"/>
         <div id="i2p-preview-wrap" class="img-preview-wrap hidden">
           <div class="img-preview-panel" style="margin: 0 auto;">
             <div class="img-preview-label">Preview</div>
@@ -526,7 +526,7 @@ function buildForm(id) {
           <p>Drag &amp; drop an image here<br><small>or click to browse</small></p>
           <p class="drop-formats">Supports JPEG, PNG, WebP, GIF, BMP</p>
         </div>
-        <input id="ic-file" type="file" accept="image/*" class="hidden" aria-hidden="true" onchange="icLoadFile(this.files[0])"/>
+        <input id="ic-file" type="file" accept="image/*" class="sr-only" aria-hidden="true" onchange="icLoadFile(this.files[0])"/>
         <div id="ic-preview-wrap" class="img-preview-wrap hidden">
           <div class="img-preview-pair">
             <div class="img-preview-panel">
@@ -580,7 +580,7 @@ function buildForm(id) {
           <p>Drag &amp; drop an image here<br><small>or click to browse</small></p>
           <p class="drop-formats">Supports JPEG, PNG, WebP, GIF, BMP</p>
         </div>
-        <input id="ir-file" type="file" accept="image/*" class="hidden" aria-hidden="true" onchange="irLoadFile(this.files[0])"/>
+        <input id="ir-file" type="file" accept="image/*" class="sr-only" aria-hidden="true" onchange="irLoadFile(this.files[0])"/>
         <div id="ir-controls" class="hidden">
           <div id="ir-orig-info" class="img-orig-info"></div>
           <div class="resize-mode-tabs" role="group" aria-label="Resize mode">
