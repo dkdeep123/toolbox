@@ -870,7 +870,8 @@ function icHandleDrop(e) {
   document.getElementById('ic-drop').classList.remove('drag-over');
   const file = e.dataTransfer.files[0];
   if (!file) return;
-  if (!file.type.startsWith('image/')) {
+  const isImg = file.type.startsWith('image/') || (file.name && /\.(jpg|jpeg|png|webp|gif|bmp|svg)$/i.test(file.name));
+  if (!isImg) {
     showToast('⚠️ Unsupported file type. Please use JPEG, PNG, WebP, GIF, or BMP.');
     return;
   }
@@ -883,7 +884,8 @@ function icHandleDrop(e) {
 
 function icLoadFile(file) {
   if (!file) return;
-  if (!file.type.startsWith('image/')) {
+  const isImg = file.type.startsWith('image/') || (file.name && /\.(jpg|jpeg|png|webp|gif|bmp|svg)$/i.test(file.name));
+  if (!isImg) {
     showToast('⚠️ Unsupported file type.');
     return;
   }
@@ -979,7 +981,8 @@ function irHandleDrop(e) {
   document.getElementById('ir-drop').classList.remove('drag-over');
   const file = e.dataTransfer.files[0];
   if (!file) return;
-  if (!file.type.startsWith('image/')) {
+  const isImg = file.type.startsWith('image/') || (file.name && /\.(jpg|jpeg|png|webp|gif|bmp|svg)$/i.test(file.name));
+  if (!isImg) {
     showToast('⚠️ Unsupported file type. Please use JPEG, PNG, WebP, GIF, or BMP.');
     return;
   }
@@ -992,7 +995,8 @@ function irHandleDrop(e) {
 
 function irLoadFile(file) {
   if (!file) return;
-  if (!file.type.startsWith('image/')) {
+  const isImg = file.type.startsWith('image/') || (file.name && /\.(jpg|jpeg|png|webp|gif|bmp|svg)$/i.test(file.name));
+  if (!isImg) {
     showToast('⚠️ Unsupported file type.');
     return;
   }
@@ -1121,7 +1125,8 @@ function i2pHandleDrop(e) {
   document.getElementById('i2p-drop').classList.remove('drag-over');
   const file = e.dataTransfer.files[0];
   if (!file) return;
-  if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
+  const isJpgPng = (file.type === 'image/jpeg' || file.type === 'image/png') || (file.name && /\.(jpg|jpeg|png)$/i.test(file.name));
+  if (!isJpgPng) {
     showToast('⚠️ Unsupported file type. Please use JPEG or PNG.');
     return;
   }
@@ -1134,7 +1139,8 @@ function i2pHandleDrop(e) {
 
 function i2pLoadFile(file) {
   if (!file) return;
-  if (file.type !== 'image/jpeg' && file.type !== 'image/png') {
+  const isJpgPng = (file.type === 'image/jpeg' || file.type === 'image/png') || (file.name && /\.(jpg|jpeg|png)$/i.test(file.name));
+  if (!isJpgPng) {
     showToast('⚠️ Unsupported file type.');
     return;
   }
