@@ -3,14 +3,11 @@
 /* ─────────────────────────────────────────
    Custom Cursor Animation
 ───────────────────────────────────────── */
-const cursorDot = document.getElementById('cursor-dot');
 const cursorOutline = document.getElementById('cursor-outline');
 
-if (cursorDot && cursorOutline) {
+if (cursorOutline) {
   let mouseX = 0;
   let mouseY = 0;
-  let dotX = 0;
-  let dotY = 0;
   let outlineX = 0;
   let outlineY = 0;
 
@@ -31,10 +28,6 @@ if (cursorDot && cursorOutline) {
   let currentAngle = 0;
 
   const animateCursor = () => {
-    // Fast follow for dot
-    dotX += (mouseX - dotX) * 0.5;
-    dotY += (mouseY - dotY) * 0.5;
-    
     const dx = mouseX - outlineX;
     const dy = mouseY - outlineY;
     
@@ -43,7 +36,7 @@ if (cursorDot && cursorOutline) {
     outlineY += dy * 0.15;
     
     // Calculate angle for fish to point towards movement
-    if (Math.abs(dx) > 1 || Math.abs(dy) > 1) {
+    if (Math.abs(dx) > 0.5 || Math.abs(dy) > 0.5) {
       // SVG points right by default.
       const targetAngle = Math.atan2(dy, dx) * (180 / Math.PI);
       
@@ -54,7 +47,6 @@ if (cursorDot && cursorOutline) {
       currentAngle += diff * 0.15;
     }
     
-    cursorDot.style.transform = `translate(calc(${dotX}px - 50%), calc(${dotY}px - 50%))`;
     cursorOutline.style.transform = `translate(calc(${outlineX}px - 50%), calc(${outlineY}px - 50%)) rotate(${currentAngle}deg)`;
     
     requestAnimationFrame(animateCursor);

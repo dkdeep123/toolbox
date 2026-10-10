@@ -114,7 +114,6 @@ input, button, select, textarea { font: inherit; }
   a, button, input, select, textarea, [role="button"], [tabindex="0"] { cursor: none; }
 }
 
-.cursor-dot,
 .cursor-outline {
   position: fixed;
   top: 0;
@@ -126,14 +125,7 @@ input, button, select, textarea { font: inherit; }
   display: none;
 }
 @media (pointer: fine) {
-  .cursor-dot, .cursor-outline { display: block; }
-}
-
-.cursor-dot {
-  width: 8px;
-  height: 8px;
-  background-color: var(--accent);
-  transition: opacity 0.2s ease-in-out, transform 0.05s linear;
+  .cursor-outline { display: flex; }
 }
 
 .cursor-outline {
