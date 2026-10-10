@@ -19,7 +19,7 @@ function escapeHtml(str) {
 /** Allowed tool IDs — validated before any innerHTML render. */
 const ALLOWED_TOOL_IDS = new Set([
   'age','emi','percentage','gst','unit','bmi','discount',
-  'tip','ratio','number','date','salary','imgcompress','imgresize','imgtopdf',
+  'tip','ratio','number','date','salary','imgcompress','imgresize','imgtopdf','pdfcompress'
 ]);
 
 /** Max file size accepted by image tools: 20 MB */
@@ -50,6 +50,7 @@ const TOOLS = [
   { id: 'imgcompress', name: 'Image Compressor',      icon: '🗜️', cat: 'image',   desc: 'Compress images online — reduce file size while keeping quality.' },
   { id: 'imgresize',   name: 'Image Resizer',         icon: '🖼️', cat: 'image',   desc: 'Resize images to exact dimensions or by percentage.' },
   { id: 'imgtopdf',    name: 'Image to PDF',          icon: '📄', cat: 'image',   desc: 'Convert JPG or PNG images directly to a PDF document.' },
+  { id: 'pdfcompress', name: 'PDF Compressor',        icon: '🗜️', cat: 'utility', desc: 'Compress PDF files to reduce file size.' },
 ];
 
 /* ─────────────────────────────────────────
@@ -181,6 +182,14 @@ document.querySelectorAll('.quick button').forEach(btn => {
     document.getElementById('tools').scrollIntoView({ behavior: 'smooth' });
     render();
     search.focus();
+  });
+});
+
+// Bind popular tools
+document.querySelectorAll('.popular-grid article').forEach(card => {
+  card.addEventListener('click', () => openTool(card.dataset.id));
+  card.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openTool(card.dataset.id); }
   });
 });
 
@@ -631,6 +640,38 @@ function buildForm(id) {
             <button class="primary" type="button" id="ir-download-btn" onclick="irDownload()">⬇ Download Resized Image</button>
           </div>
           <button class="secondary-btn" type="button" onclick="irReset()">↩ Choose Another Image</button>
+        </div>
+      </div>`,
+
+    pdfcompress: `
+      <h2>🗜️ PDF Compressor</h2>
+      <p>Reduce PDF file size. Note: Client-side compression works best for text-heavy or unoptimized PDFs.</p>
+      <div class="form">
+        <div
+          id="pc-drop"
+          class="img-drop-zone"
+          role="button"
+          tabindex="0"
+          aria-label="Drop PDF here or click to select"
+          onclick="document.getElementById('pc-file').value=''; document.getElementById('pc-file').click()"
+          onkeydown="if(event.key==='Enter'||event.key===' '){document.getElementById('pc-file').value='';document.getElementById('pc-file').click()}"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="pcHandleDrop(event)"
+        >
+          <div class="drop-icon" aria-hidden="true">📂</div>
+          <p>Drag &amp; drop a PDF here<br><small>or click to browse</small></p>
+          <p class="drop-formats">Supports PDF</p>
+        </div>
+        <input id="pc-file" type="file" accept="application/pdf" class="sr-only" aria-hidden="true" onchange="pcLoadFile(this.files[0])"/>
+        
+        <div id="pc-preview-wrap" class="img-preview-wrap hidden">
+          <div class="img-preview-panel" style="margin: 0 auto; width: 100%;">
+             <div id="pc-info" class="img-info" style="margin-bottom: 1rem; font-size: 1.1em; color: var(--text);"></div>
+          </div>
+          <button class="primary" type="button" id="pc-compress-btn" onclick="pcCompress()">🗜️ Compress PDF</button>
+          <button class="primary" type="button" id="pc-download-btn" style="display:none" onclick="pcDownload()">⬇ Download Compressed PDF</button>
+          <button class="secondary-btn" type="button" onclick="pcReset()">↩ Choose Another PDF</button>
         </div>
       </div>`,
   };
@@ -1236,6 +1277,112 @@ function i2pReset() {
   document.getElementById('i2p-drop').classList.remove('hidden');
   document.getElementById('i2p-preview-wrap').classList.add('hidden');
   document.getElementById('i2p-file').value = '';
+}
+
+/* ─────────────────────────────────────────
+   PDF Compressor Functions
+───────────────────────────────────────── */
+let pcCurrentFile = null;
+let pcCompressedBlob = null;
+
+function pcHandleDrop(e) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+    pcLoadFile(e.dataTransfer.files[0]);
+  }
+}
+
+function pcLoadFile(file) {
+  if (!file) return;
+  if (file.type !== 'application/pdf') {
+    return showError('Please select a valid PDF file.');
+  }
+  pcCurrentFile = file;
+  pcCompressedBlob = null;
+  
+  document.getElementById('pc-drop').classList.add('hidden');
+  const wrap = document.getElementById('pc-preview-wrap');
+  wrap.classList.remove('hidden');
+  
+  const mb = (file.size / (1024*1024)).toFixed(2);
+  document.getElementById('pc-info').innerHTML = `<strong>${escapeHtml(file.name)}</strong><br>Original Size: ${mb} MB`;
+  
+  document.getElementById('pc-compress-btn').style.display = 'block';
+  document.getElementById('pc-compress-btn').textContent = '🗜️ Compress PDF';
+  document.getElementById('pc-compress-btn').disabled = false;
+  document.getElementById('pc-download-btn').style.display = 'none';
+  
+  const res = document.getElementById('res');
+  if(res) res.classList.add('hidden');
+}
+
+function pcReset() {
+  pcCurrentFile = null;
+  pcCompressedBlob = null;
+  document.getElementById('pc-drop').classList.remove('hidden');
+  document.getElementById('pc-preview-wrap').classList.add('hidden');
+  document.getElementById('pc-file').value = '';
+}
+
+async function pcCompress() {
+  if (!pcCurrentFile) return;
+  const btn = document.getElementById('pc-compress-btn');
+  btn.disabled = true;
+  btn.textContent = 'Compressing... Please wait';
+  
+  try {
+    if (!window.PDFLib) {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/pdf-lib/1.17.1/pdf-lib.min.js';
+        script.onload = resolve;
+        script.onerror = reject;
+        document.head.appendChild(script);
+      });
+    }
+    
+    const arrayBuffer = await pcCurrentFile.arrayBuffer();
+    const pdfDoc = await PDFLib.PDFDocument.load(arrayBuffer);
+    
+    // Save with useObjectStreams to compress structure
+    const pdfBytes = await pdfDoc.save({ useObjectStreams: true });
+    
+    pcCompressedBlob = new Blob([pdfBytes], { type: 'application/pdf' });
+    const origMb = (pcCurrentFile.size / (1024*1024)).toFixed(2);
+    const compMb = (pcCompressedBlob.size / (1024*1024)).toFixed(2);
+    
+    let savedPct = ((1 - (pcCompressedBlob.size / pcCurrentFile.size)) * 100).toFixed(1);
+    if (savedPct < 0) savedPct = 0; 
+    
+    document.getElementById('pc-info').innerHTML = `
+      <strong>${escapeHtml(pcCurrentFile.name)}</strong><br>
+      Original Size: ${origMb} MB<br>
+      Compressed Size: ${compMb} MB <span style="color:var(--primary)">(Saved ${savedPct}%)</span>
+    `;
+    
+    btn.style.display = 'none';
+    document.getElementById('pc-download-btn').style.display = 'block';
+    showToast('PDF compressed successfully!');
+    
+  } catch (err) {
+    console.error(err);
+    btn.textContent = '🗜️ Compress PDF';
+    btn.disabled = false;
+    showError('Failed to compress PDF. It might be encrypted or corrupted.');
+  }
+}
+
+function pcDownload() {
+  if (!pcCompressedBlob || !pcCurrentFile) return;
+  const url = URL.createObjectURL(pcCompressedBlob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = pcCurrentFile.name.replace(/\.[^/.]+$/, "") + "_compressed.pdf";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
 }
 
 /* ─────────────────────────────────────────
