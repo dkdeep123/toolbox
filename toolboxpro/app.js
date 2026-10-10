@@ -1,19 +1,67 @@
 'use strict';
 
 /* ─────────────────────────────────────────
-   Custom Cursor Animation
+   Custom Cursor & Fluid Animation
 ───────────────────────────────────────── */
+const cursorDot = document.getElementById('cursor-dot');
 const cursorOutline = document.getElementById('cursor-outline');
+const fluidCanvas = document.getElementById('fluid-canvas');
+let fluidCtx = fluidCanvas ? fluidCanvas.getContext('2d') : null;
+let fluidParticles = [];
+
+if (fluidCanvas) {
+  const resizeCanvas = () => {
+    fluidCanvas.width = window.innerWidth;
+    fluidCanvas.height = window.innerHeight;
+  };
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+}
+
+function addFluid(x, y) {
+  if (!fluidCtx) return;
+  fluidParticles.push({
+    x: x, y: y,
+    vx: (Math.random() - 0.5) * 2,
+    vy: (Math.random() - 0.5) * 2,
+    life: 1,
+    size: Math.random() * 15 + 8
+  });
+}
+
+function updateFluid() {
+  if (!fluidCtx) return;
+  fluidCtx.clearRect(0, 0, fluidCanvas.width, fluidCanvas.height);
+  for (let i = 0; i < fluidParticles.length; i++) {
+    let p = fluidParticles[i];
+    p.x += p.vx;
+    p.y += p.vy;
+    p.life -= 0.03;
+    p.size *= 0.95;
+    
+    fluidCtx.beginPath();
+    fluidCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+    fluidCtx.fillStyle = `rgba(91, 79, 255, ${p.life * 0.4})`;
+    fluidCtx.fill();
+  }
+  fluidParticles = fluidParticles.filter(p => p.life > 0);
+}
 
 if (cursorOutline) {
   let mouseX = 0;
   let mouseY = 0;
+  let dotX = 0;
+  let dotY = 0;
   let outlineX = 0;
   let outlineY = 0;
+  let isTouch = false;
 
   window.addEventListener('mousemove', (e) => {
+    if (isTouch) return;
     mouseX = e.clientX;
     mouseY = e.clientY;
+    addFluid(mouseX, mouseY); // Trail on mouse move too!
+
     
     // Check if hovering over interactive elements
     const target = e.target;
@@ -25,9 +73,31 @@ if (cursorOutline) {
     }
   });
 
+  window.addEventListener('touchmove', (e) => {
+    isTouch = true;
+    for (let i = 0; i < e.touches.length; i++) {
+      addFluid(e.touches[i].clientX, e.touches[i].clientY);
+    }
+  });
+  
+  // For scroll, we can just spawn some particles at bottom/top or center, but touchmove handles most manual scrolling on mobile.
+  let lastScrollY = window.scrollY;
+  window.addEventListener('scroll', () => {
+    if (isTouch) {
+      const dy = window.scrollY - lastScrollY;
+      // Just add some random fluid across the screen to simulate movement
+      addFluid(window.innerWidth / 2 + (Math.random() - 0.5) * 100, window.innerHeight / 2);
+    }
+    lastScrollY = window.scrollY;
+  });
+
   let currentAngle = 0;
 
   const animateCursor = () => {
+    // Fast follow for dot
+    dotX += (mouseX - dotX) * 0.6;
+    dotY += (mouseY - dotY) * 0.6;
+    
     const dx = mouseX - outlineX;
     const dy = mouseY - outlineY;
     
@@ -47,8 +117,10 @@ if (cursorOutline) {
       currentAngle += diff * 0.15;
     }
     
+    if (cursorDot) cursorDot.style.transform = `translate(calc(${dotX}px - 50%), calc(${dotY}px - 50%))`;
     cursorOutline.style.transform = `translate(calc(${outlineX}px - 50%), calc(${outlineY}px - 50%)) rotate(${currentAngle}deg)`;
     
+    updateFluid();
     requestAnimationFrame(animateCursor);
   };
   

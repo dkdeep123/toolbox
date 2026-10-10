@@ -124,8 +124,32 @@ input, button, select, textarea { font: inherit; }
   pointer-events: none;
   display: none;
 }
+.cursor-dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  transform: translate(-50%, -50%);
+  width: 8px;
+  height: 8px;
+  background-color: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 6px rgba(0,0,0,0.2);
+  z-index: 10000;
+  pointer-events: none;
+  display: none;
+}
 @media (pointer: fine) {
-  .cursor-outline { display: flex; }
+  .cursor-outline, .cursor-dot { display: flex; }
+}
+
+#fluid-canvas {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  pointer-events: none;
+  z-index: 9998;
 }
 
 .cursor-outline {
