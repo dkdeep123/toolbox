@@ -140,9 +140,11 @@ input, button, select, textarea { font: inherit; }
 }
 @media (pointer: fine) {
   .cursor-outline, .cursor-dot { display: flex; }
+  #fluid-canvas { display: block; }
 }
 
 #fluid-canvas {
+  display: none;
   position: fixed;
   top: 0;
   left: 0;

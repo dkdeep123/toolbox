@@ -19,7 +19,7 @@ if (fluidCanvas) {
 }
 
 function addFluid(x, y) {
-  if (!fluidCtx) return;
+  if (!fluidCtx || !window.matchMedia('(pointer: fine)').matches) return;
   fluidParticles.push({
     x: x, y: y,
     vx: (Math.random() - 0.5) * 2,
@@ -31,6 +31,7 @@ function addFluid(x, y) {
 
 function updateFluid() {
   if (!fluidCtx) return;
+  if (fluidParticles.length === 0) return;
   fluidCtx.clearRect(0, 0, fluidCanvas.width, fluidCanvas.height);
   for (let i = 0; i < fluidParticles.length; i++) {
     let p = fluidParticles[i];
@@ -45,6 +46,9 @@ function updateFluid() {
     fluidCtx.fill();
   }
   fluidParticles = fluidParticles.filter(p => p.life > 0);
+  if (fluidParticles.length === 0) {
+    fluidCtx.clearRect(0, 0, fluidCanvas.width, fluidCanvas.height);
+  }
 }
 
 if (cursorOutline) {
@@ -55,6 +59,10 @@ if (cursorOutline) {
   let outlineX = 0;
   let outlineY = 0;
   let isTouch = false;
+
+  window.addEventListener('touchstart', () => {
+    isTouch = true;
+  }, { passive: true });
 
   window.addEventListener('mousemove', (e) => {
     if (isTouch) return;
@@ -71,24 +79,6 @@ if (cursorOutline) {
     } else {
       cursorOutline.classList.remove('hover');
     }
-  });
-
-  window.addEventListener('touchmove', (e) => {
-    isTouch = true;
-    for (let i = 0; i < e.touches.length; i++) {
-      addFluid(e.touches[i].clientX, e.touches[i].clientY);
-    }
-  });
-  
-  // For scroll, we can just spawn some particles at bottom/top or center, but touchmove handles most manual scrolling on mobile.
-  let lastScrollY = window.scrollY;
-  window.addEventListener('scroll', () => {
-    if (isTouch) {
-      const dy = window.scrollY - lastScrollY;
-      // Just add some random fluid across the screen to simulate movement
-      addFluid(window.innerWidth / 2 + (Math.random() - 0.5) * 100, window.innerHeight / 2);
-    }
-    lastScrollY = window.scrollY;
   });
 
   let currentAngle = 0;
