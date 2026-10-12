@@ -227,6 +227,7 @@ function render() {
       role="listitem"
       tabindex="0"
       data-id="${t.id}"
+      data-cat="${t.cat}"
       aria-label="Open ${t.name}"
     >
       <div class="tool-icon" aria-hidden="true">${t.icon}</div>
