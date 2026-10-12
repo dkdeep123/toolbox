@@ -952,6 +952,42 @@ body.dark .form input:focus, body.dark .form select:focus {
   background: rgba(20,18,38,0.98);
   border-color: var(--accent);
 }
+
+/* ── Date Picker Icon Styling (Light & Dark Mode) ── */
+.form input[type="date"] {
+  cursor: pointer;
+  position: relative;
+}
+.form input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  border-radius: 6px;
+  padding: 4px 6px;
+  background-color: rgba(91, 79, 255, 0.08);
+  transition: transform 0.18s ease, background-color 0.18s ease;
+}
+.form input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  transform: scale(1.12);
+  background-color: rgba(91, 79, 255, 0.18);
+}
+
+body.dark input[type="date"] {
+  color-scheme: dark;
+}
+body.dark input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1) drop-shadow(0 0 3px rgba(139, 92, 246, 0.8));
+  background-color: rgba(91, 79, 255, 0.32);
+  border: 1px solid rgba(139, 92, 246, 0.5);
+  border-radius: 7px;
+  padding: 5px 7px;
+  cursor: pointer;
+  transition: transform 0.18s ease, background-color 0.18s ease, box-shadow 0.18s ease;
+}
+body.dark input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  transform: scale(1.15);
+  background-color: rgba(91, 79, 255, 0.55);
+  border-color: rgba(168, 85, 247, 0.8);
+  box-shadow: 0 0 10px rgba(139, 92, 246, 0.6);
+}
 body.dark .ad-slot { border-color: #252338; color: #444; }
 body.dark .copy-btn { background: #252338; color: var(--muted); }
 body.dark .chip { background: rgba(22,20,42,0.7); border-color: rgba(91,79,255,0.18); }
