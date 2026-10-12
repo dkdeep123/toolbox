@@ -1,0 +1,21 @@
+{
+  "cleanUrls": true,
+  "rewrites": [
+    { "source": "/emi-calculator", "destination": "/index.html" },
+    { "source": "/gst-calculator", "destination": "/index.html" },
+    { "source": "/age-calculator", "destination": "/index.html" },
+    { "source": "/percentage-calculator", "destination": "/index.html" },
+    { "source": "/bmi-calculator", "destination": "/index.html" },
+    { "source": "/unit-converter", "destination": "/index.html" },
+    { "source": "/discount-calculator", "destination": "/index.html" },
+    { "source": "/tip-calculator", "destination": "/index.html" },
+    { "source": "/salary-calculator", "destination": "/index.html" },
+    { "source": "/date-difference-calculator", "destination": "/index.html" },
+    { "source": "/ratio-calculator", "destination": "/index.html" },
+    { "source": "/number-converter", "destination": "/index.html" },
+    { "source": "/image-compressor", "destination": "/index.html" },
+    { "source": "/image-resizer", "destination": "/index.html" },
+    { "source": "/image-to-pdf", "destination": "/index.html" },
+    { "source": "/pdf-compressor", "destination": "/index.html" }
+  ]
+}

@@ -325,6 +325,10 @@ function openTool(id) {
   modal.classList.remove('hidden');
   modal.removeAttribute('aria-hidden');
 
+  try {
+    history.replaceState(null, '', '#' + id);
+  } catch (_) {}
+
   // Set modal title for screen readers
   const heading = content.querySelector('h2');
   if (heading) {
@@ -355,6 +359,9 @@ function openTool(id) {
 function closeModal() {
   modal.classList.add('hidden');
   modal.setAttribute('aria-hidden', 'true');
+  try {
+    if (window.location.hash) history.replaceState(null, '', window.location.pathname);
+  } catch (_) {}
   if (previousFocus) previousFocus.focus();
 }
 
@@ -1518,3 +1525,32 @@ if ('serviceWorker' in navigator) {
    Init
 ───────────────────────────────────────── */
 render();
+
+/* ── Deep Link / Route Handler ── */
+const SLUG_TO_TOOL = {
+  'emi-calculator': 'emi',
+  'gst-calculator': 'gst',
+  'age-calculator': 'age',
+  'percentage-calculator': 'percentage',
+  'bmi-calculator': 'bmi',
+  'unit-converter': 'unit',
+  'discount-calculator': 'discount',
+  'tip-calculator': 'tip',
+  'salary-calculator': 'salary',
+  'date-difference-calculator': 'date',
+  'ratio-calculator': 'ratio',
+  'number-converter': 'number',
+  'image-compressor': 'imgcompress',
+  'image-resizer': 'imgresize',
+  'image-to-pdf': 'imgtopdf',
+  'pdf-compressor': 'pdfcompress',
+};
+
+(function checkRoute() {
+  const path = window.location.pathname.replace(/^\/|\/$/g, '');
+  const hash = window.location.hash.replace('#', '');
+  const toolId = SLUG_TO_TOOL[path] || SLUG_TO_TOOL[hash] || (ALLOWED_TOOL_IDS.has(hash) ? hash : null);
+  if (toolId) {
+    openTool(toolId);
+  }
+})();
