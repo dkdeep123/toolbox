@@ -137,11 +137,12 @@ function escapeHtml(str) {
 /** Allowed tool IDs — validated before any innerHTML render. */
 const ALLOWED_TOOL_IDS = new Set([
   'age','emi','percentage','gst','unit','bmi','discount',
-  'tip','ratio','number','date','salary','imgcompress','imgresize','imgtopdf','pdfcompress'
+  'tip','ratio','number','date','salary','imgcompress','imgresize',
+  'photoresize','imgtopdf','pdfmerge','pdfcompress','qrcode'
 ]);
 
-/** Max file size accepted by image tools: 20 MB */
-const MAX_IMAGE_BYTES = 20 * 1024 * 1024;
+/** Max file size accepted by image tools: 25 MB */
+const MAX_IMAGE_BYTES = 25 * 1024 * 1024;
 
 /** Allowed MIME types for image tools */
 const ALLOWED_IMAGE_TYPES = new Set([
@@ -153,22 +154,25 @@ const ALLOWED_IMAGE_TYPES = new Set([
    Tool Registry
 ───────────────────────────────────────── */
 const TOOLS = [
-  { id: 'age',        name: 'Age Calculator',        icon: '🎂', cat: 'utility', desc: 'Calculate your exact age from your date of birth.' },
-  { id: 'emi',        name: 'EMI Calculator',         icon: '💰', cat: 'finance', desc: 'Calculate monthly EMI, interest and total payment.' },
-  { id: 'percentage', name: 'Percentage Calculator',  icon: '％', cat: 'math',    desc: 'Find percentage, increase and decrease quickly.' },
-  { id: 'gst',        name: 'GST Calculator',         icon: '🧾', cat: 'finance', desc: 'Add or remove GST from any amount.' },
-  { id: 'unit',       name: 'Unit Converter',         icon: '📏', cat: 'utility', desc: 'Convert length, weight and temperature.' },
-  { id: 'bmi',        name: 'BMI Calculator',         icon: '⚖️',  cat: 'utility', desc: 'Check BMI using your height and weight.' },
-  { id: 'discount',   name: 'Discount Calculator',    icon: '🏷️',  cat: 'finance', desc: 'Calculate sale price and savings.' },
-  { id: 'tip',        name: 'Tip Calculator',         icon: '🍽️',  cat: 'finance', desc: 'Calculate tip and split a bill.' },
-  { id: 'ratio',      name: 'Ratio Calculator',       icon: '🔢', cat: 'math',    desc: 'Simplify and calculate ratios.' },
-  { id: 'number',     name: 'Number Converter',       icon: '🔁', cat: 'math',    desc: 'Convert numbers between common formats.' },
-  { id: 'date',       name: 'Date Difference',        icon: '📅', cat: 'utility', desc: 'Find the number of days between two dates.' },
-  { id: 'salary',     name: 'Salary Calculator',      icon: '💵', cat: 'finance', desc: 'Estimate monthly and annual salary breakdown.' },
-  { id: 'imgcompress', name: 'Image Compressor',      icon: '🗜️', cat: 'image',   desc: 'Compress images online — reduce file size while keeping quality.' },
-  { id: 'imgresize',   name: 'Image Resizer',         icon: '🖼️', cat: 'image',   desc: 'Resize images to exact dimensions or by percentage.' },
-  { id: 'imgtopdf',    name: 'Image to PDF',          icon: '📄', cat: 'image',   desc: 'Convert JPG or PNG images directly to a PDF document.' },
-  { id: 'pdfcompress', name: 'PDF Compressor',        icon: '🗜️', cat: 'utility', desc: 'Compress PDF files to reduce file size.' },
+  { id: 'age',         name: 'Age Calculator',             icon: '🎂', cat: 'utility', desc: 'Calculate your exact age from your date of birth.' },
+  { id: 'emi',         name: 'EMI Calculator',              icon: '💰', cat: 'finance', desc: 'Calculate monthly EMI, interest and total payment.' },
+  { id: 'percentage',  name: 'Percentage Calculator',       icon: '％', cat: 'math',    desc: 'Find percentage, increase and decrease quickly.' },
+  { id: 'gst',         name: 'GST Calculator',              icon: '🧾', cat: 'finance', desc: 'Add or remove GST from any amount.' },
+  { id: 'unit',        name: 'Unit Converter',              icon: '📏', cat: 'utility', desc: 'Convert length, weight and temperature.' },
+  { id: 'bmi',         name: 'BMI Calculator',              icon: '⚖️',  cat: 'utility', desc: 'Check BMI using your height and weight.' },
+  { id: 'discount',    name: 'Discount Calculator',         icon: '🏷️',  cat: 'finance', desc: 'Calculate sale price and savings.' },
+  { id: 'tip',         name: 'Tip Calculator',              icon: '🍽️',  cat: 'finance', desc: 'Calculate tip and split a bill.' },
+  { id: 'ratio',       name: 'Ratio Calculator',            icon: '🔢', cat: 'math',    desc: 'Simplify and calculate ratios.' },
+  { id: 'number',      name: 'Number Converter',            icon: '🔁', cat: 'math',    desc: 'Convert numbers between common formats.' },
+  { id: 'date',        name: 'Date Difference',             icon: '📅', cat: 'utility', desc: 'Find the number of days between two dates.' },
+  { id: 'salary',      name: 'Salary Calculator',           icon: '💵', cat: 'finance', desc: 'Estimate monthly and annual salary breakdown.' },
+  { id: 'pdfmerge',    name: 'PDF Merger',                  icon: '📑', cat: 'pdf',     desc: 'Merge multiple PDF files in your preferred order.' },
+  { id: 'imgcompress', name: 'Image Compressor',           icon: '🗜️', cat: 'image',   desc: 'Compress JPG, PNG & WebP images with custom quality & before/after preview.' },
+  { id: 'photoresize', name: 'Photo & Signature Resizer',   icon: '✍️', cat: 'image',   desc: 'Resize photos & signatures to exact px dimensions or target KB file size.' },
+  { id: 'imgresize',   name: 'Image Resizer',              icon: '🖼️', cat: 'image',   desc: 'Resize images to exact dimensions or by percentage.' },
+  { id: 'imgtopdf',    name: 'Image to PDF Converter',      icon: '📄', cat: 'pdf',     desc: 'Convert multiple images into a PDF with A4/Letter size & margins.' },
+  { id: 'pdfcompress', name: 'PDF Compressor',             icon: '🗜️', cat: 'pdf',     desc: 'Compress PDF files directly in your browser.' },
+  { id: 'qrcode',      name: 'QR Code Generator',          icon: '📱', cat: 'utility', desc: 'Generate custom QR codes for URLs, text, Wi-Fi & email.' },
 ];
 
 /* ─────────────────────────────────────────
@@ -616,41 +620,48 @@ function buildForm(id) {
         <div id="res" class="result hidden"></div>
       </div>`,
 
-    imgtopdf: `
-      <h2>📄 Image to PDF</h2>
-      <p>Convert JPG or PNG images into a PDF document instantly.</p>
+    /* Tool 1: PDF Merger */
+    pdfmerge: `
+      <h2>📑 PDF Merger</h2>
+      <p>Combine multiple PDF documents into a single organized file. Works 100% locally in your browser.</p>
       <div class="form">
         <div
-          id="i2p-drop"
+          id="pm-drop"
           class="img-drop-zone"
           role="button"
           tabindex="0"
-          aria-label="Drop image here or click to select"
-          onclick="document.getElementById('i2p-file').value=''; document.getElementById('i2p-file').click()"
-          onkeydown="if(event.key==='Enter'||event.key===' '){document.getElementById('i2p-file').value='';document.getElementById('i2p-file').click()}"
+          aria-label="Drop PDF files here or click to select"
+          onclick="document.getElementById('pm-file').value=''; document.getElementById('pm-file').click()"
+          onkeydown="if(event.key==='Enter'||event.key===' '){document.getElementById('pm-file').value='';document.getElementById('pm-file').click()}"
           ondragover="event.preventDefault();this.classList.add('drag-over')"
           ondragleave="this.classList.remove('drag-over')"
-          ondrop="i2pHandleDrop(event)"
+          ondrop="pmHandleDrop(event)"
         >
-          <div class="drop-icon" aria-hidden="true">📂</div>
-          <p>Drag &amp; drop an image here<br><small>or click to browse</small></p>
-          <p class="drop-formats">Supports JPEG, PNG</p>
+          <div class="drop-icon" aria-hidden="true">📑</div>
+          <p>Drag &amp; drop PDF files here<br><small>or click to select multiple files</small></p>
+          <p class="drop-formats">Select 2 or more PDF documents</p>
         </div>
-        <input id="i2p-file" type="file" accept="image/jpeg, image/png" class="sr-only" aria-hidden="true" onchange="i2pLoadFile(this.files[0])"/>
-        <div id="i2p-preview-wrap" class="img-preview-wrap hidden">
-          <div class="img-preview-panel" style="margin: 0 auto;">
-            <div class="img-preview-label">Preview</div>
-            <img id="i2p-orig-img" alt="Image preview" />
-            <div id="i2p-orig-info" class="img-info"></div>
+        <input id="pm-file" type="file" accept="application/pdf" multiple class="sr-only" aria-hidden="true" onchange="pmAddFiles(this.files)"/>
+        
+        <div id="pm-controls" class="hidden">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+            <label style="margin:0; font-weight:700;">Files to Merge (<span id="pm-count">0</span>):</label>
+            <button class="preset-chip" type="button" onclick="document.getElementById('pm-file').click()">+ Add More PDFs</button>
           </div>
-          <button class="primary" type="button" id="i2p-download-btn" onclick="i2pConvert()">⬇ Convert & Download PDF</button>
-          <button class="secondary-btn" type="button" onclick="i2pReset()">↩ Choose Another Image</button>
+          <div id="pm-queue" class="file-queue"></div>
+          
+          <div id="pm-status" class="info-note hidden"></div>
+          <button class="primary" type="button" id="pm-merge-btn" onclick="pmMerge()">Merge PDFs</button>
+          <button class="primary" type="button" id="pm-download-btn" style="display:none;" onclick="pmDownload()">⬇ Download Merged PDF</button>
+          <button class="secondary-btn" type="button" onclick="pmReset()">↩ Clear All Files</button>
         </div>
+        <p class="info-note">🔒 <strong>Privacy note:</strong> All PDF merging is executed client-side inside your browser via WebAssembly/JS. No files are uploaded to any server.</p>
       </div>`,
 
+    /* Tool 2: Image Compressor */
     imgcompress: `
       <h2>🗜️ Image Compressor</h2>
-      <p>Reduce image file size while preserving visual quality. Works 100% in your browser — no upload to servers.</p>
+      <p>Reduce image file size while preserving visual quality. Fully processed in your browser — zero server uploads.</p>
       <div class="form">
         <div
           id="ic-drop"
@@ -666,9 +677,9 @@ function buildForm(id) {
         >
           <div class="drop-icon" aria-hidden="true">📂</div>
           <p>Drag &amp; drop an image here<br><small>or click to browse</small></p>
-          <p class="drop-formats">Supports JPEG, PNG, WebP, GIF, BMP</p>
+          <p class="drop-formats">Supports JPG, JPEG, PNG, WebP</p>
         </div>
-        <input id="ic-file" type="file" accept="image/*" class="sr-only" aria-hidden="true" onchange="icLoadFile(this.files[0])"/>
+        <input id="ic-file" type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" aria-hidden="true" onchange="icLoadFile(this.files[0])"/>
         <div id="ic-preview-wrap" class="img-preview-wrap hidden">
           <div class="img-preview-pair">
             <div class="img-preview-panel">
@@ -686,19 +697,251 @@ function buildForm(id) {
             <label for="ic-quality" class="img-slider-label">
               Quality: <span id="ic-quality-val">80</span>%
             </label>
-            <input id="ic-quality" type="range" min="1" max="100" value="80" class="img-slider" oninput="icUpdateQuality(this.value)" aria-label="Compression quality"/>
-            <div class="img-slider-ticks"><span>Low</span><span>Medium</span><span>High</span></div>
+            <input id="ic-quality" type="range" min="5" max="100" value="80" class="img-slider" oninput="icUpdateQuality(this.value)" aria-label="Compression quality"/>
+            <div class="img-slider-ticks"><span>Maximum Compression</span><span>Balanced</span><span>Highest Quality</span></div>
           </div>
           <div class="img-format-row">
             <label for="ic-format">Output format</label>
             <select id="ic-format" onchange="icCompress()" aria-label="Output image format">
-              <option value="image/jpeg">JPEG</option>
-              <option value="image/png">PNG</option>
+              <option value="image/jpeg">JPEG / JPG</option>
               <option value="image/webp">WebP</option>
+              <option value="image/png">PNG</option>
             </select>
           </div>
-          <button class="primary" type="button" id="ic-download-btn" onclick="icDownload()" style="display:none">⬇ Download Compressed Image</button>
+          <button class="primary" type="button" id="ic-download-btn" onclick="icDownload()">⬇ Download Compressed Image</button>
           <button class="secondary-btn" type="button" onclick="icReset()">↩ Choose Another Image</button>
+          <p class="info-note">💡 <strong>Note:</strong> Compression results vary based on image content and format. Lossless formats like PNG may have higher file sizes with photorealistic scenes.</p>
+        </div>
+      </div>`,
+
+    /* Tool 3: Photo & Signature Resizer */
+    photoresize: `
+      <h2>✍️ Photo &amp; Signature Resizer</h2>
+      <p>Resize photos and signatures to custom dimensions or target file size in KB for exam portals, jobs, and IDs.</p>
+      <div class="form">
+        <div
+          id="pr-drop"
+          class="img-drop-zone"
+          role="button"
+          tabindex="0"
+          aria-label="Drop photo or signature here or click to select"
+          onclick="document.getElementById('pr-file').value=''; document.getElementById('pr-file').click()"
+          onkeydown="if(event.key==='Enter'||event.key===' '){document.getElementById('pr-file').value='';document.getElementById('pr-file').click()}"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="prHandleDrop(event)"
+        >
+          <div class="drop-icon" aria-hidden="true">✍️</div>
+          <p>Drag &amp; drop photo or signature here<br><small>or click to browse</small></p>
+          <p class="drop-formats">Supports JPG, JPEG, PNG, WebP</p>
+        </div>
+        <input id="pr-file" type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" aria-hidden="true" onchange="prLoadFile(this.files[0])"/>
+
+        <div id="pr-controls" class="hidden">
+          <div id="pr-orig-info" class="img-orig-info"></div>
+
+          <label style="margin-top:10px;">Configurable Presets (Common Indian Exam Guidelines):</label>
+          <div class="presets-container">
+            <button class="preset-chip" type="button" onclick="prApplyPreset('passport')">Passport Photo (200x230, ~50KB)</button>
+            <button class="preset-chip" type="button" onclick="prApplyPreset('signature')">Signature (140x60, ~20KB)</button>
+            <button class="preset-chip" type="button" onclick="prApplyPreset('ssc_photo')">SSC Photo (100x120, ~40KB)</button>
+            <button class="preset-chip" type="button" onclick="prApplyPreset('upsc_photo')">UPSC Photo (350x350, ~100KB)</button>
+            <button class="preset-chip" type="button" onclick="prApplyPreset('thumb')">Thumb Impression (140x140, ~30KB)</button>
+          </div>
+          <p style="font-size:11px; color:var(--muted); margin-bottom:12px;">* Presets are configurable references; please verify official notification guidelines for your specific exam.</p>
+
+          <div class="resize-dim-row">
+            <div>
+              <label for="pr-w">Width (px)</label>
+              <input id="pr-w" type="number" min="10" placeholder="200" aria-required="true" oninput="prSyncDim('w')"/>
+            </div>
+            <div class="resize-lock" id="pr-lock-btn" onclick="prToggleLock()" title="Lock aspect ratio" aria-label="Lock aspect ratio" role="button" tabindex="0" onkeydown="if(event.key==='Enter')prToggleLock()">
+              🔒
+            </div>
+            <div>
+              <label for="pr-h">Height (px)</label>
+              <input id="pr-h" type="number" min="10" placeholder="230" aria-required="true" oninput="prSyncDim('h')"/>
+            </div>
+          </div>
+
+          <div class="tool-options-grid">
+            <div>
+              <label for="pr-max-kb">Target Max Size (KB, optional)</label>
+              <input id="pr-max-kb" type="number" min="5" max="2048" placeholder="e.g. 50" aria-label="Target file size in KB"/>
+            </div>
+            <div>
+              <label for="pr-format">Format</label>
+              <select id="pr-format">
+                <option value="image/jpeg">JPG / JPEG</option>
+                <option value="image/png">PNG</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="primary" type="button" onclick="prResize()">Generate Resized Photo/Signature</button>
+
+          <div id="pr-preview-wrap" class="img-preview-wrap hidden" style="margin-top:16px;">
+            <div class="img-preview-panel" style="margin: 0 auto; max-width: 320px; text-align: center;">
+              <div class="img-preview-label">Output Preview</div>
+              <img id="pr-out-img" alt="Resized output preview" style="max-height:180px; margin:0 auto;" />
+              <div id="pr-out-info" class="img-info" style="margin-top:8px; font-weight:600;"></div>
+            </div>
+            <button class="primary" type="button" id="pr-download-btn" onclick="prDownload()">⬇ Download File</button>
+          </div>
+          <button class="secondary-btn" type="button" onclick="prReset()" style="margin-top:8px;">↩ Choose Another File</button>
+        </div>
+      </div>`,
+
+    /* Tool 4: Image to PDF */
+    imgtopdf: `
+      <h2>📄 Image to PDF Converter</h2>
+      <p>Convert multiple images into a single clean PDF with customizable page sizes, orientations, and margins.</p>
+      <div class="form">
+        <div
+          id="i2p-drop"
+          class="img-drop-zone"
+          role="button"
+          tabindex="0"
+          aria-label="Drop images here or click to select"
+          onclick="document.getElementById('i2p-file').value=''; document.getElementById('i2p-file').click()"
+          onkeydown="if(event.key==='Enter'||event.key===' '){document.getElementById('i2p-file').value='';document.getElementById('i2p-file').click()}"
+          ondragover="event.preventDefault();this.classList.add('drag-over')"
+          ondragleave="this.classList.remove('drag-over')"
+          ondrop="i2pHandleDrop(event)"
+        >
+          <div class="drop-icon" aria-hidden="true">📂</div>
+          <p>Drag &amp; drop images here<br><small>or click to select multiple files</small></p>
+          <p class="drop-formats">Supports JPG, PNG, WebP (Add multiple images)</p>
+        </div>
+        <input id="i2p-file" type="file" accept="image/jpeg,image/png,image/webp" multiple class="sr-only" aria-hidden="true" onchange="i2pAddFiles(this.files)"/>
+
+        <div id="i2p-controls" class="hidden">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+            <label style="margin:0; font-weight:700;">Pages Queue (<span id="i2p-count">0</span> images):</label>
+            <button class="preset-chip" type="button" onclick="document.getElementById('i2p-file').click()">+ Add More Images</button>
+          </div>
+          <div id="i2p-queue" class="file-queue"></div>
+
+          <div class="tool-options-grid">
+            <div>
+              <label for="i2p-page-size">Page Size</label>
+              <select id="i2p-page-size">
+                <option value="a4" selected>A4 (210 x 297 mm)</option>
+                <option value="letter">Letter (8.5 x 11 in)</option>
+                <option value="fit">Fit to Image Size</option>
+              </select>
+            </div>
+            <div>
+              <label for="i2p-orientation">Orientation</label>
+              <select id="i2p-orientation">
+                <option value="auto" selected>Auto (Based on image)</option>
+                <option value="p">Portrait</option>
+                <option value="l">Landscape</option>
+              </select>
+            </div>
+            <div>
+              <label for="i2p-margin">Margins</label>
+              <select id="i2p-margin">
+                <option value="0">No Margin (Full Bleed)</option>
+                <option value="5">Small (5mm)</option>
+                <option value="12" selected>Standard (12mm)</option>
+              </select>
+            </div>
+          </div>
+
+          <button class="primary" type="button" id="i2p-download-btn" onclick="i2pConvert()">⬇ Convert &amp; Download PDF</button>
+          <button class="secondary-btn" type="button" onclick="i2pReset()">↩ Clear All Images</button>
+        </div>
+      </div>`,
+
+    /* Tool 5: QR Code Generator */
+    qrcode: `
+      <h2>📱 QR Code Generator</h2>
+      <p>Create high-resolution QR codes for websites, plain text, email, and Wi-Fi credentials. No internet connection needed.</p>
+      <div class="form">
+        <div class="qr-tabs" role="tablist">
+          <button class="qr-tab active" type="button" role="tab" onclick="qrSwitchType('url')" id="qr-tab-url">URL</button>
+          <button class="qr-tab" type="button" role="tab" onclick="qrSwitchType('text')" id="qr-tab-text">Text</button>
+          <button class="qr-tab" type="button" role="tab" onclick="qrSwitchType('wifi')" id="qr-tab-wifi">Wi-Fi</button>
+          <button class="qr-tab" type="button" role="tab" onclick="qrSwitchType('email')" id="qr-tab-email">Email</button>
+        </div>
+
+        <div id="qr-input-url">
+          <label for="qr-url">Website URL</label>
+          <input id="qr-url" type="url" placeholder="https://example.com" value="https://toolboxpro.in" oninput="qrGenerate()"/>
+        </div>
+
+        <div id="qr-input-text" class="hidden">
+          <label for="qr-text">Plain Text</label>
+          <textarea id="qr-text" rows="3" style="width:100%; border:1px solid var(--line); border-radius:var(--radius-sm); padding:10px; font-family:inherit; background:var(--bg); color:var(--text);" placeholder="Enter any text or note..." oninput="qrGenerate()"></textarea>
+        </div>
+
+        <div id="qr-input-wifi" class="hidden">
+          <div style="display:grid; gap:10px;">
+            <div>
+              <label for="qr-wifi-ssid">Network Name (SSID)</label>
+              <input id="qr-wifi-ssid" type="text" placeholder="MyWiFiNetwork" oninput="qrGenerate()"/>
+            </div>
+            <div>
+              <label for="qr-wifi-pass">Password</label>
+              <input id="qr-wifi-pass" type="text" placeholder="Network password" oninput="qrGenerate()"/>
+            </div>
+            <div>
+              <label for="qr-wifi-auth">Security Type</label>
+              <select id="qr-wifi-auth" onchange="qrGenerate()">
+                <option value="WPA">WPA/WPA2</option>
+                <option value="WEP">WEP</option>
+                <option value="nopass">None (Open)</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div id="qr-input-email" class="hidden">
+          <div style="display:grid; gap:10px;">
+            <div>
+              <label for="qr-email-addr">Email Address</label>
+              <input id="qr-email-addr" type="email" placeholder="contact@example.com" oninput="qrGenerate()"/>
+            </div>
+            <div>
+              <label for="qr-email-sub">Subject</label>
+              <input id="qr-email-sub" type="text" placeholder="Inquiry" oninput="qrGenerate()"/>
+            </div>
+            <div>
+              <label for="qr-email-body">Body</label>
+              <input id="qr-email-body" type="text" placeholder="Hello..." oninput="qrGenerate()"/>
+            </div>
+          </div>
+        </div>
+
+        <div class="tool-options-grid">
+          <div>
+            <label for="qr-size">Size</label>
+            <select id="qr-size" onchange="qrGenerate()">
+              <option value="160">Small (160px)</option>
+              <option value="240" selected>Medium (240px)</option>
+              <option value="360">Large (360px)</option>
+              <option value="480">Extra Large (480px)</option>
+            </select>
+          </div>
+          <div>
+            <label for="qr-ecl">Error Correction</label>
+            <select id="qr-ecl" onchange="qrGenerate()">
+              <option value="L">Level L (~7% recovery)</option>
+              <option value="M" selected>Level M (~15% recovery)</option>
+              <option value="Q">Level Q (~25% recovery)</option>
+              <option value="H">Level H (~30% recovery)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="qr-preview-container">
+          <div id="qr-output" aria-label="Generated QR Code"></div>
+        </div>
+
+        <div class="qr-download-row">
+          <button class="primary" type="button" onclick="qrDownload('png')">⬇ Download PNG</button>
+          <button class="secondary-btn" type="button" onclick="qrDownload('svg')">⬇ Download SVG</button>
         </div>
       </div>`,
 
@@ -1101,315 +1344,758 @@ function icCompress() {
   canvas.width  = _icImg.naturalWidth;
   canvas.height = _icImg.naturalHeight;
   const ctx = canvas.getContext('2d');
-  // For PNG transparency
-  if (format === 'image/png') ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  if (format === 'image/jpeg') {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+  } else {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
   ctx.drawImage(_icImg, 0, 0);
+  
   canvas.toBlob((blob) => {
+    if (!blob) {
+      showToast('⚠️ Could not generate image in this format.');
+      return;
+    }
     _icCompBlob = blob;
     const url = URL.createObjectURL(blob);
     const compImg = document.getElementById('ic-comp-img');
     if (compImg._prevUrl) URL.revokeObjectURL(compImg._prevUrl);
     compImg._prevUrl = url;
     compImg.src = url;
-    const savings = Math.max(0, ((_icOrigFile.size - blob.size) / _icOrigFile.size * 100));
+    const savings = ((_icOrigFile.size - blob.size) / _icOrigFile.size * 100);
+    const isSmaller = savings > 0;
     document.getElementById('ic-comp-info').innerHTML =
       `${_icImg.naturalWidth} × ${_icImg.naturalHeight}px — ${fmtBytes(blob.size)}
-       <span class="img-savings ${savings > 0 ? 'positive' : 'negative'}">
-         ${savings > 0 ? '↓' : '↑'} ${Math.abs(savings).toFixed(1)}% ${savings > 0 ? 'smaller' : 'larger'}
+       <span class="img-savings ${isSmaller ? 'positive' : 'negative'}">
+         ${isSmaller ? '↓ ' + savings.toFixed(1) + '% smaller' : '↑ ' + Math.abs(savings).toFixed(1) + '% larger'}
        </span>`;
-    document.getElementById('ic-download-btn').style.display = '';
+    document.getElementById('ic-download-btn').style.display = 'block';
   }, format, format === 'image/png' ? undefined : quality);
 }
 
 function icDownload() {
   if (!_icCompBlob) return;
   const format = document.getElementById('ic-format').value;
-  const ext    = format.split('/')[1];
+  let ext = 'jpg';
+  if (format === 'image/png') ext = 'png';
+  if (format === 'image/webp') ext = 'webp';
   const origName = _icOrigFile ? _icOrigFile.name.replace(/\.[^.]+$/, '') : 'image';
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(_icCompBlob);
+  const url = URL.createObjectURL(_icCompBlob);
+  a.href = url;
   a.download = `${origName}-compressed.${ext}`;
+  document.body.appendChild(a);
   a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
   showToast('✓ Image downloaded!');
 }
 
 function icReset() {
-  _icImg = null; _icOrigFile = null; _icCompBlob = null;
+  if (_icCompBlob) _icCompBlob = null;
+  const compImg = document.getElementById('ic-comp-img');
+  if (compImg && compImg._prevUrl) URL.revokeObjectURL(compImg._prevUrl);
+  _icImg = null; _icOrigFile = null;
   document.getElementById('ic-drop').classList.remove('hidden');
   document.getElementById('ic-preview-wrap').classList.add('hidden');
   document.getElementById('ic-file').value = '';
 }
 
 /* ─────────────────────────────────────────
-   Image Resizer
+   Tool 1: PDF Merger Functions
 ───────────────────────────────────────── */
-let _irImg = null;
-let _irOrigFile = null;
-let _irOutBlob = null;
-let _irLocked = true; // aspect ratio lock
-let _irMode = 'px';   // 'px' or 'pct'
+let _pmFiles = [];
+let _pmMergedBlob = null;
 
-function irHandleDrop(e) {
+function pmHandleDrop(e) {
   e.preventDefault();
-  document.getElementById('ir-drop').classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (!file) return;
-  const isImg = file.type.startsWith('image/') || (file.name && /\.(jpg|jpeg|png|webp|gif|bmp|svg)$/i.test(file.name));
-  if (!isImg) {
-    showToast('⚠️ Unsupported file type. Please use JPEG, PNG, WebP, GIF, or BMP.');
-    return;
+  document.getElementById('pm-drop').classList.remove('drag-over');
+  if (e.dataTransfer.files && e.dataTransfer.files.length) {
+    pmAddFiles(e.dataTransfer.files);
   }
-  if (file.size > MAX_IMAGE_BYTES) {
-    showToast(`⚠️ File too large (max ${MAX_IMAGE_BYTES / 1024 / 1024} MB).`);
-    return;
-  }
-  irLoadFile(file);
 }
 
-function irLoadFile(file) {
+function pmAddFiles(fileList) {
+  if (!fileList || !fileList.length) return;
+  let added = 0;
+  for (let i = 0; i < fileList.length; i++) {
+    const f = fileList[i];
+    if (f.type === 'application/pdf' || (f.name && f.name.toLowerCase().endsWith('.pdf'))) {
+      if (f.size > 50 * 1024 * 1024) {
+        showToast(`⚠️ ${f.name} exceeds max 50MB limit.`);
+        continue;
+      }
+      _pmFiles.push(f);
+      added++;
+    } else {
+      showToast(`⚠️ Skipping "${f.name}": Only PDF files are supported.`);
+    }
+  }
+  if (_pmFiles.length > 0) {
+    document.getElementById('pm-drop').classList.add('hidden');
+    document.getElementById('pm-controls').classList.remove('hidden');
+    pmRenderQueue();
+  }
+  document.getElementById('pm-file').value = '';
+}
+
+function pmRenderQueue() {
+  const container = document.getElementById('pm-queue');
+  const countEl = document.getElementById('pm-count');
+  countEl.textContent = _pmFiles.length;
+
+  if (_pmFiles.length === 0) {
+    pmReset();
+    return;
+  }
+
+  container.innerHTML = _pmFiles.map((file, idx) => `
+    <div class="file-item" data-idx="${idx}">
+      <div class="file-item-left">
+        <span class="file-item-num">${idx + 1}</span>
+        <div class="file-item-info">
+          <span class="file-item-name" title="${escapeHtml(file.name)}">${escapeHtml(file.name)}</span>
+          <span class="file-item-size">${fmtBytes(file.size)}</span>
+        </div>
+      </div>
+      <div class="file-item-actions">
+        <button class="btn-mini" type="button" onclick="pmMoveFile(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} title="Move up" aria-label="Move file up">▲</button>
+        <button class="btn-mini" type="button" onclick="pmMoveFile(${idx}, 1)" ${idx === _pmFiles.length - 1 ? 'disabled' : ''} title="Move down" aria-label="Move file down">▼</button>
+        <button class="btn-mini danger" type="button" onclick="pmRemoveFile(${idx})" title="Remove file" aria-label="Remove file">✕</button>
+      </div>
+    </div>
+  `).join('');
+
+  document.getElementById('pm-merge-btn').style.display = 'block';
+  document.getElementById('pm-download-btn').style.display = 'none';
+  const statusEl = document.getElementById('pm-status');
+  statusEl.classList.add('hidden');
+  statusEl.textContent = '';
+}
+
+function pmMoveFile(idx, dir) {
+  const target = idx + dir;
+  if (target < 0 || target >= _pmFiles.length) return;
+  const temp = _pmFiles[idx];
+  _pmFiles[idx] = _pmFiles[target];
+  _pmFiles[target] = temp;
+  pmRenderQueue();
+}
+
+function pmRemoveFile(idx) {
+  _pmFiles.splice(idx, 1);
+  pmRenderQueue();
+}
+
+async function pmMerge() {
+  if (_pmFiles.length < 2) {
+    showToast('⚠️ Please upload at least 2 PDF files to merge.');
+    return;
+  }
+  const btn = document.getElementById('pm-merge-btn');
+  const statusEl = document.getElementById('pm-status');
+  btn.disabled = true;
+  btn.textContent = '⏳ Merging PDFs in browser...';
+  statusEl.classList.remove('hidden');
+  statusEl.textContent = 'Initializing PDF-Lib engine...';
+
+  try {
+    if (!window.PDFLib) {
+      statusEl.textContent = 'Loading local PDF-Lib library...';
+      await new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'pdf-lib.min.js';
+        s.onload = resolve;
+        s.onerror = () => reject(new Error('Failed to load PDF-Lib'));
+        document.head.appendChild(s);
+      });
+    }
+
+    const { PDFDocument } = window.PDFLib;
+    const mergedDoc = await PDFDocument.create();
+
+    for (let i = 0; i < _pmFiles.length; i++) {
+      const file = _pmFiles[i];
+      statusEl.textContent = `Processing file ${i + 1} of ${_pmFiles.length}: "${file.name}"...`;
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await PDFDocument.load(arrayBuffer, { ignoreEncryption: true });
+      const copiedPages = await mergedDoc.copyPages(pdf, pdf.getPageIndices());
+      copiedPages.forEach((page) => mergedDoc.addPage(page));
+    }
+
+    statusEl.textContent = 'Generating final merged PDF...';
+    const mergedBytes = await mergedDoc.save({ useObjectStreams: true });
+    _pmMergedBlob = new Blob([mergedBytes], { type: 'application/pdf' });
+
+    btn.style.display = 'none';
+    btn.disabled = false;
+    btn.textContent = 'Merge PDFs';
+    document.getElementById('pm-download-btn').style.display = 'block';
+    statusEl.textContent = `✓ Successfully merged ${_pmFiles.length} files (${fmtBytes(_pmMergedBlob.size)})! Ready to download.`;
+    showToast('✓ PDF merged successfully!');
+  } catch (err) {
+    console.error('PDF Merge Error:', err);
+    btn.disabled = false;
+    btn.textContent = 'Merge PDFs';
+    statusEl.textContent = `⚠️ Error merging PDFs: ${err.message || 'Check if any PDF is password-protected.'}`;
+    showToast('⚠️ Failed to merge PDFs.');
+  }
+}
+
+function pmDownload() {
+  if (!_pmMergedBlob) return;
+  const a = document.createElement('a');
+  const url = URL.createObjectURL(_pmMergedBlob);
+  a.href = url;
+  a.download = `merged-document-${Date.now()}.pdf`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+  showToast('✓ Merged PDF downloaded!');
+}
+
+function pmReset() {
+  _pmFiles = [];
+  _pmMergedBlob = null;
+  document.getElementById('pm-drop').classList.remove('hidden');
+  document.getElementById('pm-controls').classList.add('hidden');
+  document.getElementById('pm-file').value = '';
+}
+
+/* ─────────────────────────────────────────
+   Tool 3: Photo & Signature Resizer
+───────────────────────────────────────── */
+let _prImg = null;
+let _prOrigFile = null;
+let _prOutBlob = null;
+let _prLocked = true;
+
+function prHandleDrop(e) {
+  e.preventDefault();
+  document.getElementById('pr-drop').classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
   if (!file) return;
-  const isImg = file.type.startsWith('image/') || (file.name && /\.(jpg|jpeg|png|webp|gif|bmp|svg)$/i.test(file.name));
-  if (!isImg) {
-    showToast('⚠️ Unsupported file type.');
+  if (!file.type.startsWith('image/')) {
+    showToast('⚠️ Please upload an image file (JPG, PNG, WebP).');
+    return;
+  }
+  prLoadFile(file);
+}
+
+function prLoadFile(file) {
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    showToast('⚠️ Please select a valid photo or signature image.');
     return;
   }
   if (file.size > MAX_IMAGE_BYTES) {
     showToast(`⚠️ File too large (max ${MAX_IMAGE_BYTES / 1024 / 1024} MB).`);
     return;
   }
-  _irOrigFile = file;
+  _prOrigFile = file;
   const reader = new FileReader();
   reader.onload = (e) => {
     const img = new Image();
     img.onload = () => {
-      _irImg = img;
-      document.getElementById('ir-drop').classList.add('hidden');
-      document.getElementById('ir-controls').classList.remove('hidden');
-      document.getElementById('ir-orig-img').src = e.target.result;
-      document.getElementById('ir-orig-info').textContent =
-        `Original: ${img.naturalWidth} × ${img.naturalHeight}px — ${fmtBytes(file.size)}`;
-      document.getElementById('ir-orig-info2').textContent =
-        `${img.naturalWidth} × ${img.naturalHeight}px — ${fmtBytes(file.size)}`;
-      document.getElementById('ir-w').value = img.naturalWidth;
-      document.getElementById('ir-h').value = img.naturalHeight;
+      _prImg = img;
+      document.getElementById('pr-drop').classList.add('hidden');
+      document.getElementById('pr-controls').classList.remove('hidden');
+      document.getElementById('pr-orig-info').innerHTML =
+        `<strong>${escapeHtml(file.name)}</strong>: ${img.naturalWidth} × ${img.naturalHeight}px (${fmtBytes(file.size)})`;
+      document.getElementById('pr-w').value = img.naturalWidth;
+      document.getElementById('pr-h').value = img.naturalHeight;
+      document.getElementById('pr-preview-wrap').classList.add('hidden');
     };
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
 }
 
-function irSwitchMode(mode) {
-  _irMode = mode;
-  document.getElementById('ir-px-mode').classList.toggle('hidden', mode !== 'px');
-  document.getElementById('ir-pct-mode').classList.toggle('hidden', mode !== 'pct');
-  document.getElementById('ir-tab-px').classList.toggle('active', mode === 'px');
-  document.getElementById('ir-tab-pct').classList.toggle('active', mode === 'pct');
-  document.getElementById('ir-tab-px').setAttribute('aria-pressed', mode === 'px');
-  document.getElementById('ir-tab-pct').setAttribute('aria-pressed', mode === 'pct');
+function prToggleLock() {
+  _prLocked = !_prLocked;
+  const btn = document.getElementById('pr-lock-btn');
+  btn.textContent = _prLocked ? '🔒' : '🔓';
+  btn.title = _prLocked ? 'Lock aspect ratio' : 'Unlock aspect ratio';
 }
 
-function irToggleLock() {
-  _irLocked = !_irLocked;
-  const btn = document.getElementById('ir-lock-btn');
-  btn.textContent = _irLocked ? '🔒' : '🔓';
-  btn.title = _irLocked ? 'Lock aspect ratio' : 'Unlock aspect ratio';
-}
-
-function irSyncDim(changed) {
-  if (!_irLocked || !_irImg) return;
-  const aspect = _irImg.naturalWidth / _irImg.naturalHeight;
+function prSyncDim(changed) {
+  if (!_prLocked || !_prImg) return;
+  const aspect = _prImg.naturalWidth / _prImg.naturalHeight;
   if (changed === 'w') {
-    const w = parseFloat(document.getElementById('ir-w').value);
-    if (!isNaN(w) && w > 0) document.getElementById('ir-h').value = Math.round(w / aspect);
+    const w = parseFloat(document.getElementById('pr-w').value);
+    if (!isNaN(w) && w > 0) document.getElementById('pr-h').value = Math.round(w / aspect);
   } else {
-    const h = parseFloat(document.getElementById('ir-h').value);
-    if (!isNaN(h) && h > 0) document.getElementById('ir-w').value = Math.round(h * aspect);
+    const h = parseFloat(document.getElementById('pr-h').value);
+    if (!isNaN(h) && h > 0) document.getElementById('pr-w').value = Math.round(h * aspect);
   }
 }
 
-function irResize() {
-  safeCalc(() => {
-    if (!_irImg) throw new Error('Please load an image first.');
-    let outW, outH;
-    if (_irMode === 'pct') {
-      const pct = parseFloat(document.getElementById('ir-pct').value);
-      if (isNaN(pct) || pct <= 0) throw new Error('Please enter a valid percentage.');
-      outW = Math.round(_irImg.naturalWidth  * pct / 100);
-      outH = Math.round(_irImg.naturalHeight * pct / 100);
-    } else {
-      outW = parseInt(document.getElementById('ir-w').value, 10);
-      outH = parseInt(document.getElementById('ir-h').value, 10);
-      if (isNaN(outW) || outW <= 0) throw new Error('Please enter a valid width.');
-      if (isNaN(outH) || outH <= 0) throw new Error('Please enter a valid height.');
+function prApplyPreset(type) {
+  if (!_prImg) {
+    showToast('Please upload an image first.');
+    return;
+  }
+  _prLocked = false;
+  document.getElementById('pr-lock-btn').textContent = '🔓';
+
+  if (type === 'passport') {
+    document.getElementById('pr-w').value = 200;
+    document.getElementById('pr-h').value = 230;
+    document.getElementById('pr-max-kb').value = 50;
+  } else if (type === 'signature') {
+    document.getElementById('pr-w').value = 140;
+    document.getElementById('pr-h').value = 60;
+    document.getElementById('pr-max-kb').value = 20;
+  } else if (type === 'ssc_photo') {
+    document.getElementById('pr-w').value = 100;
+    document.getElementById('pr-h').value = 120;
+    document.getElementById('pr-max-kb').value = 40;
+  } else if (type === 'upsc_photo') {
+    document.getElementById('pr-w').value = 350;
+    document.getElementById('pr-h').value = 350;
+    document.getElementById('pr-max-kb').value = 100;
+  } else if (type === 'thumb') {
+    document.getElementById('pr-w').value = 140;
+    document.getElementById('pr-h').value = 140;
+    document.getElementById('pr-max-kb').value = 30;
+  }
+  showToast('Applied preset dimensions!');
+}
+
+async function prResize() {
+  if (!_prImg) {
+    showToast('Please upload an image first.');
+    return;
+  }
+  const w = parseInt(document.getElementById('pr-w').value, 10);
+  const h = parseInt(document.getElementById('pr-h').value, 10);
+  if (isNaN(w) || w <= 0 || isNaN(h) || h <= 0) {
+    showToast('Please enter valid positive width and height.');
+    return;
+  }
+
+  const targetKb = parseFloat(document.getElementById('pr-max-kb').value);
+  const format = document.getElementById('pr-format').value;
+
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+
+  if (format === 'image/jpeg') {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+  } else {
+    ctx.clearRect(0, 0, w, h);
+  }
+  ctx.drawImage(_prImg, 0, 0, w, h);
+
+  async function getBlobAtQuality(q) {
+    return new Promise(resolve => {
+      canvas.toBlob(b => resolve(b), format, format === 'image/png' ? undefined : q);
+    });
+  }
+
+  let finalBlob;
+  if (!isNaN(targetKb) && targetKb > 0 && format === 'image/jpeg') {
+    // Binary search for target file size
+    let minQ = 0.05, maxQ = 0.98;
+    let bestBlob = await getBlobAtQuality(minQ);
+    for (let iter = 0; iter < 6; iter++) {
+      const midQ = (minQ + maxQ) / 2;
+      const b = await getBlobAtQuality(midQ);
+      if (b.size / 1024 <= targetKb) {
+        bestBlob = b;
+        minQ = midQ; // try to get higher quality that fits
+      } else {
+        maxQ = midQ;
+      }
     }
-    const format = document.getElementById('ir-format').value;
-    const canvas = document.createElement('canvas');
-    canvas.width  = outW;
-    canvas.height = outH;
-    const ctx = canvas.getContext('2d');
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-    ctx.drawImage(_irImg, 0, 0, outW, outH);
-    canvas.toBlob((blob) => {
-      _irOutBlob = blob;
-      const url = URL.createObjectURL(blob);
-      const outImg = document.getElementById('ir-out-img');
-      if (outImg._prevUrl) URL.revokeObjectURL(outImg._prevUrl);
-      outImg._prevUrl = url;
-      outImg.src = url;
-      document.getElementById('ir-out-info').textContent =
-        `${outW} × ${outH}px — ${fmtBytes(blob.size)}`;
-      document.getElementById('ir-preview-wrap').classList.remove('hidden');
-      showToast('✓ Image resized successfully!');
-    }, format, format === 'image/jpeg' ? 0.92 : undefined);
-  });
+    finalBlob = bestBlob;
+  } else {
+    finalBlob = await getBlobAtQuality(0.92);
+  }
+
+  _prOutBlob = finalBlob;
+  const url = URL.createObjectURL(finalBlob);
+  const outImg = document.getElementById('pr-out-img');
+  if (outImg._prevUrl) URL.revokeObjectURL(outImg._prevUrl);
+  outImg._prevUrl = url;
+  outImg.src = url;
+
+  const kbSize = (finalBlob.size / 1024).toFixed(1);
+  document.getElementById('pr-out-info').textContent =
+    `Output: ${w} × ${h}px — ${kbSize} KB (${finalBlob.size} bytes)`;
+  document.getElementById('pr-preview-wrap').classList.remove('hidden');
+  showToast('✓ Photo/Signature generated!');
 }
 
-function irDownload() {
-  if (!_irOutBlob) return;
-  const format = document.getElementById('ir-format').value;
-  const ext    = format.split('/')[1];
-  const origName = _irOrigFile ? _irOrigFile.name.replace(/\.[^.]+$/, '') : 'image';
+function prDownload() {
+  if (!_prOutBlob) return;
+  const format = document.getElementById('pr-format').value;
+  const ext = format === 'image/png' ? 'png' : 'jpg';
+  const origName = _prOrigFile ? _prOrigFile.name.replace(/\.[^.]+$/, '') : 'photo';
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(_irOutBlob);
-  a.download = `${origName}-resized.${ext}`;
+  const url = URL.createObjectURL(_prOutBlob);
+  a.href = url;
+  a.download = `${origName}-${document.getElementById('pr-w').value}x${document.getElementById('pr-h').value}.${ext}`;
+  document.body.appendChild(a);
   a.click();
-  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
-  showToast('✓ Image downloaded!');
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+  showToast('✓ Download complete!');
 }
 
-function irReset() {
-  _irImg = null; _irOrigFile = null; _irOutBlob = null;
-  _irLocked = true; _irMode = 'px';
-  document.getElementById('ir-drop').classList.remove('hidden');
-  document.getElementById('ir-controls').classList.add('hidden');
-  document.getElementById('ir-preview-wrap').classList.add('hidden');
-  document.getElementById('ir-file').value = '';
+function prReset() {
+  _prImg = null;
+  _prOrigFile = null;
+  _prOutBlob = null;
+  const outImg = document.getElementById('pr-out-img');
+  if (outImg && outImg._prevUrl) URL.revokeObjectURL(outImg._prevUrl);
+  document.getElementById('pr-drop').classList.remove('hidden');
+  document.getElementById('pr-controls').classList.add('hidden');
+  document.getElementById('pr-file').value = '';
 }
 
 /* ─────────────────────────────────────────
-   Image to PDF
+   Tool 4: Multi-Image to PDF Converter
 ───────────────────────────────────────── */
-let _i2pImg = null;
-let _i2pOrigFile = null;
+let _i2pFiles = [];
 
 function i2pHandleDrop(e) {
   e.preventDefault();
   document.getElementById('i2p-drop').classList.remove('drag-over');
-  const file = e.dataTransfer.files[0];
-  if (!file) return;
-  const isJpgPng = (file.type === 'image/jpeg' || file.type === 'image/png') || (file.name && /\.(jpg|jpeg|png)$/i.test(file.name));
-  if (!isJpgPng) {
-    showToast('⚠️ Unsupported file type. Please use JPEG or PNG.');
-    return;
+  if (e.dataTransfer.files && e.dataTransfer.files.length) {
+    i2pAddFiles(e.dataTransfer.files);
   }
-  if (file.size > MAX_IMAGE_BYTES) {
-    showToast(`⚠️ File too large (max ${MAX_IMAGE_BYTES / 1024 / 1024} MB).`);
-    return;
-  }
-  i2pLoadFile(file);
 }
 
-function i2pLoadFile(file) {
-  if (!file) return;
-  const isJpgPng = (file.type === 'image/jpeg' || file.type === 'image/png') || (file.name && /\.(jpg|jpeg|png)$/i.test(file.name));
-  if (!isJpgPng) {
-    showToast('⚠️ Unsupported file type.');
-    return;
+function i2pAddFiles(fileList) {
+  if (!fileList || !fileList.length) return;
+  for (let i = 0; i < fileList.length; i++) {
+    const f = fileList[i];
+    if (f.type.startsWith('image/')) {
+      _i2pFiles.push({ file: f, url: URL.createObjectURL(f) });
+    } else {
+      showToast(`Skipped non-image file "${f.name}".`);
+    }
   }
-  if (file.size > MAX_IMAGE_BYTES) {
-    showToast(`⚠️ File too large (max ${MAX_IMAGE_BYTES / 1024 / 1024} MB).`);
-    return;
+  if (_i2pFiles.length > 0) {
+    document.getElementById('i2p-drop').classList.add('hidden');
+    document.getElementById('i2p-controls').classList.remove('hidden');
+    i2pRenderQueue();
   }
-  _i2pOrigFile = file;
-  const reader = new FileReader();
-  reader.onload = (e) => {
-    const img = new Image();
-    img.onload = () => {
-      _i2pImg = img;
-      document.getElementById('i2p-drop').classList.add('hidden');
-      document.getElementById('i2p-preview-wrap').classList.remove('hidden');
-      document.getElementById('i2p-orig-img').src = e.target.result;
-      document.getElementById('i2p-orig-info').textContent =
-        `${img.naturalWidth} × ${img.naturalHeight}px — ${fmtBytes(file.size)}`;
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
+  document.getElementById('i2p-file').value = '';
 }
 
-function i2pConvert() {
-  if (!_i2pImg || !window.jspdf) {
-    if (!window.jspdf) showToast('⚠️ PDF library is still loading. Please try again in a moment.');
+function i2pRenderQueue() {
+  const container = document.getElementById('i2p-queue');
+  document.getElementById('i2p-count').textContent = _i2pFiles.length;
+
+  if (_i2pFiles.length === 0) {
+    i2pReset();
     return;
   }
+
+  container.innerHTML = _i2pFiles.map((item, idx) => `
+    <div class="file-item">
+      <div class="file-item-left">
+        <span class="file-item-num">${idx + 1}</span>
+        <img src="${item.url}" alt="" style="width:32px; height:32px; object-fit:cover; border-radius:4px; border:1px solid var(--line);" />
+        <div class="file-item-info">
+          <span class="file-item-name" title="${escapeHtml(item.file.name)}">${escapeHtml(item.file.name)}</span>
+          <span class="file-item-size">${fmtBytes(item.file.size)}</span>
+        </div>
+      </div>
+      <div class="file-item-actions">
+        <button class="btn-mini" type="button" onclick="i2pMove(${idx}, -1)" ${idx === 0 ? 'disabled' : ''} title="Move up" aria-label="Move page up">▲</button>
+        <button class="btn-mini" type="button" onclick="i2pMove(${idx}, 1)" ${idx === _i2pFiles.length - 1 ? 'disabled' : ''} title="Move down" aria-label="Move page down">▼</button>
+        <button class="btn-mini danger" type="button" onclick="i2pRemove(${idx})" title="Remove page" aria-label="Remove page">✕</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function i2pMove(idx, dir) {
+  const target = idx + dir;
+  if (target < 0 || target >= _i2pFiles.length) return;
+  const temp = _i2pFiles[idx];
+  _i2pFiles[idx] = _i2pFiles[target];
+  _i2pFiles[target] = temp;
+  i2pRenderQueue();
+}
+
+function i2pRemove(idx) {
+  URL.revokeObjectURL(_i2pFiles[idx].url);
+  _i2pFiles.splice(idx, 1);
+  i2pRenderQueue();
+}
+
+async function i2pConvert() {
+  if (!_i2pFiles.length) {
+    showToast('Please upload at least one image.');
+    return;
+  }
+  const btn = document.getElementById('i2p-download-btn');
+  btn.disabled = true;
+  btn.textContent = '⏳ Generating PDF...';
+
   try {
+    if (!window.jspdf) {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'jspdf.umd.min.js';
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+
     const { jsPDF } = window.jspdf;
-    
-    // A4 size in mm
-    const a4w = 210;
-    const a4h = 297;
-    
-    // Calculate aspect ratio
-    const imgRatio = _i2pImg.naturalWidth / _i2pImg.naturalHeight;
-    const a4Ratio = a4w / a4h;
-    
-    let pdfW, pdfH;
-    let orient = 'p'; // portrait
-    
-    // Auto-rotate if image is landscape
-    if (imgRatio > 1) {
-      orient = 'l'; // landscape
-      pdfW = a4h; // 297
-      pdfH = a4w; // 210
-    } else {
-      pdfW = a4w;
-      pdfH = a4h;
+    const pageSizeOpt = document.getElementById('i2p-page-size').value; // 'a4', 'letter', 'fit'
+    const orientOpt = document.getElementById('i2p-orientation').value;  // 'auto', 'p', 'l'
+    const marginMm = parseFloat(document.getElementById('i2p-margin').value) || 0;
+
+    let doc = null;
+
+    for (let i = 0; i < _i2pFiles.length; i++) {
+      const item = _i2pFiles[i];
+      const img = await new Promise((resolve, reject) => {
+        const image = new Image();
+        image.onload = () => resolve(image);
+        image.onerror = reject;
+        image.src = item.url;
+      });
+
+      const imgAspect = img.naturalWidth / img.naturalHeight;
+      let pageW, pageH, orient;
+
+      if (pageSizeOpt === 'fit') {
+        // Convert px to mm at ~72dpi
+        pageW = Math.max(50, img.naturalWidth * 0.264583 + marginMm * 2);
+        pageH = Math.max(50, img.naturalHeight * 0.264583 + marginMm * 2);
+        orient = pageW >= pageH ? 'l' : 'p';
+      } else {
+        const baseDims = pageSizeOpt === 'letter' ? [215.9, 279.4] : [210, 297]; // [W, H]
+        if (orientOpt === 'auto') {
+          orient = imgAspect > 1 ? 'l' : 'p';
+        } else {
+          orient = orientOpt;
+        }
+        pageW = orient === 'l' ? baseDims[1] : baseDims[0];
+        pageH = orient === 'l' ? baseDims[0] : baseDims[1];
+      }
+
+      if (i === 0) {
+        doc = new jsPDF({
+          orientation: orient,
+          unit: 'mm',
+          format: pageSizeOpt === 'fit' ? [pageW, pageH] : (pageSizeOpt === 'letter' ? 'letter' : 'a4')
+        });
+      } else {
+        doc.addPage(pageSizeOpt === 'fit' ? [pageW, pageH] : (pageSizeOpt === 'letter' ? 'letter' : 'a4'), orient);
+      }
+
+      // Calculate fit inside page margins
+      const availW = Math.max(10, pageW - marginMm * 2);
+      const availH = Math.max(10, pageH - marginMm * 2);
+      let renderW = availW;
+      let renderH = availH;
+
+      if (imgAspect > (availW / availH)) {
+        renderH = renderW / imgAspect;
+      } else {
+        renderW = renderH * imgAspect;
+      }
+
+      const x = marginMm + (availW - renderW) / 2;
+      const y = marginMm + (availH - renderH) / 2;
+
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth;
+      canvas.height = img.naturalHeight;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(img, 0, 0);
+      const imgData = canvas.toDataURL('image/jpeg', 0.92);
+
+      doc.addImage(imgData, 'JPEG', x, y, renderW, renderH);
     }
-    
-    const doc = new jsPDF({
-      orientation: orient,
-      unit: 'mm',
-      format: 'a4'
-    });
-    
-    let renderW = pdfW;
-    let renderH = pdfH;
-    let renderRatio = renderW / renderH;
-    
-    if (imgRatio > renderRatio) {
-      renderH = renderW / imgRatio;
-    } else {
-      renderW = renderH * imgRatio;
-    }
-    
-    const x = (pdfW - renderW) / 2;
-    const y = (pdfH - renderH) / 2;
-    
-    const canvas = document.createElement('canvas');
-    canvas.width = _i2pImg.naturalWidth;
-    canvas.height = _i2pImg.naturalHeight;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(_i2pImg, 0, 0);
-    const imgData = canvas.toDataURL('image/jpeg', 0.95);
-    
-    doc.addImage(imgData, 'JPEG', x, y, renderW, renderH);
-    
-    const origName = _i2pOrigFile ? _i2pOrigFile.name.replace(/\.[^.]+$/, '') : 'image';
-    doc.save(`${origName}.pdf`);
-    showToast('✓ PDF downloaded!');
+
+    doc.save(`images-${Date.now()}.pdf`);
+    showToast('✓ PDF converted & downloaded!');
   } catch (err) {
-    showToast('⚠️ Error converting to PDF.');
-    console.error(err);
+    console.error('Image to PDF error:', err);
+    showToast('⚠️ Error creating PDF: ' + err.message);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '⬇ Convert & Download PDF';
   }
 }
 
 function i2pReset() {
-  _i2pImg = null; _i2pOrigFile = null;
+  _i2pFiles.forEach(item => URL.revokeObjectURL(item.url));
+  _i2pFiles = [];
   document.getElementById('i2p-drop').classList.remove('hidden');
-  document.getElementById('i2p-preview-wrap').classList.add('hidden');
+  document.getElementById('i2p-controls').classList.add('hidden');
   document.getElementById('i2p-file').value = '';
+}
+
+/* ─────────────────────────────────────────
+   Tool 5: QR Code Generator
+───────────────────────────────────────── */
+let _qrType = 'url';
+let _qrCodeInstance = null;
+
+function qrSwitchType(type) {
+  _qrType = type;
+  ['url', 'text', 'wifi', 'email'].forEach(t => {
+    document.getElementById(`qr-input-${t}`).classList.toggle('hidden', t !== type);
+    const tab = document.getElementById(`qr-tab-${t}`);
+    if (tab) tab.classList.toggle('active', t === type);
+  });
+  qrGenerate();
+}
+
+function qrGetPayload() {
+  if (_qrType === 'url') {
+    return document.getElementById('qr-url').value.trim();
+  }
+  if (_qrType === 'text') {
+    return document.getElementById('qr-text').value.trim();
+  }
+  if (_qrType === 'wifi') {
+    const ssid = document.getElementById('qr-wifi-ssid').value.trim();
+    const pass = document.getElementById('qr-wifi-pass').value.trim();
+    const auth = document.getElementById('qr-wifi-auth').value;
+    if (!ssid) return '';
+    return `WIFI:S:${ssid};T:${auth};P:${pass};;`;
+  }
+  if (_qrType === 'email') {
+    const addr = document.getElementById('qr-email-addr').value.trim();
+    const sub = document.getElementById('qr-email-sub').value.trim();
+    const body = document.getElementById('qr-email-body').value.trim();
+    if (!addr) return '';
+    return `mailto:${addr}?subject=${encodeURIComponent(sub)}&body=${encodeURIComponent(body)}`;
+  }
+  return '';
+}
+
+async function qrGenerate() {
+  const container = document.getElementById('qr-output');
+  if (!container) return;
+  const payload = qrGetPayload();
+
+  if (!payload) {
+    container.innerHTML = '<span style="color:var(--muted); font-size:13px;">Please enter content above to generate QR code.</span>';
+    return;
+  }
+
+  if (!window.QRCode) {
+    container.innerHTML = '<span style="color:var(--muted); font-size:13px;">Loading QR generator library...</span>';
+    try {
+      await new Promise((resolve, reject) => {
+        const s = document.createElement('script');
+        s.src = 'qrcode.min.js';
+        s.onload = resolve;
+        s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    } catch (_) {
+      container.innerHTML = '<span style="color:var(--danger); font-size:13px;">Failed to load QR library.</span>';
+      return;
+    }
+  }
+
+  container.innerHTML = '';
+  const size = parseInt(document.getElementById('qr-size').value, 10) || 240;
+  const eclStr = document.getElementById('qr-ecl').value;
+  const ecl = QRCode.CorrectLevel[eclStr] || QRCode.CorrectLevel.M;
+
+  try {
+    _qrCodeInstance = new QRCode(container, {
+      text: payload,
+      width: size,
+      height: size,
+      colorDark: '#0f172a',
+      colorLight: '#ffffff',
+      correctLevel: ecl,
+      useSVG: false
+    });
+  } catch (err) {
+    console.error('QR generation error:', err);
+    container.innerHTML = `<span style="color:var(--danger); font-size:12px;">Data too long for this error-correction level. Try lowering error correction.</span>`;
+  }
+}
+
+function qrDownload(format) {
+  const container = document.getElementById('qr-output');
+  if (!container) return;
+  const canvas = container.querySelector('canvas');
+  const img = container.querySelector('img');
+
+  if (format === 'png') {
+    let dataUrl;
+    if (canvas) {
+      dataUrl = canvas.toDataURL('image/png');
+    } else if (img && img.src) {
+      dataUrl = img.src;
+    }
+    if (!dataUrl) {
+      showToast('⚠️ No QR code available to download.');
+      return;
+    }
+    const a = document.createElement('a');
+    a.href = dataUrl;
+    a.download = `qrcode-${Date.now()}.png`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    showToast('✓ QR code PNG downloaded!');
+  } else if (format === 'svg') {
+    // Generate clean SVG representation from canvas pixels
+    if (!canvas) {
+      showToast('⚠️ SVG export requires rendered canvas.');
+      return;
+    }
+    const ctx = canvas.getContext('2d');
+    const width = canvas.width;
+    const height = canvas.height;
+    const imgData = ctx.getImageData(0, 0, width, height).data;
+
+    let rects = '';
+    for (let y = 0; y < height; y++) {
+      for (let x = 0; x < width; x++) {
+        const i = (y * width + x) * 4;
+        const r = imgData[i];
+        const g = imgData[i + 1];
+        const b = imgData[i + 2];
+        const a = imgData[i + 3];
+        // Dark pixels
+        if (a > 128 && (r + g + b) / 3 < 128) {
+          rects += `<rect x="${x}" y="${y}" width="1" height="1" fill="#0f172a"/>`;
+        }
+      }
+    }
+
+    const svgContent = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" width="${width}" height="${height}"><rect width="100%" height="100%" fill="#ffffff"/>${rects}</svg>`;
+    const blob = new Blob([svgContent], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `qrcode-${Date.now()}.svg`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 10000);
+    showToast('✓ QR code SVG downloaded!');
+  }
 }
 
 /* ─────────────────────────────────────────
@@ -1924,8 +2610,12 @@ const SLUG_TO_TOOL = {
   'number-converter': 'number',
   'image-compressor': 'imgcompress',
   'image-resizer': 'imgresize',
+  'photo-resizer': 'photoresize',
+  'photo-and-signature-resizer': 'photoresize',
   'image-to-pdf': 'imgtopdf',
+  'pdf-merger': 'pdfmerge',
   'pdf-compressor': 'pdfcompress',
+  'qr-code-generator': 'qrcode',
 };
 
 (function checkRoute() {

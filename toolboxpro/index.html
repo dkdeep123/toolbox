@@ -116,8 +116,11 @@
       {"@type":"ListItem","position":12,"name":"Number Converter","url":"https://toolboxpro.in/number-converter"},
       {"@type":"ListItem","position":13,"name":"Image Compressor","url":"https://toolboxpro.in/image-compressor"},
       {"@type":"ListItem","position":14,"name":"Image Resizer","url":"https://toolboxpro.in/image-resizer"},
-      {"@type":"ListItem","position":15,"name":"Image to PDF","url":"https://toolboxpro.in/image-to-pdf"},
-      {"@type":"ListItem","position":16,"name":"PDF Compressor","url":"https://toolboxpro.in/pdf-compressor"}
+      {"@type":"ListItem","position":15,"name":"Photo & Signature Resizer","url":"https://toolboxpro.in/photo-resizer"},
+      {"@type":"ListItem","position":16,"name":"Image to PDF","url":"https://toolboxpro.in/image-to-pdf"},
+      {"@type":"ListItem","position":17,"name":"PDF Merger","url":"https://toolboxpro.in/pdf-merger"},
+      {"@type":"ListItem","position":18,"name":"PDF Compressor","url":"https://toolboxpro.in/pdf-compressor"},
+      {"@type":"ListItem","position":19,"name":"QR Code Generator","url":"https://toolboxpro.in/qr-code-generator"}
     ]
   }
   </script>
@@ -207,6 +210,7 @@
       <button class="chip" data-cat="math" aria-pressed="false" type="button">Math</button>
       <button class="chip" data-cat="utility" aria-pressed="false" type="button">Utility</button>
       <button class="chip" data-cat="image" aria-pressed="false" type="button">🖼️ Image</button>
+      <button class="chip" data-cat="pdf" aria-pressed="false" type="button">📄 PDF</button>
     </div>
     <div id="grid" class="tool-grid" role="list" aria-label="Tool cards"></div>
     <div id="empty" class="empty hidden" role="status" aria-live="polite">No tools found. Try another search.</div>
@@ -230,10 +234,10 @@
         <h3>EMI Calculator</h3>
         <p>Estimate your monthly loan payment and total interest paid.</p>
       </article>
-      <article class="popular-card reveal" data-reveal="scale-up" data-id="gst" data-cat="finance" tabindex="0" role="button" aria-label="Open GST Calculator">
-        <span aria-hidden="true">🧾</span>
-        <h3>GST Calculator</h3>
-        <p>Add or remove GST from any amount instantly.</p>
+      <article class="popular-card reveal" data-reveal="scale-up" data-id="pdfmerge" data-cat="pdf" tabindex="0" role="button" aria-label="Open PDF Merger">
+        <span aria-hidden="true">📑</span>
+        <h3>PDF Merger</h3>
+        <p>Combine multiple PDF documents into a single file in seconds.</p>
       </article>
     </div>
   </section>
@@ -285,7 +289,9 @@
 <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <!-- ── Scripts ── -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="app.js?v=8" defer referrerpolicy="no-referrer"></script>
+<script src="jspdf.umd.min.js"></script>
+<script src="pdf-lib.min.js"></script>
+<script src="qrcode.min.js"></script>
+<script src="app.js?v=9" defer referrerpolicy="no-referrer"></script>
 </body>
 </html>

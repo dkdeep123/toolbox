@@ -8,16 +8,19 @@
    ─ Falls back to offline page on error
 ───────────────────────────────────────── */
 
-const CACHE_NAME = 'toolboxpro-v12';
+const CACHE_NAME = 'toolboxpro-v13';
 
 /** Trusted, explicitly-listed assets to pre-cache on install. */
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
   '/styles.css?v=9',
-  '/app.js?v=8',
+  '/app.js?v=9',
   '/logo.svg',
   '/manifest.json',
+  '/pdf-lib.min.js',
+  '/qrcode.min.js',
+  '/jspdf.umd.min.js',
 ];
 
 /**
