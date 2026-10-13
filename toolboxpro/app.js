@@ -221,9 +221,11 @@ function render() {
     (t.name + ' ' + t.desc).toLowerCase().includes(q)
   );
 
-  grid.innerHTML = list.map(t => `
+  grid.innerHTML = list.map((t, idx) => `
     <article
-      class="tool"
+      class="tool reveal"
+      data-reveal="fade-up"
+      style="transition-delay: ${(idx % 8) * 80}ms;"
       role="listitem"
       tabindex="0"
       data-id="${t.id}"
@@ -247,6 +249,11 @@ function render() {
       if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openTool(card.dataset.id); }
     });
   });
+
+  // Re-observe newly rendered cards for scroll reveal
+  if (typeof observeRevealElements === 'function') {
+    observeRevealElements(grid);
+  }
 }
 
 /* ─────────────────────────────────────────
@@ -1849,10 +1856,57 @@ function initHeroCarousel() {
 }
 
 /* ─────────────────────────────────────────
+   Scroll-Triggered Reveal Animations (Tasteskill.dev inspired)
+───────────────────────────────────────── */
+let revealObserver = null;
+
+function observeRevealElements(container = document) {
+  if (!('IntersectionObserver' in window)) {
+    // Fallback: gracefully reveal everything if IntersectionObserver is not supported
+    container.querySelectorAll('.reveal').forEach(el => el.classList.add('is-revealed'));
+    return;
+  }
+
+  if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // Reduced motion: reveal immediately without animations
+    container.querySelectorAll('.reveal').forEach(el => el.classList.add('is-revealed'));
+    return;
+  }
+
+  if (!revealObserver) {
+    revealObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('is-revealed');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      root: null,
+      rootMargin: '0px 0px -45px 0px', // Trigger cleanly as element comes into view
+      threshold: 0.08
+    });
+  }
+
+  const elements = container.querySelectorAll('.reveal:not(.is-revealed)');
+  elements.forEach(el => revealObserver.observe(el));
+}
+
+function initScrollReveal() {
+  // Stagger popular cards dynamically
+  document.querySelectorAll('.popular-grid .popular-card').forEach((card, idx) => {
+    card.style.transitionDelay = `${idx * 110}ms`;
+  });
+
+  observeRevealElements(document);
+}
+
+/* ─────────────────────────────────────────
    Init
 ───────────────────────────────────────── */
 render();
 initHeroCarousel();
+initScrollReveal();
 
 /* ── Deep Link / Route Handler ── */
 const SLUG_TO_TOOL = {

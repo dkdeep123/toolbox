@@ -1563,12 +1563,129 @@ body.dark .img-format-row select { background: var(--bg); color: var(--text); bo
 body.dark .resize-tab { background: var(--surface); }
 body.dark .resize-lock { background: var(--surface); }
 
+/* ── Scroll-Triggered Reveal System (Tasteskill.dev inspired) ── */
+:root {
+  --reveal-duration: 620ms;
+  --reveal-ease: cubic-bezier(0.16, 1, 0.3, 1); /* ultra-smooth premium easing */
+  --reveal-distance: 28px;
+}
+
+/* Base reveal state */
+.reveal {
+  opacity: 0;
+  will-change: transform, opacity;
+  transition:
+    opacity var(--reveal-duration) var(--reveal-ease),
+    transform var(--reveal-duration) var(--reveal-ease);
+}
+
+/* Reveal variants */
+.reveal[data-reveal="fade-up"],
+.reveal:not([data-reveal]) {
+  transform: translateY(var(--reveal-distance));
+}
+
+.reveal[data-reveal="fade-down"] {
+  transform: translateY(calc(-1 * var(--reveal-distance)));
+}
+
+.reveal[data-reveal="fade-left"] {
+  transform: translateX(36px);
+}
+
+.reveal[data-reveal="fade-right"] {
+  transform: translateX(-36px);
+}
+
+.reveal[data-reveal="scale-up"] {
+  transform: translateY(20px) scale(0.96);
+}
+
+.reveal[data-reveal="fade"] {
+  transform: none;
+}
+
+/* Active revealed state */
+.reveal.is-revealed {
+  opacity: 1;
+  transform: translate(0, 0) scale(1);
+}
+
+/* Hero elements specific stagger transitions */
+.hero-copy.reveal-group .reveal:nth-child(1) { transition-delay: 50ms; }
+.hero-copy.reveal-group .reveal:nth-child(2) { transition-delay: 130ms; }
+.hero-copy.reveal-group .reveal:nth-child(3) { transition-delay: 210ms; }
+.hero-copy.reveal-group .reveal:nth-child(4) { transition-delay: 290ms; }
+.hero-copy.reveal-group .reveal:nth-child(5) { transition-delay: 370ms; }
+
+/* Tool cards stagger on scroll reveal */
+.tool-grid .tool.reveal {
+  opacity: 0;
+  transform: translateY(24px) scale(0.97);
+  transition:
+    opacity 580ms var(--reveal-ease),
+    transform 580ms var(--reveal-ease),
+    box-shadow var(--transition),
+    border-color var(--transition),
+    background var(--transition);
+}
+
+.tool-grid .tool.reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+/* Ensure hover transform continues to work seamlessly after reveal */
+.tool-grid .tool.reveal.is-revealed:hover {
+  transform: translateY(-7px) scale(1);
+}
+
+/* Popular cards stagger */
+.popular-grid .popular-card.reveal {
+  opacity: 0;
+  transform: translateY(24px) scale(0.97);
+  transition:
+    opacity 580ms var(--reveal-ease),
+    transform 580ms var(--reveal-ease),
+    box-shadow var(--transition),
+    border-color var(--transition),
+    background var(--transition);
+}
+
+.popular-grid .popular-card.reveal.is-revealed {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+.popular-grid .popular-card.reveal.is-revealed:hover {
+  transform: translateY(-4px) scale(1);
+}
+
+/* Mobile optimizations for scroll reveal */
+@media (max-width: 600px) {
+  :root {
+    --reveal-duration: 480ms;
+    --reveal-distance: 18px;
+  }
+  .reveal[data-reveal="fade-left"],
+  .reveal[data-reveal="fade-right"] {
+    transform: translateY(var(--reveal-distance));
+  }
+}
+
 /* ── Reduced Motion ── */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+  .reveal,
+  .tool-grid .tool.reveal,
+  .popular-grid .popular-card.reveal {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
   }
   html { scroll-behavior: auto; }
 }

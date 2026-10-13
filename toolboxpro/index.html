@@ -73,7 +73,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap"/>
 
   <!-- ── Styles ── -->
-  <link rel="stylesheet" href="styles.css?v=7"/>
+  <link rel="stylesheet" href="styles.css?v=8"/>
 
   <!-- ── Structured Data: WebSite ── -->
   <script type="application/ld+json">
@@ -167,11 +167,11 @@
 
 <main id="main-content">
   <section class="hero" aria-label="Hero section">
-    <div class="hero-copy">
-      <div class="eyebrow" aria-hidden="true">⚡ Fast • Free • Mobile friendly</div>
-      <h1>Small tools.<br><em>Big productivity.</em></h1>
-      <p>Useful calculators and everyday online tools — simple, fast and completely free. No sign-up required.</p>
-      <div class="search-wrap" role="search">
+    <div class="hero-copy reveal-group">
+      <div class="eyebrow reveal" data-reveal="fade-up" aria-hidden="true">⚡ Fast • Free • Mobile friendly</div>
+      <h1 class="reveal" data-reveal="fade-up">Small tools.<br><em>Big productivity.</em></h1>
+      <p class="reveal" data-reveal="fade-up">Useful calculators and everyday online tools — simple, fast and completely free. No sign-up required.</p>
+      <div class="search-wrap reveal" data-reveal="fade-up" role="search">
         <span aria-hidden="true">⌕</span>
         <label for="search" class="sr-only">Search tools</label>
         <input
@@ -184,7 +184,7 @@
         />
         <kbd aria-label="Keyboard shortcut Ctrl K">⌘ K</kbd>
       </div>
-      <div class="quick" role="group" aria-label="Popular quick searches">
+      <div class="quick reveal" data-reveal="fade-up" role="group" aria-label="Popular quick searches">
         <span>Popular:</span>
         <button type="button" data-query="EMI">EMI</button>
         <button type="button" data-query="GST">GST</button>
@@ -192,27 +192,27 @@
         <button type="button" data-query="Percentage">Percentage</button>
       </div>
     </div>
-    <div class="hero-art hero-carousel-showcase" id="hero-carousel-showcase" aria-label="Tool showcase carousel" role="region">
+    <div class="hero-art hero-carousel-showcase reveal" data-reveal="fade-left" id="hero-carousel-showcase" aria-label="Tool showcase carousel" role="region">
       <!-- Carousel Cards Container along invisible semicircular trajectory -->
       <div class="carousel-cards-track" id="carousel-cards-track" role="list" aria-label="Available tools carousel"></div>
     </div>
   </section>
 
   <!-- ── Ad slot (replace with approved AdSense code) ── -->
-  <div class="ad-slot" role="complementary" aria-label="Advertisement">
+  <div class="ad-slot reveal" data-reveal="fade" role="complementary" aria-label="Advertisement">
     <span>ADVERTISEMENT</span>
     <!-- <ins class="adsbygoogle" ...></ins> -->
   </div>
 
-  <section id="tools" class="section" aria-labelledby="tools-heading">
-    <div class="section-head">
+  <section id="tools" class="section reveal-section" aria-labelledby="tools-heading">
+    <div class="section-head reveal" data-reveal="fade-up">
       <div>
         <p class="eyebrow">THE TOOLKIT</p>
         <h2 id="tools-heading">Everything you need, <span>in one place.</span></h2>
       </div>
       <span id="count" class="count" aria-live="polite" aria-atomic="true">12 tools</span>
     </div>
-    <div class="chips" role="group" aria-label="Filter by category">
+    <div class="chips reveal" data-reveal="fade-up" role="group" aria-label="Filter by category">
       <button class="chip active" data-cat="all" aria-pressed="true" type="button">All</button>
       <button class="chip" data-cat="finance" aria-pressed="false" type="button">Finance</button>
       <button class="chip" data-cat="math" aria-pressed="false" type="button">Math</button>
@@ -223,25 +223,25 @@
     <div id="empty" class="empty hidden" role="status" aria-live="polite">No tools found. Try another search.</div>
   </section>
 
-  <section id="popular" class="section popular" aria-labelledby="popular-heading">
-    <div class="section-head">
+  <section id="popular" class="section popular reveal-section" aria-labelledby="popular-heading">
+    <div class="section-head reveal" data-reveal="fade-up">
       <div>
         <p class="eyebrow">MOST USED</p>
         <h2 id="popular-heading">Popular tools</h2>
       </div>
     </div>
     <div class="popular-grid">
-      <article class="popular-card" data-id="percentage" data-cat="math" tabindex="0" role="button" aria-label="Open Percentage Calculator">
+      <article class="popular-card reveal" data-reveal="scale-up" data-id="percentage" data-cat="math" tabindex="0" role="button" aria-label="Open Percentage Calculator">
         <span aria-hidden="true">🧮</span>
         <h3>Percentage Calculator</h3>
         <p>Find percentages, increases and decreases in seconds.</p>
       </article>
-      <article class="popular-card" data-id="emi" data-cat="finance" tabindex="0" role="button" aria-label="Open EMI Calculator">
+      <article class="popular-card reveal" data-reveal="scale-up" data-id="emi" data-cat="finance" tabindex="0" role="button" aria-label="Open EMI Calculator">
         <span aria-hidden="true">💰</span>
         <h3>EMI Calculator</h3>
         <p>Estimate your monthly loan payment and total interest paid.</p>
       </article>
-      <article class="popular-card" data-id="gst" data-cat="finance" tabindex="0" role="button" aria-label="Open GST Calculator">
+      <article class="popular-card reveal" data-reveal="scale-up" data-id="gst" data-cat="finance" tabindex="0" role="button" aria-label="Open GST Calculator">
         <span aria-hidden="true">🧾</span>
         <h3>GST Calculator</h3>
         <p>Add or remove GST from any amount instantly.</p>
@@ -249,7 +249,7 @@
     </div>
   </section>
 
-  <section class="cta" aria-labelledby="cta-heading">
+  <section class="cta reveal" data-reveal="scale-up" aria-labelledby="cta-heading">
     <div>
       <p class="eyebrow">BUILT FOR EVERYDAY USE</p>
       <h2 id="cta-heading">Free tools that just work.</h2>
@@ -259,7 +259,7 @@
   </section>
 </main>
 
-<footer id="about" role="contentinfo">
+<footer id="about" class="reveal" data-reveal="fade-up" role="contentinfo">
   <div class="footer-top">
     <a class="logo" href="#" aria-label="ToolBoxPro home">
       <img class="logo-icon" src="logo.svg" alt="" width="36" height="36" aria-hidden="true"/>
@@ -297,6 +297,6 @@
 
 <!-- ── Scripts ── -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="app.js?v=6" defer referrerpolicy="no-referrer"></script>
+<script src="app.js?v=7" defer referrerpolicy="no-referrer"></script>
 </body>
 </html>
