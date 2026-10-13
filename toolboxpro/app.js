@@ -262,23 +262,171 @@ function render() {
 }
 
 /* ─────────────────────────────────────────
-   Search & Filter
+   Search & Interactive Suggestions Dropdown
 ───────────────────────────────────────── */
-if (search) {
-  search.addEventListener('input', render);
-  search.addEventListener('search', render);   // fires when native ❌ clear button is clicked
-  search.addEventListener('keyup', render);    // fallback for all browsers
+const searchDropdown = document.getElementById('search-dropdown');
+let activeDropdownIndex = -1;
+let currentMatchingTools = [];
 
-  // Open top result on Enter
-  search.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
+function escapeRegex(str) {
+  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function highlightMatch(text, query) {
+  if (!query) return escapeHtml(text);
+  const re = new RegExp(`(${escapeRegex(query)})`, 'gi');
+  return escapeHtml(text).replace(re, '<mark>$1</mark>');
+}
+
+function updateSearchDropdown() {
+  if (!searchDropdown || !search) return;
+  const q = search.value.trim().toLowerCase();
+
+  if (!q) {
+    searchDropdown.innerHTML = '';
+    searchDropdown.classList.add('hidden');
+    currentMatchingTools = [];
+    activeDropdownIndex = -1;
+    return;
+  }
+
+  currentMatchingTools = TOOLS.filter(t =>
+    (t.name + ' ' + t.desc).toLowerCase().includes(q)
+  );
+
+  activeDropdownIndex = -1;
+
+  if (currentMatchingTools.length === 0) {
+    searchDropdown.innerHTML = `
+      <div class="search-empty-state" role="status">
+        <span aria-hidden="true">🔍</span>
+        <div>No matching tools found for "<strong>${escapeHtml(q)}</strong>"</div>
+      </div>
+    `;
+    searchDropdown.classList.remove('hidden');
+    return;
+  }
+
+  searchDropdown.innerHTML = currentMatchingTools.slice(0, 7).map((tool, idx) => `
+    <div
+      class="search-item"
+      role="option"
+      tabindex="-1"
+      data-id="${tool.id}"
+      data-index="${idx}"
+      id="search-opt-${idx}"
+    >
+      <div class="search-item-icon" aria-hidden="true">${tool.icon}</div>
+      <div class="search-item-info">
+        <div class="search-item-title">${highlightMatch(tool.name, q)}</div>
+        <div class="search-item-desc">${highlightMatch(tool.desc, q)}</div>
+      </div>
+      <span class="tool-arrow" aria-hidden="true">↗</span>
+    </div>
+  `).join('');
+
+  searchDropdown.classList.remove('hidden');
+
+  searchDropdown.querySelectorAll('.search-item').forEach((item, idx) => {
+    item.addEventListener('mouseenter', () => {
+      setDropdownActiveIndex(idx);
+    });
+    item.addEventListener('click', (e) => {
       e.preventDefault();
+      closeSearchDropdown();
+      openTool(item.dataset.id);
+    });
+  });
+}
+
+function setDropdownActiveIndex(idx) {
+  activeDropdownIndex = idx;
+  const items = searchDropdown ? searchDropdown.querySelectorAll('.search-item') : [];
+  items.forEach((item, i) => {
+    const isSel = i === activeDropdownIndex;
+    item.classList.toggle('is-selected', isSel);
+    if (isSel) {
+      item.setAttribute('aria-selected', 'true');
+      search.setAttribute('aria-activedescendant', item.id);
+      item.scrollIntoView({ block: 'nearest' });
+    } else {
+      item.removeAttribute('aria-selected');
+    }
+  });
+  if (activeDropdownIndex === -1 && search) {
+    search.removeAttribute('aria-activedescendant');
+  }
+}
+
+function closeSearchDropdown() {
+  if (searchDropdown) {
+    searchDropdown.classList.add('hidden');
+    searchDropdown.innerHTML = '';
+  }
+  activeDropdownIndex = -1;
+  currentMatchingTools = [];
+  if (search) search.removeAttribute('aria-activedescendant');
+}
+
+if (search) {
+  search.addEventListener('input', () => {
+    render();
+    updateSearchDropdown();
+  });
+  search.addEventListener('search', () => {
+    render();
+    updateSearchDropdown();
+  });
+  search.addEventListener('focus', () => {
+    if (search.value.trim().length > 0) {
+      updateSearchDropdown();
+    }
+  });
+
+  search.addEventListener('keydown', e => {
+    const items = searchDropdown ? searchDropdown.querySelectorAll('.search-item') : [];
+    const count = items.length;
+
+    if (e.key === 'ArrowDown') {
+      if (count > 0) {
+        e.preventDefault();
+        const next = (activeDropdownIndex + 1) % count;
+        setDropdownActiveIndex(next);
+      }
+    } else if (e.key === 'ArrowUp') {
+      if (count > 0) {
+        e.preventDefault();
+        const prev = activeDropdownIndex <= 0 ? count - 1 : activeDropdownIndex - 1;
+        setDropdownActiveIndex(prev);
+      }
+    } else if (e.key === 'Enter') {
+      e.preventDefault();
+      if (activeDropdownIndex >= 0 && activeDropdownIndex < currentMatchingTools.length) {
+        const selected = currentMatchingTools[activeDropdownIndex];
+        closeSearchDropdown();
+        openTool(selected.id);
+        return;
+      }
       const q = search.value.toLowerCase().trim();
       const list = TOOLS.filter(t =>
         (category === 'all' || t.cat === category) &&
         (t.name + ' ' + t.desc).toLowerCase().includes(q)
       );
-      if (list.length > 0) openTool(list[0].id);
+      if (list.length > 0) {
+        closeSearchDropdown();
+        openTool(list[0].id);
+      }
+    } else if (e.key === 'Escape') {
+      if (searchDropdown && !searchDropdown.classList.contains('hidden')) {
+        e.preventDefault();
+        closeSearchDropdown();
+      }
+    }
+  });
+
+  document.addEventListener('click', e => {
+    if (!e.target.closest('.search-wrap')) {
+      closeSearchDropdown();
     }
   });
 }
