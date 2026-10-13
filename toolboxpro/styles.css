@@ -296,9 +296,53 @@ input, button, select, textarea { font: inherit; }
   align-items: center;
   justify-content: flex-end;
   user-select: none;
-  overflow: visible;
+  overflow: hidden;
   perspective: 1000px;
-  touch-action: pan-y;
+  touch-action: none;
+  overscroll-behavior: contain;
+}
+
+/* Sound mute/unmute control */
+.carousel-sound-btn {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  z-index: 40;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 99px;
+  font-size: 11.5px;
+  font-weight: 600;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: var(--muted);
+  cursor: pointer;
+  box-shadow: var(--shadow-sm);
+  transition: background var(--transition), border-color var(--transition), color var(--transition), transform 0.15s ease;
+}
+.carousel-sound-btn:hover {
+  background: #ffffff;
+  border-color: var(--accent);
+  color: var(--accent);
+  transform: scale(1.04);
+}
+.carousel-sound-btn.is-muted {
+  opacity: 0.75;
+  color: var(--muted-light);
+}
+body.dark .carousel-sound-btn {
+  background: rgba(17, 24, 39, 0.85);
+  border-color: var(--line);
+  color: var(--muted);
+}
+body.dark .carousel-sound-btn:hover {
+  background: #1e293b;
+  border-color: var(--accent);
+  color: #fff;
 }
 
 /* Cards Track Container */
@@ -310,6 +354,8 @@ input, button, select, textarea { font: inherit; }
   z-index: 2;
   pointer-events: auto;
   cursor: grab;
+  touch-action: none;
+  overscroll-behavior: contain;
 }
 
 .carousel-cards-track:active {
@@ -334,18 +380,34 @@ input, button, select, textarea { font: inherit; }
   white-space: nowrap;
   transform-origin: center center;
   will-change: transform, opacity;
-  transition: border-color var(--transition), box-shadow var(--transition), padding var(--transition);
+  transition:
+    border-color 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    padding 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   text-decoration: none;
 }
 
-/* Active Spotlight Card: Center Position on Arc */
+/* Active Spotlight Card: Center Position on Arc with Subtle Floating & Glow */
 .carousel-card.is-active {
   padding: 12px 18px;
   background: #ffffff;
   border: 1.5px solid var(--accent);
-  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.12), 0 4px 10px -2px rgba(15, 23, 42, 0.04);
+  box-shadow:
+    0 12px 32px -4px rgba(37, 99, 235, 0.28),
+    0 4px 12px -2px rgba(15, 23, 42, 0.08);
   color: var(--navy) !important;
   z-index: 30 !important;
+  animation: activeCardFloat 3.6s ease-in-out infinite alternate;
+}
+
+@keyframes activeCardFloat {
+  0% {
+    filter: drop-shadow(0 2px 6px rgba(37, 99, 235, 0.16));
+  }
+  100% {
+    filter: drop-shadow(0 8px 18px rgba(37, 99, 235, 0.32));
+  }
 }
 
 .carousel-card.is-active .card-title {
@@ -364,7 +426,12 @@ input, button, select, textarea { font: inherit; }
   justify-content: center;
   font-size: 16px;
   flex-shrink: 0;
-  transition: width 0.2s ease, height 0.2s ease, font-size 0.2s ease, background 0.2s ease;
+  transition:
+    width 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    height 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    font-size 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    background 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+    border-color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .carousel-card.is-active .card-icon-wrap {
@@ -373,7 +440,7 @@ input, button, select, textarea { font: inherit; }
   border-radius: 9px;
   font-size: 19px;
   background: var(--accent-tint);
-  border-color: rgba(37, 99, 235, 0.2);
+  border-color: rgba(37, 99, 235, 0.25);
 }
 
 .card-info {
@@ -417,26 +484,34 @@ input, button, select, textarea { font: inherit; }
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.04em;
-  padding: 3px 7px;
+  padding: 4px 8px;
   border-radius: 4px;
   background: var(--surface-subtle);
   color: var(--muted);
   border: 1px solid var(--line);
   margin-left: 6px;
   flex-shrink: 0;
+  cursor: pointer;
+  transition: background var(--transition), color var(--transition), transform 0.15s ease;
 }
 
 .carousel-card.is-active .card-badge {
   display: inline-block;
-  background: var(--accent-tint);
-  color: var(--accent);
-  border-color: rgba(37, 99, 235, 0.25);
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+}
+
+.carousel-card.is-active .card-badge:hover {
+  transform: translateY(-1px);
+  background: var(--accent-hover);
 }
 
 /* Card Hover States */
 .carousel-card:hover {
   border-color: var(--accent);
-  box-shadow: var(--shadow);
+  box-shadow: 0 8px 24px -4px rgba(37, 99, 235, 0.2), var(--shadow);
   opacity: 1 !important;
 }
 
@@ -1614,10 +1689,12 @@ body.dark .info-note { background: var(--surface-subtle); border-color: var(--li
   }
   .reveal,
   .tool-grid .tool.reveal,
-  .popular-grid .popular-card.reveal {
+  .popular-grid .popular-card.reveal,
+  .carousel-card.is-active {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
+    animation: none !important;
   }
   html { scroll-behavior: auto; }
 }

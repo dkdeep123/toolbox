@@ -2224,16 +2224,109 @@ if ('serviceWorker' in navigator) {
 }
 
 /* ─────────────────────────────────────────
-   Inverted Semicircular Rotating Tool Carousel
+   Inverted Semicircular Rotating Tool Carousel (Isolated Scroll & Mechanical Tick)
 ───────────────────────────────────────── */
 function initHeroCarousel() {
   const showcase = document.getElementById('hero-carousel-showcase');
   const cardsTrack = document.getElementById('carousel-cards-track');
+  const soundBtn = document.getElementById('carousel-sound-btn');
 
   if (!showcase || !cardsTrack) return;
 
   const totalTools = TOOLS.length;
   if (totalTools === 0) return;
+
+  // ── Web Audio API Mechanical Tick Generator ──
+  let audioCtx = null;
+  let isSoundMuted = false;
+  try {
+    isSoundMuted = localStorage.getItem('tbp-carousel-sound') === 'muted';
+  } catch (_) {}
+
+  function updateSoundBtnUI() {
+    if (!soundBtn) return;
+    const icon = soundBtn.querySelector('.sound-icon');
+    const label = soundBtn.querySelector('.sound-label');
+    if (isSoundMuted) {
+      soundBtn.classList.add('is-muted');
+      if (icon) icon.textContent = '🔇';
+      if (label) label.textContent = 'Muted';
+      soundBtn.setAttribute('aria-label', 'Unmute carousel sound');
+    } else {
+      soundBtn.classList.remove('is-muted');
+      if (icon) icon.textContent = '🔊';
+      if (label) label.textContent = 'Sound On';
+      soundBtn.setAttribute('aria-label', 'Mute carousel sound');
+    }
+  }
+  updateSoundBtnUI();
+
+  if (soundBtn) {
+    soundBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      isSoundMuted = !isSoundMuted;
+      try {
+        localStorage.setItem('tbp-carousel-sound', isSoundMuted ? 'muted' : 'active');
+      } catch (_) {}
+      updateSoundBtnUI();
+      if (!isSoundMuted) {
+        initAudio();
+        playTickSound();
+      }
+    });
+  }
+
+  function initAudio() {
+    if (!audioCtx) {
+      const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+      if (AudioContextClass) {
+        audioCtx = new AudioContextClass();
+      }
+    }
+    if (audioCtx && audioCtx.state === 'suspended') {
+      audioCtx.resume().catch(() => {});
+    }
+  }
+
+  let lastTickTime = 0;
+  function playTickSound() {
+    if (isSoundMuted) return;
+    const now = performance.now();
+    // Prevent overlapping bursts
+    if (now - lastTickTime < 70) return;
+    lastTickTime = now;
+
+    try {
+      initAudio();
+      if (!audioCtx || audioCtx.state !== 'running') return;
+
+      const t = audioCtx.currentTime;
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      const filter = audioCtx.createBiquadFilter();
+
+      osc.type = 'triangle';
+      osc.frequency.setValueAtTime(1400, t);
+      osc.frequency.exponentialRampToValueAtTime(320, t + 0.024);
+
+      filter.type = 'bandpass';
+      filter.frequency.setValueAtTime(1100, t);
+      filter.Q.setValueAtTime(2.5, t);
+
+      gain.gain.setValueAtTime(0.001, t);
+      gain.gain.linearRampToValueAtTime(0.08, t + 0.002);
+      gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.028);
+
+      osc.connect(filter);
+      filter.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      osc.start(t);
+      osc.stop(t + 0.03);
+    } catch (_) {
+      // Audio autoplay restrictions or unsupported
+    }
+  }
 
   // Build card elements from TOOLS registry
   cardsTrack.innerHTML = TOOLS.map((tool, idx) => `
@@ -2250,7 +2343,7 @@ function initHeroCarousel() {
         <strong class="card-title">${escapeHtml(tool.name)}</strong>
         <span class="card-desc">${escapeHtml(tool.desc)}</span>
       </div>
-      <span class="card-badge" aria-hidden="true">Launch ↗</span>
+      <button class="card-badge" type="button" aria-label="Launch ${escapeHtml(tool.name)}">Launch ↗</button>
     </article>
   `).join('');
 
@@ -2260,7 +2353,7 @@ function initHeroCarousel() {
   cardElements.forEach((card, idx) => {
     const toolId = card.dataset.id;
     card.addEventListener('click', (e) => {
-      if (hasDragged) return; // Prevent triggering click after drag gesture
+      if (hasDragged) return; // Prevent triggering click after gesture
       e.preventDefault();
       currentStep = idx;
       renderCarousel(currentStep);
@@ -2274,23 +2367,33 @@ function initHeroCarousel() {
         openTool(toolId);
       }
     });
+
+    const badge = card.querySelector('.card-badge');
+    if (badge) {
+      badge.addEventListener('click', (e) => {
+        if (hasDragged) return;
+        e.preventDefault();
+        e.stopPropagation();
+        openTool(toolId);
+      });
+    }
   });
 
   // Geometry state: Keep both ends pinned to the extreme right side
   let width = showcase.clientWidth || 500;
   let height = showcase.clientHeight || 520;
-  let Xc = width + 20; // Anchor center slightly past the right edge so ends hug extreme right
+  let Xc = width + 20;
   let Yc = height / 2;
   let Rx = 360;
   let Ry = 230;
-  const maxAngleRad = 78 * Math.PI / 180; // 78 degrees in radians
+  const maxAngleRad = 78 * Math.PI / 180;
 
   function updateGeometry() {
     width = showcase.clientWidth || 500;
     height = showcase.clientHeight || 520;
 
     if (width < 440) {
-      // Mobile: Keep top and bottom ends at extreme right
+      // Mobile
       Xc = width + 10;
       Yc = height / 2;
       Rx = Math.max(160, Math.min(230, width - 75));
@@ -2302,7 +2405,7 @@ function initHeroCarousel() {
       Rx = Math.max(220, Math.min(310, width - 90));
       Ry = Math.max(170, Math.min(210, height / 2 - 25));
     } else {
-      // Desktop: Curve inwards towards center-left, both ends on extreme right
+      // Desktop
       Xc = width + 25;
       Yc = height / 2;
       Rx = Math.max(280, Math.min(370, width - 100));
@@ -2312,7 +2415,6 @@ function initHeroCarousel() {
 
   updateGeometry();
 
-  // ResizeObserver or window resize
   if (window.ResizeObserver) {
     const ro = new ResizeObserver(() => {
       updateGeometry();
@@ -2326,15 +2428,25 @@ function initHeroCarousel() {
     });
   }
 
-  // Angular mapping for relative tool offsets
   function getAngleForDiff(diff) {
     const half = totalTools / 2;
-    const u = diff / half; // ranges [-1, +1]
+    const u = diff / half;
     return Math.sign(u) * Math.pow(Math.abs(u), 0.86) * maxAngleRad;
   }
 
+  let lastActiveIndex = -1;
+
   function renderCarousel(continuousPos) {
     const half = totalTools / 2;
+    const centerIndex = Math.round(continuousPos) % totalTools;
+    const normalizedCenter = centerIndex < 0 ? centerIndex + totalTools : centerIndex;
+
+    if (normalizedCenter !== lastActiveIndex) {
+      if (lastActiveIndex !== -1) {
+        playTickSound();
+      }
+      lastActiveIndex = normalizedCenter;
+    }
 
     for (let i = 0; i < totalTools; i++) {
       const card = cardElements[i];
@@ -2345,11 +2457,9 @@ function initHeroCarousel() {
       const angle = getAngleForDiff(diff);
       const absDiff = Math.abs(diff);
 
-      // Coordinates along the invisible semicircular trajectory
       const cardX = Xc - Rx * Math.cos(angle);
       const cardY = Yc + Ry * Math.sin(angle);
 
-      // Scaling: active center spotlight is larger (1.18), inactive cards taper down
       let scale;
       if (absDiff <= 1) {
         scale = 1.18 - absDiff * (1.18 - 0.84);
@@ -2357,7 +2467,6 @@ function initHeroCarousel() {
         scale = 0.84 - ((absDiff - 1) / (half - 1)) * (0.84 - 0.66);
       }
 
-      // Opacity: active card is bright (1.0), inactive cards are dimmed, ends fade cleanly
       let opacity;
       if (absDiff <= 0.6) {
         opacity = 1.0;
@@ -2390,7 +2499,7 @@ function initHeroCarousel() {
     }
   }
 
-  // Animation controller: Increased rotation speed to ~1 second per tool
+  // Animation controller
   let currentStep = 0;
   let targetStep = 0;
   let currentContinuousPos = 0;
@@ -2398,8 +2507,8 @@ function initHeroCarousel() {
   let isTransitioning = false;
   let isPaused = false;
   let timerId = null;
-  const INTERVAL_MS = 1000; // ~1 second per tool
-  const TRANSITION_MS = 500; // smooth 500ms transition between cards
+  const INTERVAL_MS = 2200;
+  const TRANSITION_MS = 400;
 
   function easeInOutCubic(t) {
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
@@ -2442,15 +2551,15 @@ function initHeroCarousel() {
     requestAnimationFrame(animationLoop);
   }
 
-  // ── Drag & Swipe Functionality ──
+  // ── Drag & Isolated Swipe Functionality ──
   let isDragging = false;
   let startY = 0;
   let startContinuousPos = 0;
   let hasDragged = false;
 
   function onPointerDown(e) {
-    // Only respond to primary mouse button or touch
     if (e.pointerType === 'mouse' && e.button !== 0) return;
+    initAudio();
     isDragging = true;
     hasDragged = false;
     isPaused = true;
@@ -2458,7 +2567,7 @@ function initHeroCarousel() {
     clearTimeout(timerId);
     startY = e.clientY;
     startContinuousPos = currentContinuousPos;
-    showcase.setPointerCapture(e.pointerId);
+    try { showcase.setPointerCapture(e.pointerId); } catch (_) {}
   }
 
   function onPointerMove(e) {
@@ -2467,7 +2576,6 @@ function initHeroCarousel() {
     if (Math.abs(deltaY) > 5) {
       hasDragged = true;
     }
-    // Mapping vertical drag distance to carousel step movement
     const stepDelta = -deltaY / 65;
     currentContinuousPos = (startContinuousPos + stepDelta) % totalTools;
     if (currentContinuousPos < 0) currentContinuousPos += totalTools;
@@ -2479,25 +2587,69 @@ function initHeroCarousel() {
     isDragging = false;
     try { showcase.releasePointerCapture(e.pointerId); } catch (_) {}
 
-    // Snap to the closest tool
     const nearestStep = Math.round(currentContinuousPos) % totalTools;
     currentStep = nearestStep < 0 ? nearestStep + totalTools : nearestStep;
     targetStep = currentStep;
     isTransitioning = true;
     transitionStart = performance.now();
 
-    // Resume rotation after a brief interaction buffer
     setTimeout(() => {
       hasDragged = false;
       isPaused = false;
       scheduleNext(INTERVAL_MS);
-    }, 150);
+    }, 180);
   }
 
   showcase.addEventListener('pointerdown', onPointerDown);
   showcase.addEventListener('pointermove', onPointerMove);
   showcase.addEventListener('pointerup', onPointerUp);
   showcase.addEventListener('pointercancel', onPointerUp);
+
+  // ── Isolated Scrolling: Wheel & Trackpad Interceptor ──
+  // ONLY the tools carousel scrolls when cursor/pointer is inside this area.
+  // The outer webpage never scrolls.
+  let wheelAccumulator = 0;
+  let wheelSnapTimer = null;
+
+  showcase.addEventListener('wheel', (e) => {
+    e.preventDefault(); // Stop outer webpage scrolling
+    e.stopPropagation();
+    initAudio();
+
+    isPaused = true;
+    isTransitioning = false;
+    clearTimeout(timerId);
+    clearTimeout(wheelSnapTimer);
+
+    const delta = e.deltaY !== undefined ? e.deltaY : e.detail;
+    wheelAccumulator += delta;
+
+    // Smooth movement mapping
+    const stepDelta = (delta / 120) * 0.45;
+    currentContinuousPos = (currentContinuousPos + stepDelta) % totalTools;
+    if (currentContinuousPos < 0) currentContinuousPos += totalTools;
+    renderCarousel(currentContinuousPos);
+
+    // Debounce snap to closest tool
+    wheelSnapTimer = setTimeout(() => {
+      const nearestStep = Math.round(currentContinuousPos) % totalTools;
+      currentStep = nearestStep < 0 ? nearestStep + totalTools : nearestStep;
+      targetStep = currentStep;
+      isTransitioning = true;
+      transitionStart = performance.now();
+      wheelAccumulator = 0;
+
+      setTimeout(() => {
+        isPaused = false;
+        scheduleNext(INTERVAL_MS);
+      }, 300);
+    }, 120);
+  }, { passive: false });
+
+  // Prevent touch gestures inside showcase from triggering page scroll
+  showcase.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+  }, { passive: false });
 
   // prefers-reduced-motion check
   const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -2509,7 +2661,7 @@ function initHeroCarousel() {
     requestAnimationFrame(animationLoop);
   }
 
-  // Pause on mouse hover, resume on mouse leave
+  // Hover and Focus pause
   showcase.addEventListener('mouseenter', () => {
     if (!isDragging) {
       isPaused = true;
@@ -2526,7 +2678,6 @@ function initHeroCarousel() {
     }
   });
 
-  // Keyboard focus: pause when focus enters, resume when focus leaves
   showcase.addEventListener('focusin', () => {
     isPaused = true;
     clearTimeout(timerId);
@@ -2537,7 +2688,6 @@ function initHeroCarousel() {
     if (!isTransitioning && !isDragging) scheduleNext();
   });
 
-  // Visibility change: save resources when tab is hidden
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
       isPaused = true;
