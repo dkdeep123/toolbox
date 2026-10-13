@@ -1523,9 +1523,313 @@ if ('serviceWorker' in navigator) {
 }
 
 /* ─────────────────────────────────────────
+   Inverted Semicircular Rotating Tool Carousel
+───────────────────────────────────────── */
+function initHeroCarousel() {
+  const showcase = document.getElementById('hero-carousel-showcase');
+  const cardsTrack = document.getElementById('carousel-cards-track');
+  const glowPath = document.getElementById('carousel-track-glow');
+  const corePath = document.getElementById('carousel-track-core');
+  const nodesGroup = document.getElementById('carousel-track-nodes');
+  const svgTrack = document.getElementById('carousel-track-svg');
+
+  if (!showcase || !cardsTrack || !glowPath || !corePath || !svgTrack) return;
+
+  const totalTools = TOOLS.length;
+  if (totalTools === 0) return;
+
+  // Build card elements from TOOLS registry
+  cardsTrack.innerHTML = TOOLS.map((tool, idx) => `
+    <article
+      class="carousel-card"
+      role="listitem"
+      tabindex="0"
+      data-id="${tool.id}"
+      data-index="${idx}"
+      aria-label="Open ${escapeHtml(tool.name)}"
+    >
+      <div class="card-icon-wrap" aria-hidden="true">${tool.icon}</div>
+      <div class="card-info">
+        <strong class="card-title">${escapeHtml(tool.name)}</strong>
+        <span class="card-desc">${escapeHtml(tool.desc)}</span>
+      </div>
+      <span class="card-badge" aria-hidden="true">Launch ↗</span>
+    </article>
+  `).join('');
+
+  const cardElements = Array.from(cardsTrack.querySelectorAll('.carousel-card'));
+
+  // Wire up card click & keyboard handlers
+  cardElements.forEach((card, idx) => {
+    const toolId = card.dataset.id;
+    card.addEventListener('click', (e) => {
+      e.preventDefault();
+      currentStep = idx;
+      renderCarousel(currentStep);
+      openTool(toolId);
+    });
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        currentStep = idx;
+        renderCarousel(currentStep);
+        openTool(toolId);
+      }
+    });
+  });
+
+  // Geometry state
+  let width = showcase.clientWidth || 500;
+  let height = showcase.clientHeight || 520;
+  let Xc = width - 30;
+  let Yc = height / 2;
+  let Rx = 340;
+  let Ry = 230;
+  const maxAngleRad = 78 * Math.PI / 180; // 78 degrees in radians
+
+  function updateGeometry() {
+    width = showcase.clientWidth || 500;
+    height = showcase.clientHeight || 520;
+
+    if (width < 420) {
+      // Mobile compact semicircle
+      Xc = width - 15;
+      Yc = height / 2;
+      Rx = Math.max(150, Math.min(220, width - 85));
+      Ry = Math.max(125, Math.min(155, height / 2 - 20));
+    } else if (width < 700) {
+      // Tablet
+      Xc = width - 25;
+      Yc = height / 2;
+      Rx = Math.max(220, Math.min(300, width - 95));
+      Ry = Math.max(165, Math.min(205, height / 2 - 25));
+    } else {
+      // Desktop
+      Xc = width - 30;
+      Yc = height / 2;
+      Rx = Math.max(280, Math.min(360, width - 110));
+      Ry = Math.max(200, Math.min(235, height / 2 - 25));
+    }
+
+    svgTrack.setAttribute('viewBox', `0 0 ${width} ${height}`);
+
+    // End points on the right side
+    const xTop = Xc - Rx * Math.cos(-maxAngleRad);
+    const yTop = Yc + Ry * Math.sin(-maxAngleRad);
+    const xBot = Xc - Rx * Math.cos(maxAngleRad);
+    const yBot = Yc + Ry * Math.sin(maxAngleRad);
+
+    // Inverted semicircle arc: curves inward to the left (toward Xc - Rx) and returns to right
+    const pathD = `M ${xTop.toFixed(1)} ${yTop.toFixed(1)} A ${Rx.toFixed(1)} ${Ry.toFixed(1)} 0 0 0 ${xBot.toFixed(1)} ${yBot.toFixed(1)}`;
+    glowPath.setAttribute('d', pathD);
+    corePath.setAttribute('d', pathD);
+
+    // Subtle glowing nodes along the arc
+    if (nodesGroup) {
+      const nodeAngles = [-72, -48, -24, 0, 24, 48, 72];
+      nodesGroup.innerHTML = nodeAngles.map(deg => {
+        const rad = deg * Math.PI / 180;
+        const nx = Xc - Rx * Math.cos(rad);
+        const ny = Yc + Ry * Math.sin(rad);
+        return `<circle class="track-node" cx="${nx.toFixed(1)}" cy="${ny.toFixed(1)}" r="3.5" />`;
+      }).join('');
+    }
+  }
+
+  updateGeometry();
+
+  // ResizeObserver or window resize
+  if (window.ResizeObserver) {
+    const ro = new ResizeObserver(() => {
+      updateGeometry();
+      renderCarousel(currentStep);
+    });
+    ro.observe(showcase);
+  } else {
+    window.addEventListener('resize', () => {
+      updateGeometry();
+      renderCarousel(currentStep);
+    });
+  }
+
+  // Angular mapping for relative tool offsets
+  function getAngleForDiff(diff) {
+    const half = totalTools / 2;
+    const u = diff / half; // ranges [-1, +1]
+    return Math.sign(u) * Math.pow(Math.abs(u), 0.86) * maxAngleRad;
+  }
+
+  function renderCarousel(continuousPos) {
+    const half = totalTools / 2;
+
+    for (let i = 0; i < totalTools; i++) {
+      const card = cardElements[i];
+      let diff = (i - continuousPos) % totalTools;
+      if (diff < -half) diff += totalTools;
+      if (diff > half) diff -= totalTools;
+
+      const angle = getAngleForDiff(diff);
+      const absDiff = Math.abs(diff);
+
+      // Coordinates along the inverted semicircular curve
+      const cardX = Xc - Rx * Math.cos(angle);
+      const cardY = Yc + Ry * Math.sin(angle);
+
+      // Scaling: active center spotlight is larger (1.18), inactive cards taper down
+      let scale;
+      if (absDiff <= 1) {
+        scale = 1.18 - absDiff * (1.18 - 0.84);
+      } else {
+        scale = 0.84 - ((absDiff - 1) / (half - 1)) * (0.84 - 0.66);
+      }
+
+      // Opacity: active card is bright, inactive cards are dimmed, wraps fade cleanly
+      let opacity;
+      if (absDiff <= 0.6) {
+        opacity = 1.0;
+      } else if (absDiff <= 2) {
+        opacity = 0.88 - (absDiff - 0.6) * 0.12;
+      } else if (absDiff <= half - 1) {
+        opacity = 0.72 - ((absDiff - 2) / (half - 3)) * 0.32;
+      } else {
+        opacity = Math.max(0, 0.40 * (1 - (absDiff - (half - 1))));
+      }
+
+      const zIndex = Math.max(1, Math.round(30 - absDiff * 3));
+      const isActive = absDiff < 0.45;
+
+      card.style.transform = `translate3d(${cardX.toFixed(1)}px, ${cardY.toFixed(1)}px, 0) translate(-50%, -50%) scale(${scale.toFixed(3)})`;
+      card.style.opacity = opacity.toFixed(3);
+      card.style.zIndex = zIndex;
+
+      if (isActive) {
+        if (!card.classList.contains('is-active')) {
+          card.classList.add('is-active');
+          card.setAttribute('aria-current', 'true');
+        }
+      } else {
+        if (card.classList.contains('is-active')) {
+          card.classList.remove('is-active');
+          card.removeAttribute('aria-current');
+        }
+      }
+    }
+  }
+
+  // Animation controller
+  let currentStep = 0;
+  let targetStep = 0;
+  let transitionStart = 0;
+  let isTransitioning = false;
+  let isPaused = false;
+  let timerId = null;
+  const INTERVAL_MS = 2200; // ~2 seconds spotlight duration
+  const TRANSITION_MS = 850; // smooth 850ms transition between cards
+
+  function easeInOutCubic(t) {
+    return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  }
+
+  function advanceStep() {
+    if (isPaused || isTransitioning) return;
+    isTransitioning = true;
+    transitionStart = performance.now();
+    targetStep = (currentStep + 1) % totalTools;
+  }
+
+  function scheduleNext() {
+    clearTimeout(timerId);
+    timerId = setTimeout(() => {
+      if (!isPaused) {
+        advanceStep();
+      }
+    }, INTERVAL_MS);
+  }
+
+  function animationLoop(timestamp) {
+    if (isTransitioning) {
+      const elapsed = timestamp - transitionStart;
+      const progress = Math.min(1, elapsed / TRANSITION_MS);
+      const eased = easeInOutCubic(progress);
+
+      const continuousPos = (currentStep + eased) % totalTools;
+      renderCarousel(continuousPos);
+
+      if (progress >= 1) {
+        isTransitioning = false;
+        currentStep = targetStep;
+        renderCarousel(currentStep);
+        scheduleNext();
+      }
+    }
+
+    requestAnimationFrame(animationLoop);
+  }
+
+  // prefers-reduced-motion check
+  const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (prefersReducedMotion) {
+    renderCarousel(0);
+  } else {
+    renderCarousel(0);
+    scheduleNext();
+    requestAnimationFrame(animationLoop);
+  }
+
+  // Pause on mouse hover, resume on mouse leave
+  showcase.addEventListener('mouseenter', () => {
+    isPaused = true;
+    clearTimeout(timerId);
+  });
+
+  showcase.addEventListener('mouseleave', () => {
+    isPaused = false;
+    if (!isTransitioning) {
+      scheduleNext();
+    }
+  });
+
+  // Touch interactions
+  showcase.addEventListener('touchstart', () => {
+    isPaused = true;
+    clearTimeout(timerId);
+  }, { passive: true });
+
+  showcase.addEventListener('touchend', () => {
+    setTimeout(() => {
+      isPaused = false;
+      if (!isTransitioning) scheduleNext();
+    }, 2000);
+  }, { passive: true });
+
+  // Keyboard focus: pause when focus enters, resume when focus leaves
+  showcase.addEventListener('focusin', () => {
+    isPaused = true;
+    clearTimeout(timerId);
+  });
+
+  showcase.addEventListener('focusout', () => {
+    isPaused = false;
+    if (!isTransitioning) scheduleNext();
+  });
+
+  // Visibility change: save resources when tab is hidden
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      isPaused = true;
+      clearTimeout(timerId);
+    } else {
+      isPaused = false;
+      if (!isTransitioning) scheduleNext();
+    }
+  });
+}
+
+/* ─────────────────────────────────────────
    Init
 ───────────────────────────────────────── */
 render();
+initHeroCarousel();
 
 /* ── Deep Link / Route Handler ── */
 const SLUG_TO_TOOL = {
