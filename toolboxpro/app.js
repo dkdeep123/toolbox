@@ -158,7 +158,7 @@ const TOOLS = [
   { id: 'emi',         name: 'EMI Calculator',              icon: '💰', cat: 'finance', desc: 'Calculate monthly EMI, interest and total payment.' },
   { id: 'percentage',  name: 'Percentage Calculator',       icon: '％', cat: 'math',    desc: 'Find percentage, increase and decrease quickly.' },
   { id: 'gst',         name: 'GST Calculator',              icon: '🧾', cat: 'finance', desc: 'Add or remove GST from any amount.' },
-  { id: 'unit',        name: 'Unit Converter',              icon: '📏', cat: 'utility', desc: 'Convert length, weight and temperature.' },
+  { id: 'unit',        name: 'Unit Converter',              icon: '📏', cat: 'utility', desc: 'Advanced scientific converter: substance, molarity, mass, length, energy, storage & laboratory units.' },
   { id: 'bmi',         name: 'BMI Calculator',              icon: '⚖️',  cat: 'utility', desc: 'Check BMI using your height and weight.' },
   { id: 'discount',    name: 'Discount Calculator',         icon: '🏷️',  cat: 'finance', desc: 'Calculate sale price and savings.' },
   { id: 'tip',         name: 'Tip Calculator',              icon: '🍽️',  cat: 'finance', desc: 'Calculate tip and split a bill.' },
@@ -369,6 +369,13 @@ function openTool(id) {
       }
     });
   });
+
+  // Specialized Tool Initialization
+  if (id === 'unit') {
+    if (typeof onUnitCatChange === 'function') {
+      onUnitCatChange();
+    }
+  }
 }
 
 function closeModal() {
@@ -573,24 +580,57 @@ function buildForm(id) {
       </div>`,
 
     unit: `
-      <h2>📏 Unit Converter</h2>
-      <div class="form">
-        <div><label for="unit_val">Value</label><input id="unit_val" type="number" placeholder="10" aria-required="true"/></div>
-        <div><label for="unit_from">From</label>
-          <select id="unit_from" aria-required="true">
-            <optgroup label="Length"><option value="m">Meters</option><option value="km">Kilometers</option><option value="ft">Feet</option><option value="in">Inches</option><option value="mi">Miles</option></optgroup>
-            <optgroup label="Weight"><option value="kg">Kilograms</option><option value="g">Grams</option><option value="lb">Pounds</option><option value="oz">Ounces</option></optgroup>
-            <optgroup label="Temperature"><option value="c">Celsius</option><option value="f">Fahrenheit</option><option value="k">Kelvin</option></optgroup>
+      <h2>🔬 Advanced Scientific Unit Converter</h2>
+      <p>Convert units across chemical, physical, laboratory, digital, health, and engineering standards.</p>
+      <div class="form unit-advanced-form">
+        <div>
+          <label for="unit_cat">Category</label>
+          <select id="unit_cat" aria-label="Select Unit Category" onchange="onUnitCatChange()">
+            <option value="substance">Amount of Substance (mol, mmol, µmol…)</option>
+            <option value="molar_conc">Molar Concentration (mol/L, mmol/L…)</option>
+            <option value="mass_conc">Mass Concentration & Laboratory (g/L, mg/dL…)</option>
+            <option value="mass">Mass & Weight (kg, g, lb, oz, stone, tonne…)</option>
+            <option value="length">Length & Distance (m, km, cm, mm, µm, nm, ft, mi, nmi…)</option>
+            <option value="area">Area (m², km², ha, acre, sq ft…)</option>
+            <option value="volume">Volume & Laboratory Capacity (m³, L, mL, µL, nL, gal…)</option>
+            <option value="temp">Temperature (Celsius, Fahrenheit, Kelvin, Rankine)</option>
+            <option value="time">Time (s, ms, µs, ns, min, hr, day)</option>
+            <option value="speed">Speed & Velocity (m/s, km/h, mph, knots, ft/s)</option>
+            <option value="pressure">Pressure (Pa, kPa, MPa, bar, atm, PSI, mmHg, torr)</option>
+            <option value="energy">Energy & Work (J, kJ, cal, kcal, Wh, kWh, eV)</option>
+            <option value="power">Power (W, kW, MW, hp)</option>
+            <option value="electricity">Electricity & Electromagnetism (V, A, Ω, C, F, H, T…)</option>
+            <option value="density">Density (kg/m³, g/cm³, g/mL)</option>
+            <option value="flow_rate">Flow Rate (L/min, mL/min, µL/min)</option>
+            <option value="molar_mass">Molar Mass (g/mol, kg/mol)</option>
+            <option value="parts_fraction">Fraction / Trace (ppm, ppb, %, ‰)</option>
+            <option value="storage_dec">Digital Storage - Decimal (B, KB, MB, GB, TB, PB)</option>
+            <option value="storage_bin">Digital Storage - Binary (B, KiB, MiB, GiB, TiB, PiB)</option>
+            <option value="frequency">Frequency (Hz, kHz, MHz, GHz)</option>
+            <option value="angle">Angle (Degree, Radian, Gradian, Arcmin, Arcsec)</option>
+            <option value="blood_glucose">Blood Glucose (mg/dL ↔ mmol/L)</option>
           </select>
         </div>
-        <div><label for="unit_to">To</label>
-          <select id="unit_to" aria-required="true">
-            <optgroup label="Length"><option value="ft">Feet</option><option value="m">Meters</option><option value="km">Kilometers</option><option value="in">Inches</option><option value="mi">Miles</option></optgroup>
-            <optgroup label="Weight"><option value="lb">Pounds</option><option value="kg">Kilograms</option><option value="g">Grams</option><option value="oz">Ounces</option></optgroup>
-            <optgroup label="Temperature"><option value="f">Fahrenheit</option><option value="c">Celsius</option><option value="k">Kelvin</option></optgroup>
-          </select>
+
+        <div>
+          <label for="unit_val">Value to Convert</label>
+          <input id="unit_val" type="number" step="any" placeholder="1" value="1" aria-required="true" oninput="calcUnit()"/>
         </div>
+
+        <div class="unit-selectors-row">
+          <div class="unit-select-col">
+            <label for="unit_from">From Unit</label>
+            <select id="unit_from" aria-required="true" onchange="calcUnit()"></select>
+          </div>
+          <button type="button" class="unit-swap-btn" onclick="swapUnits()" title="Swap From and To units" aria-label="Swap units">⇄</button>
+          <div class="unit-select-col">
+            <label for="unit_to">To Unit</label>
+            <select id="unit_to" aria-required="true" onchange="calcUnit()"></select>
+          </div>
+        </div>
+
         <button class="primary" type="button" onclick="calcUnit()">Convert</button>
+        <div id="unit-note" class="unit-note hidden"></div>
         <div id="res" class="result hidden"></div>
       </div>`,
 
@@ -1164,53 +1204,483 @@ function calcTip() {
   });
 }
 
-/* Unit conversion table — all values in SI base units */
-const UNIT_TO_SI = {
-  // Length (SI: meters)
-  m: 1, km: 1000, ft: 0.3048, 'in': 0.0254, mi: 1609.344,
-  // Weight (SI: kilograms)
-  kg: 1, g: 0.001, lb: 0.453592, oz: 0.0283495,
-  // Temperature handled separately
-  c: null, f: null, k: null,
+/* ─────────────────────────────────────────
+   Advanced Scientific Unit Converter
+   Categories: Substance, Molar/Mass Concentration,
+   Mass, Length, Area, Volume, Temp, Time, Speed,
+   Pressure, Energy, Power, Electricity, Density,
+   Flow Rate, Molar Mass, Trace/Fraction, Digital Storage,
+   Frequency, Angles, and Health (Glucose).
+───────────────────────────────────────── */
+const SCIENTIFIC_UNITS = {
+  substance: {
+    name: 'Amount of Substance',
+    base: 'mol',
+    units: {
+      kmol: { name: 'Kilomole (kmol)', factor: 1e3, symbol: 'kmol' },
+      mol:  { name: 'Mole (mol)', factor: 1, symbol: 'mol' },
+      mmol: { name: 'Millimole (mmol)', factor: 1e-3, symbol: 'mmol' },
+      umol: { name: 'Micromole (µmol)', factor: 1e-6, symbol: 'µmol' },
+      nmol: { name: 'Nanomole (nmol)', factor: 1e-9, symbol: 'nmol' },
+      pmol: { name: 'Picomole (pmol)', factor: 1e-12, symbol: 'pmol' }
+    },
+    defaultFrom: 'mol',
+    defaultTo: 'mmol'
+  },
+  molar_conc: {
+    name: 'Molar Concentration',
+    base: 'mol_L',
+    note: 'Concentration of solute per unit volume of solution.',
+    units: {
+      mol_L:  { name: 'Mole per litre (mol/L or M)', factor: 1, symbol: 'mol/L' },
+      mmol_L: { name: 'Millimole per litre (mmol/L or mM)', factor: 1e-3, symbol: 'mmol/L' },
+      umol_L: { name: 'Micromole per litre (µmol/L or µM)', factor: 1e-6, symbol: 'µmol/L' },
+      nmol_L: { name: 'Nanomole per litre (nmol/L or nM)', factor: 1e-9, symbol: 'nmol/L' },
+      mol_m3: { name: 'Mole per cubic metre (mol/m³ = mmol/L)', factor: 1e-3, symbol: 'mol/m³' }
+    },
+    defaultFrom: 'mol_L',
+    defaultTo: 'mmol_L'
+  },
+  mass_conc: {
+    name: 'Mass Concentration & Laboratory',
+    base: 'g_L',
+    units: {
+      g_L:   { name: 'Gram per litre (g/L)', factor: 1, symbol: 'g/L' },
+      mg_L:  { name: 'Milligram per litre (mg/L)', factor: 1e-3, symbol: 'mg/L' },
+      ug_L:  { name: 'Microgram per litre (µg/L)', factor: 1e-6, symbol: 'µg/L' },
+      mg_mL: { name: 'Milligram per millilitre (mg/mL = g/L)', factor: 1, symbol: 'mg/mL' },
+      mg_dL: { name: 'Milligram per decilitre (mg/dL)', factor: 1e-2, symbol: 'mg/dL' },
+      ug_mL: { name: 'Microgram per millilitre (µg/mL)', factor: 1e-3, symbol: 'µg/mL' }
+    },
+    defaultFrom: 'g_L',
+    defaultTo: 'mg_dL'
+  },
+  mass: {
+    name: 'Mass & Weight',
+    base: 'kg',
+    units: {
+      tonne:  { name: 'Metric Tonne (t)', factor: 1000, symbol: 't' },
+      kg:     { name: 'Kilogram (kg)', factor: 1, symbol: 'kg' },
+      g:      { name: 'Gram (g)', factor: 1e-3, symbol: 'g' },
+      mg:     { name: 'Milligram (mg)', factor: 1e-6, symbol: 'mg' },
+      ug:     { name: 'Microgram (µg)', factor: 1e-9, symbol: 'µg' },
+      ng:     { name: 'Nanogram (ng)', factor: 1e-12, symbol: 'ng' },
+      lb:     { name: 'Pound (lb)', factor: 0.45359237, symbol: 'lb' },
+      oz:     { name: 'Ounce (oz)', factor: 0.028349523125, symbol: 'oz' },
+      stone:  { name: 'Stone (st)', factor: 6.35029318, symbol: 'st' },
+      us_ton: { name: 'US Short Ton (ton)', factor: 907.18474, symbol: 'ton' }
+    },
+    defaultFrom: 'kg',
+    defaultTo: 'g'
+  },
+  length: {
+    name: 'Length & Distance',
+    base: 'm',
+    units: {
+      km:  { name: 'Kilometre (km)', factor: 1000, symbol: 'km' },
+      m:   { name: 'Metre (m)', factor: 1, symbol: 'm' },
+      cm:  { name: 'Centimetre (cm)', factor: 0.01, symbol: 'cm' },
+      mm:  { name: 'Millimetre (mm)', factor: 1e-3, symbol: 'mm' },
+      um:  { name: 'Micrometre (µm)', factor: 1e-6, symbol: 'µm' },
+      nm:  { name: 'Nanometre (nm)', factor: 1e-9, symbol: 'nm' },
+      mi:  { name: 'Mile (mi)', factor: 1609.344, symbol: 'mi' },
+      yd:  { name: 'Yard (yd)', factor: 0.9144, symbol: 'yd' },
+      ft:  { name: 'Foot (ft)', factor: 0.3048, symbol: 'ft' },
+      in:  { name: 'Inch (in)', factor: 0.0254, symbol: 'in' },
+      nmi: { name: 'Nautical Mile (nmi)', factor: 1852, symbol: 'nmi' }
+    },
+    defaultFrom: 'm',
+    defaultTo: 'cm'
+  },
+  area: {
+    name: 'Area',
+    base: 'm2',
+    units: {
+      km2:   { name: 'Square Kilometre (km²)', factor: 1e6, symbol: 'km²' },
+      ha:    { name: 'Hectare (ha)', factor: 1e4, symbol: 'ha' },
+      acre:  { name: 'Acre (ac)', factor: 4046.8564224, symbol: 'acre' },
+      m2:    { name: 'Square Metre (m²)', factor: 1, symbol: 'm²' },
+      sq_ft: { name: 'Square Foot (sq ft)', factor: 0.09290304, symbol: 'sq ft' },
+      cm2:   { name: 'Square Centimetre (cm²)', factor: 1e-4, symbol: 'cm²' },
+      mm2:   { name: 'Square Millimetre (mm²)', factor: 1e-6, symbol: 'mm²' }
+    },
+    defaultFrom: 'm2',
+    defaultTo: 'sq_ft'
+  },
+  volume: {
+    name: 'Volume & Laboratory Capacity',
+    base: 'L',
+    units: {
+      m3:    { name: 'Cubic Metre (m³)', factor: 1000, symbol: 'm³' },
+      L:     { name: 'Litre (L)', factor: 1, symbol: 'L' },
+      dL:    { name: 'Decilitre (dL)', factor: 0.1, symbol: 'dL' },
+      mL:    { name: 'Millilitre (mL)', factor: 1e-3, symbol: 'mL' },
+      uL:    { name: 'Microlitre (µL)', factor: 1e-6, symbol: 'µL' },
+      nL:    { name: 'Nanolitre (nL)', factor: 1e-9, symbol: 'nL' },
+      gal:   { name: 'US Gallon (gal)', factor: 3.785411784, symbol: 'gal' },
+      qt:    { name: 'US Quart (qt)', factor: 0.946352946, symbol: 'qt' },
+      pt:    { name: 'US Pint (pt)', factor: 0.473176473, symbol: 'pt' },
+      cup:   { name: 'US Cup (cup)', factor: 0.24, symbol: 'cup' },
+      fl_oz: { name: 'US Fluid Ounce (fl oz)', factor: 0.0295735295625, symbol: 'fl oz' }
+    },
+    defaultFrom: 'L',
+    defaultTo: 'mL'
+  },
+  temp: {
+    name: 'Temperature',
+    special: true,
+    units: {
+      c: { name: 'Celsius (°C)', symbol: '°C' },
+      f: { name: 'Fahrenheit (°F)', symbol: '°F' },
+      k: { name: 'Kelvin (K)', symbol: 'K' },
+      r: { name: 'Rankine (°R)', symbol: '°R' }
+    },
+    defaultFrom: 'c',
+    defaultTo: 'f'
+  },
+  time: {
+    name: 'Time',
+    base: 's',
+    units: {
+      day: { name: 'Day (d)', factor: 86400, symbol: 'd' },
+      hr:  { name: 'Hour (h)', factor: 3600, symbol: 'h' },
+      min: { name: 'Minute (min)', factor: 60, symbol: 'min' },
+      s:   { name: 'Second (s)', factor: 1, symbol: 's' },
+      ms:  { name: 'Millisecond (ms)', factor: 1e-3, symbol: 'ms' },
+      us:  { name: 'Microsecond (µs)', factor: 1e-6, symbol: 'µs' },
+      ns:  { name: 'Nanosecond (ns)', factor: 1e-9, symbol: 'ns' }
+    },
+    defaultFrom: 's',
+    defaultTo: 'ms'
+  },
+  speed: {
+    name: 'Speed & Velocity',
+    base: 'm_s',
+    units: {
+      m_s:  { name: 'Metres per second (m/s)', factor: 1, symbol: 'm/s' },
+      km_h: { name: 'Kilometres per hour (km/h)', factor: 1 / 3.6, symbol: 'km/h' },
+      mph:  { name: 'Miles per hour (mph)', factor: 0.44704, symbol: 'mph' },
+      knot: { name: 'Knot (kn = nmi/h)', factor: 1852 / 3600, symbol: 'kn' },
+      ft_s: { name: 'Feet per second (ft/s)', factor: 0.3048, symbol: 'ft/s' }
+    },
+    defaultFrom: 'km_h',
+    defaultTo: 'm_s'
+  },
+  pressure: {
+    name: 'Pressure',
+    base: 'Pa',
+    units: {
+      MPa:  { name: 'Megapascal (MPa)', factor: 1e6, symbol: 'MPa' },
+      bar:  { name: 'Bar (bar)', factor: 1e5, symbol: 'bar' },
+      atm:  { name: 'Standard Atmosphere (atm)', factor: 101325, symbol: 'atm' },
+      kPa:  { name: 'Kilopascal (kPa)', factor: 1e3, symbol: 'kPa' },
+      psi:  { name: 'Pounds per square inch (PSI)', factor: 6894.757, symbol: 'psi' },
+      mbar: { name: 'Millibar (mbar)', factor: 100, symbol: 'mbar' },
+      torr: { name: 'Torr / mmHg (torr)', factor: 133.322368, symbol: 'torr' },
+      Pa:   { name: 'Pascal (Pa)', factor: 1, symbol: 'Pa' }
+    },
+    defaultFrom: 'bar',
+    defaultTo: 'psi'
+  },
+  energy: {
+    name: 'Energy & Work',
+    base: 'J',
+    units: {
+      kWh:  { name: 'Kilowatt-hour (kWh)', factor: 3.6e6, symbol: 'kWh' },
+      Wh:   { name: 'Watt-hour (Wh)', factor: 3600, symbol: 'Wh' },
+      kJ:   { name: 'Kilojoule (kJ)', factor: 1000, symbol: 'kJ' },
+      J:    { name: 'Joule (J)', factor: 1, symbol: 'J' },
+      kcal: { name: 'Kilocalorie (kcal or food Cal)', factor: 4184, symbol: 'kcal' },
+      cal:  { name: 'Calorie (cal)', factor: 4.184, symbol: 'cal' },
+      eV:   { name: 'Electronvolt (eV)', factor: 1.602176634e-19, symbol: 'eV' }
+    },
+    defaultFrom: 'kJ',
+    defaultTo: 'kcal'
+  },
+  power: {
+    name: 'Power',
+    base: 'W',
+    units: {
+      MW: { name: 'Megawatt (MW)', factor: 1e6, symbol: 'MW' },
+      kW: { name: 'Kilowatt (kW)', factor: 1e3, symbol: 'kW' },
+      hp: { name: 'Mechanical Horsepower (hp)', factor: 745.699872, symbol: 'hp' },
+      W:  { name: 'Watt (W)', factor: 1, symbol: 'W' }
+    },
+    defaultFrom: 'kW',
+    defaultTo: 'hp'
+  },
+  electricity: {
+    name: 'Electricity & Electromagnetism',
+    base: 'si',
+    note: 'Grouped electromagnetic dimensions (V, A, Ω, C, F, H, T).',
+    units: {
+      V:    { name: 'Volt (V) [Voltage]', factor: 1, symbol: 'V', type: 'volt' },
+      mV:   { name: 'Millivolt (mV)', factor: 1e-3, symbol: 'mV', type: 'volt' },
+      A:    { name: 'Ampere (A) [Current]', factor: 1, symbol: 'A', type: 'current' },
+      mA:   { name: 'Milliampere (mA)', factor: 1e-3, symbol: 'mA', type: 'current' },
+      uA:   { name: 'Microampere (µA)', factor: 1e-6, symbol: 'µA', type: 'current' },
+      Mohm: { name: 'Mega-ohm (MΩ) [Resistance]', factor: 1e6, symbol: 'MΩ', type: 'res' },
+      kohm: { name: 'Kilo-ohm (kΩ)', factor: 1e3, symbol: 'kΩ', type: 'res' },
+      ohm:  { name: 'Ohm (Ω)', factor: 1, symbol: 'Ω', type: 'res' },
+      C:    { name: 'Coulomb (C) [Electric Charge]', factor: 1, symbol: 'C', type: 'charge' },
+      F:    { name: 'Farad (F) [Capacitance]', factor: 1, symbol: 'F', type: 'cap' },
+      uF:   { name: 'Microfarad (µF)', factor: 1e-6, symbol: 'µF', type: 'cap' },
+      nF:   { name: 'Nanofarad (nF)', factor: 1e-9, symbol: 'nF', type: 'cap' },
+      H:    { name: 'Henry (H) [Inductance]', factor: 1, symbol: 'H', type: 'ind' },
+      T:    { name: 'Tesla (T) [Magnetic Field]', factor: 1, symbol: 'T', type: 'mag' }
+    },
+    defaultFrom: 'V',
+    defaultTo: 'mV'
+  },
+  density: {
+    name: 'Density',
+    base: 'kg_m3',
+    units: {
+      g_cm3: { name: 'Gram per cubic centimetre (g/cm³ = 1000 kg/m³)', factor: 1000, symbol: 'g/cm³' },
+      g_mL:  { name: 'Gram per millilitre (g/mL)', factor: 1000, symbol: 'g/mL' },
+      kg_m3: { name: 'Kilogram per cubic metre (kg/m³)', factor: 1, symbol: 'kg/m³' }
+    },
+    defaultFrom: 'g_cm3',
+    defaultTo: 'kg_m3'
+  },
+  flow_rate: {
+    name: 'Flow Rate (Volumetric)',
+    base: 'L_min',
+    units: {
+      L_min:  { name: 'Litre per minute (L/min)', factor: 1, symbol: 'L/min' },
+      mL_min: { name: 'Millilitre per minute (mL/min)', factor: 1e-3, symbol: 'mL/min' },
+      uL_min: { name: 'Microlitre per minute (µL/min)', factor: 1e-6, symbol: 'µL/min' }
+    },
+    defaultFrom: 'L_min',
+    defaultTo: 'mL_min'
+  },
+  molar_mass: {
+    name: 'Molar Mass',
+    base: 'g_mol',
+    units: {
+      kg_mol: { name: 'Kilogram per mole (kg/mol)', factor: 1000, symbol: 'kg/mol' },
+      g_mol:  { name: 'Gram per mole (g/mol)', factor: 1, symbol: 'g/mol' }
+    },
+    defaultFrom: 'g_mol',
+    defaultTo: 'kg_mol'
+  },
+  parts_fraction: {
+    name: 'Fraction & Trace Concentrations',
+    base: 'ratio',
+    note: 'Assumption: In dilute aqueous solutions at 20°C (density ≈ 1.0 g/mL), 1 ppm ≈ 1 mg/L and 1 ppb ≈ 1 µg/L.',
+    units: {
+      pct:      { name: 'Percentage (%)', factor: 0.01, symbol: '%' },
+      permille: { name: 'Parts per thousand (‰)', factor: 0.001, symbol: '‰' },
+      ppm:      { name: 'Parts per million (ppm, 10⁻⁶)', factor: 1e-6, symbol: 'ppm' },
+      ppb:      { name: 'Parts per billion (ppb, 10⁻⁹)', factor: 1e-9, symbol: 'ppb' }
+    },
+    defaultFrom: 'ppm',
+    defaultTo: 'ppb'
+  },
+  storage_dec: {
+    name: 'Digital Storage (Decimal Base 1000 - SI)',
+    base: 'byte',
+    note: 'International System of Units (SI standard used by storage disk manufacturers): 1 KB = 1000 Bytes.',
+    units: {
+      PB:   { name: 'Petabyte (PB - 10¹⁵ Bytes)', factor: 1e15, symbol: 'PB' },
+      TB:   { name: 'Terabyte (TB - 10¹² Bytes)', factor: 1e12, symbol: 'TB' },
+      GB:   { name: 'Gigabyte (GB - 10⁹ Bytes)', factor: 1e9, symbol: 'GB' },
+      MB:   { name: 'Megabyte (MB - 10⁶ Bytes)', factor: 1e6, symbol: 'MB' },
+      KB:   { name: 'Kilobyte (KB - 10³ Bytes)', factor: 1000, symbol: 'KB' },
+      byte: { name: 'Byte (B)', factor: 1, symbol: 'B' },
+      bit:  { name: 'Bit (b)', factor: 0.125, symbol: 'bit' }
+    },
+    defaultFrom: 'GB',
+    defaultTo: 'MB'
+  },
+  storage_bin: {
+    name: 'Digital Storage (Binary Base 1024 - IEC)',
+    base: 'byte',
+    note: 'International Electrotechnical Commission (IEC standard used in OS/RAM memory): 1 KiB = 1024 Bytes.',
+    units: {
+      PiB:  { name: 'Pebibyte (PiB - 1024⁵ Bytes)', factor: Math.pow(1024, 5), symbol: 'PiB' },
+      TiB:  { name: 'Tebibyte (TiB - 1024⁴ Bytes)', factor: Math.pow(1024, 4), symbol: 'TiB' },
+      GiB:  { name: 'Gibibyte (GiB - 1024³ Bytes)', factor: Math.pow(1024, 3), symbol: 'GiB' },
+      MiB:  { name: 'Mebibyte (MiB - 1024² Bytes)', factor: Math.pow(1024, 2), symbol: 'MiB' },
+      KiB:  { name: 'Kibibyte (KiB - 1024 Bytes)', factor: 1024, symbol: 'KiB' },
+      byte: { name: 'Byte (B)', factor: 1, symbol: 'B' },
+      bit:  { name: 'Bit (b)', factor: 0.125, symbol: 'bit' }
+    },
+    defaultFrom: 'GiB',
+    defaultTo: 'MiB'
+  },
+  frequency: {
+    name: 'Frequency',
+    base: 'Hz',
+    units: {
+      GHz: { name: 'Gigahertz (GHz)', factor: 1e9, symbol: 'GHz' },
+      MHz: { name: 'Megahertz (MHz)', factor: 1e6, symbol: 'MHz' },
+      kHz: { name: 'Kilohertz (kHz)', factor: 1e3, symbol: 'kHz' },
+      Hz:  { name: 'Hertz (Hz)', factor: 1, symbol: 'Hz' }
+    },
+    defaultFrom: 'MHz',
+    defaultTo: 'kHz'
+  },
+  angle: {
+    name: 'Angle',
+    base: 'rad',
+    units: {
+      deg:    { name: 'Degree (°)', factor: Math.PI / 180, symbol: '°' },
+      rad:    { name: 'Radian (rad)', factor: 1, symbol: 'rad' },
+      grad:   { name: 'Gradian (grad)', factor: Math.PI / 200, symbol: 'grad' },
+      arcmin: { name: 'Arcminute (arcmin / ′)', factor: Math.PI / 10800, symbol: '′' },
+      arcsec: { name: 'Arcsecond (arcsec / ″)', factor: Math.PI / 648000, symbol: '″' }
+    },
+    defaultFrom: 'deg',
+    defaultTo: 'rad'
+  },
+  blood_glucose: {
+    name: 'Blood Glucose Concentration',
+    base: 'mg_dL',
+    note: 'Clinical Factor: Glucose has a molecular mass of ~180.16 g/mol. Formula: 1 mmol/L = 18.0182 mg/dL (or mg/dL ÷ 18.0182 = mmol/L).',
+    units: {
+      mg_dL:  { name: 'Milligrams per decilitre (mg/dL - US/India standard)', factor: 1, symbol: 'mg/dL' },
+      mmol_L: { name: 'Millimoles per litre (mmol/L - International/UK/Canada standard)', factor: 18.0182, symbol: 'mmol/L' }
+    },
+    defaultFrom: 'mg_dL',
+    defaultTo: 'mmol_L'
+  }
 };
 
-function toSI(val, unit) {
-  if (unit === 'c') return val;
-  if (unit === 'f') return (val - 32) * 5 / 9;
-  if (unit === 'k') return val - 273.15;
-  return val * UNIT_TO_SI[unit];
+/** Populate unit dropdowns when user switches category */
+function onUnitCatChange() {
+  const catSelect = document.getElementById('unit_cat');
+  const fromSelect = document.getElementById('unit_from');
+  const toSelect = document.getElementById('unit_to');
+  const noteEl = document.getElementById('unit-note');
+  if (!catSelect || !fromSelect || !toSelect) return;
+
+  const catKey = catSelect.value;
+  const category = SCIENTIFIC_UNITS[catKey];
+  if (!category) return;
+
+  // Build options
+  let opts = '';
+  for (const [k, u] of Object.entries(category.units)) {
+    opts += `<option value="${k}">${u.name}</option>`;
+  }
+  fromSelect.innerHTML = opts;
+  toSelect.innerHTML = opts;
+
+  if (category.defaultFrom && category.units[category.defaultFrom]) {
+    fromSelect.value = category.defaultFrom;
+  }
+  if (category.defaultTo && category.units[category.defaultTo]) {
+    toSelect.value = category.defaultTo;
+  }
+
+  // Display scientific assumption note if present
+  if (noteEl) {
+    if (category.note) {
+      noteEl.innerHTML = `<span class="unit-note-icon">ℹ️</span> <span>${category.note}</span>`;
+      noteEl.classList.remove('hidden');
+    } else {
+      noteEl.innerHTML = '';
+      noteEl.classList.add('hidden');
+    }
+  }
+
+  calcUnit();
 }
 
-function fromSI(val, unit) {
-  if (unit === 'c') return val;
-  if (unit === 'f') return val * 9 / 5 + 32;
-  if (unit === 'k') return val + 273.15;
-  return val / UNIT_TO_SI[unit];
+/** Swap From and To dropdown values */
+function swapUnits() {
+  const fromSelect = document.getElementById('unit_from');
+  const toSelect = document.getElementById('unit_to');
+  if (!fromSelect || !toSelect) return;
+  const tmp = fromSelect.value;
+  fromSelect.value = toSelect.value;
+  toSelect.value = tmp;
+  calcUnit();
 }
 
-const TEMP_UNITS = new Set(['c', 'f', 'k']);
-const LEN_UNITS  = new Set(['m', 'km', 'ft', 'in', 'mi']);
-const WGHT_UNITS = new Set(['kg', 'g', 'lb', 'oz']);
-
-const UNIT_LABELS = { m:'m', km:'km', ft:'ft', 'in':'in', mi:'mi', kg:'kg', g:'g', lb:'lb', oz:'oz', c:'°C', f:'°F', k:'K' };
-
-function unitGroup(u) {
-  if (TEMP_UNITS.has(u)) return 'temp';
-  if (LEN_UNITS.has(u)) return 'length';
-  if (WGHT_UNITS.has(u)) return 'weight';
-  return null;
+/** Format scientific values cleanly with dynamic precision or scientific notation */
+function formatScientificResult(val) {
+  if (val === 0) return '0';
+  const abs = Math.abs(val);
+  if (abs >= 1e9 || abs < 1e-5) {
+    return val.toExponential(6).replace(/e\+?/, ' × 10^');
+  }
+  // Remove floating point noise
+  const rounded = parseFloat(val.toPrecision(8));
+  return String(rounded);
 }
 
+/** Main calculation function for Scientific Converter */
 function calcUnit() {
   safeCalc(() => {
-    const val = getNum('unit_val', 'value');
-    const from = document.getElementById('unit_from').value;
-    const to   = document.getElementById('unit_to').value;
-    if (unitGroup(from) !== unitGroup(to)) return showError('Cannot convert between different unit types (e.g. length ↔ weight).');
-    const si = toSI(val, from);
-    const result = fromSI(si, to);
-    const plain = `${val} ${UNIT_LABELS[from]} = ${+result.toFixed(6)} ${UNIT_LABELS[to]}`;
-    showResult(`${val} ${UNIT_LABELS[from]} = <b>${+result.toFixed(6)}</b> ${UNIT_LABELS[to]}`, plain);
+    const valInput = document.getElementById('unit_val');
+    const catSelect = document.getElementById('unit_cat');
+    const fromSelect = document.getElementById('unit_from');
+    const toSelect = document.getElementById('unit_to');
+
+    if (!valInput || !catSelect || !fromSelect || !toSelect) return;
+
+    const val = parseFloat(valInput.value);
+    if (isNaN(val)) return showError('Please enter a valid numeric value.');
+
+    const catKey = catSelect.value;
+    const category = SCIENTIFIC_UNITS[catKey];
+    if (!category) return showError('Invalid category selected.');
+
+    const fromKey = fromSelect.value;
+    const toKey = toSelect.value;
+    const fromUnit = category.units[fromKey];
+    const toUnit = category.units[toKey];
+
+    if (!fromUnit || !toUnit) return showError('Invalid units selected.');
+
+    let converted;
+
+    // Special: Temperature conversions (Celsius, Fahrenheit, Kelvin, Rankine)
+    if (catKey === 'temp') {
+      let kelvin;
+      if (fromKey === 'c') kelvin = val + 273.15;
+      else if (fromKey === 'f') kelvin = (val - 32) * (5 / 9) + 273.15;
+      else if (fromKey === 'k') kelvin = val;
+      else if (fromKey === 'r') kelvin = val * (5 / 9);
+
+      if (toKey === 'c') converted = kelvin - 273.15;
+      else if (toKey === 'f') converted = (kelvin - 273.15) * (9 / 5) + 32;
+      else if (toKey === 'k') converted = kelvin;
+      else if (toKey === 'r') converted = kelvin * (9 / 5);
+    }
+    // Electricity cross-type check (ensure user isn't converting Amperes to Volts directly)
+    else if (catKey === 'electricity') {
+      if (fromUnit.type !== toUnit.type) {
+        return showError(`Cannot convert directly between different electrical dimensions (${fromUnit.name} ↔ ${toUnit.name}).`);
+      }
+      converted = (val * fromUnit.factor) / toUnit.factor;
+    }
+    // Standard factor conversion
+    else {
+      converted = (val * fromUnit.factor) / toUnit.factor;
+    }
+
+    const formatted = formatScientificResult(converted);
+    const fromSym = fromUnit.symbol || fromKey;
+    const toSym = toUnit.symbol || toKey;
+
+    const plain = `${val} ${fromSym} = ${formatted} ${toSym}`;
+    const html = `
+      <div class="unit-result-box">
+        <div class="unit-result-primary">
+          <span class="unit-res-val">${val}</span> <span class="unit-res-sym">${fromSym}</span>
+          <span class="unit-res-eq">=</span>
+          <span class="unit-res-val bold-accent">${formatted}</span> <span class="unit-res-sym">${toSym}</span>
+        </div>
+        <div class="unit-result-desc">
+          ${fromUnit.name} ➔ ${toUnit.name}
+        </div>
+      </div>
+    `;
+
+    showResult(html, plain);
   });
 }
 
