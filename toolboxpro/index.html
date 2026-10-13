@@ -73,7 +73,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap"/>
 
   <!-- ── Styles ── -->
-  <link rel="stylesheet" href="styles.css?v=9"/>
+  <link rel="stylesheet" href="styles.css?v=10"/>
 
   <!-- ── Structured Data: WebSite ── -->
   <script type="application/ld+json">
@@ -159,22 +159,32 @@
 
 <main id="main-content">
   <section class="hero" aria-label="Hero section">
+    <div class="hero-ambient-glow" aria-hidden="true"></div>
     <div class="hero-copy reveal-group">
       <div class="eyebrow reveal" data-reveal="fade-up" aria-hidden="true">⚡ Fast • Free • Mobile friendly</div>
-      <h1 class="reveal" data-reveal="fade-up">Small tools.<br><em>Big productivity.</em></h1>
-      <p class="reveal" data-reveal="fade-up">Useful calculators and everyday online tools — simple, fast and completely free. No sign-up required.</p>
-      <div class="search-wrap reveal" data-reveal="fade-up" role="search">
-        <span aria-hidden="true">⌕</span>
-        <label for="search" class="sr-only">Search tools</label>
-        <input
-          id="search"
-          type="search"
-          placeholder="Search a tool, e.g. EMI, GST, age…"
-          autocomplete="off"
-          aria-label="Search tools"
-          spellcheck="false"
-        />
-        <kbd aria-label="Keyboard shortcut Ctrl K">⌘ K</kbd>
+      <h1 class="reveal hero-headline" data-reveal="fade-up">
+        <span class="hero-line hero-line-1">Small tools.</span>
+        <span class="hero-line hero-line-2"><em>Big productivity.</em></span>
+      </h1>
+      <p class="reveal hero-subhead" data-reveal="fade-up">Useful calculators and everyday online tools — simple, fast and completely free. No sign-up required.</p>
+      <div class="search-container reveal" data-reveal="fade-up">
+        <div class="search-wrap" role="search">
+          <span class="search-icon" aria-hidden="true">⌕</span>
+          <label for="search" class="sr-only">Search tools</label>
+          <input
+            id="search"
+            type="search"
+            placeholder="Search a tool, e.g. EMI, GST, age…"
+            autocomplete="off"
+            aria-label="Search tools"
+            spellcheck="false"
+            aria-autocomplete="list"
+            aria-controls="search-dropdown"
+            aria-expanded="false"
+          />
+          <kbd aria-label="Keyboard shortcut Ctrl K">⌘ K</kbd>
+        </div>
+        <div id="search-dropdown" class="search-dropdown hidden" role="listbox" aria-label="Search suggestions"></div>
       </div>
       <div class="quick reveal" data-reveal="fade-up" role="group" aria-label="Popular quick searches">
         <span>Popular:</span>
@@ -292,6 +302,6 @@
 <script src="jspdf.umd.min.js"></script>
 <script src="pdf-lib.min.js"></script>
 <script src="qrcode.min.js"></script>
-<script src="app.js?v=9" defer referrerpolicy="no-referrer"></script>
+<script src="app.js?v=10" defer referrerpolicy="no-referrer"></script>
 </body>
 </html>
