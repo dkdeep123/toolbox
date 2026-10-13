@@ -464,6 +464,12 @@ input, button, select, textarea { font: inherit; }
   height: 100%;
   z-index: 2;
   pointer-events: auto;
+  cursor: grab;
+  touch-action: pan-y;
+}
+
+.carousel-cards-track.is-dragging {
+  cursor: grabbing !important;
 }
 
 /* Individual Tool Card Along The Semicircular Curve */

@@ -1559,20 +1559,40 @@ function initHeroCarousel() {
 
   const cardElements = Array.from(cardsTrack.querySelectorAll('.carousel-card'));
 
+  // Drag and click detection state
+  let isPointerDown = false;
+  let isDragging = false;
+  let startX = 0;
+  let startY = 0;
+  let dragStartPos = 0;
+  let lastMoveTime = 0;
+  let lastMoveY = 0;
+  let dragVelocity = 0; // tools per ms
+  let isTouchActionLocked = false;
+  let activePointerId = null;
+
+  // Click vs Drag threshold in pixels
+  const DRAG_THRESHOLD = 7;
+
   // Wire up card click & keyboard handlers
   cardElements.forEach((card, idx) => {
     const toolId = card.dataset.id;
     card.addEventListener('click', (e) => {
+      // If user was actively dragging or moving, do NOT trigger click navigation
+      if (isDragging) {
+        e.preventDefault();
+        e.stopPropagation();
+        return;
+      }
       e.preventDefault();
-      currentStep = idx;
-      renderCarousel(currentStep);
+      animateToSlot(idx);
       openTool(toolId);
     });
+
     card.addEventListener('keydown', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
-        currentStep = idx;
-        renderCarousel(currentStep);
+        animateToSlot(idx);
         openTool(toolId);
       }
     });
@@ -1642,13 +1662,13 @@ function initHeroCarousel() {
   if (window.ResizeObserver) {
     const ro = new ResizeObserver(() => {
       updateGeometry();
-      renderCarousel(currentStep);
+      renderCarousel(currentPos);
     });
     ro.observe(showcase);
   } else {
     window.addEventListener('resize', () => {
       updateGeometry();
-      renderCarousel(currentStep);
+      renderCarousel(currentPos);
     });
   }
 
@@ -1717,110 +1737,302 @@ function initHeroCarousel() {
   }
 
   // Animation controller
-  let currentStep = 0;
-  let targetStep = 0;
+  let currentPos = 0;       // exact float position along the path
+  let startAnimPos = 0;     // position when current transition began
+  let targetAnimPos = 0;    // target position for transition
   let transitionStart = 0;
+  let transitionDuration = 850;
   let isTransitioning = false;
-  let isPaused = false;
-  let timerId = null;
-  const INTERVAL_MS = 2200; // ~2 seconds spotlight duration
-  const TRANSITION_MS = 850; // smooth 850ms transition between cards
+  let isHovered = false;
+  let autoTimerId = null;
+
+  const AUTO_INTERVAL_MS = 2200; // auto rotation every ~2 seconds
+  const RESUME_DELAY_MS = 4000;   // 4 seconds inactivity before resuming auto-rotation
+
+  function easeOutCubic(t) {
+    return 1 - Math.pow(1 - t, 3);
+  }
 
   function easeInOutCubic(t) {
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
   }
 
-  function advanceStep() {
-    if (isPaused || isTransitioning) return;
+  // Smoothly move carousel to a target continuous position
+  function animateToPosition(target, duration = 650) {
     isTransitioning = true;
     transitionStart = performance.now();
-    targetStep = (currentStep + 1) % totalTools;
+    startAnimPos = currentPos;
+    targetAnimPos = target;
+    transitionDuration = duration;
   }
 
-  function scheduleNext() {
-    clearTimeout(timerId);
-    timerId = setTimeout(() => {
-      if (!isPaused) {
-        advanceStep();
+  // Find nearest integer slot and animate to it
+  function snapToNearestSlot(extraShift = 0) {
+    let target = Math.round(currentPos + extraShift);
+    target = ((target % totalTools) + totalTools) % totalTools;
+
+    // Calculate shortest direction along circular loop
+    let delta = (target - currentPos) % totalTools;
+    if (delta > totalTools / 2) delta -= totalTools;
+    if (delta < -totalTools / 2) delta += totalTools;
+
+    animateToPosition(currentPos + delta, 600);
+  }
+
+  // Animate directly to a specific tool index
+  function animateToSlot(targetIndex, duration = 650) {
+    clearTimeout(autoTimerId);
+    let delta = (targetIndex - currentPos) % totalTools;
+    if (delta > totalTools / 2) delta -= totalTools;
+    if (delta < -totalTools / 2) delta += totalTools;
+
+    animateToPosition(currentPos + delta, duration);
+    scheduleAutoResume(RESUME_DELAY_MS);
+  }
+
+  // Auto rotation step (every 2s)
+  function advanceAutoStep() {
+    if (isPointerDown || isDragging || isHovered) return;
+    const nextSlot = Math.round(currentPos) + 1;
+    animateToPosition(nextSlot, 850);
+  }
+
+  function scheduleAutoNext() {
+    clearTimeout(autoTimerId);
+    autoTimerId = setTimeout(() => {
+      if (!isPointerDown && !isDragging && !isHovered) {
+        advanceAutoStep();
       }
-    }, INTERVAL_MS);
+    }, AUTO_INTERVAL_MS);
+  }
+
+  function scheduleAutoResume(delay = RESUME_DELAY_MS) {
+    clearTimeout(autoTimerId);
+    autoTimerId = setTimeout(() => {
+      if (!isPointerDown && !isDragging && !isHovered) {
+        advanceAutoStep();
+      }
+    }, delay);
   }
 
   function animationLoop(timestamp) {
     if (isTransitioning) {
       const elapsed = timestamp - transitionStart;
-      const progress = Math.min(1, elapsed / TRANSITION_MS);
-      const eased = easeInOutCubic(progress);
+      const progress = Math.min(1, elapsed / transitionDuration);
+      const eased = easeOutCubic(progress);
 
-      const continuousPos = (currentStep + eased) % totalTools;
-      renderCarousel(continuousPos);
+      currentPos = startAnimPos + (targetAnimPos - startAnimPos) * eased;
+      renderCarousel(currentPos);
 
       if (progress >= 1) {
         isTransitioning = false;
-        currentStep = targetStep;
-        renderCarousel(currentStep);
-        scheduleNext();
+        currentPos = ((targetAnimPos % totalTools) + totalTools) % totalTools;
+        renderCarousel(currentPos);
+
+        // If not hovering and not interacting, schedule next rotation
+        if (!isPointerDown && !isDragging && !isHovered) {
+          scheduleAutoNext();
+        }
       }
     }
 
     requestAnimationFrame(animationLoop);
   }
 
-  // prefers-reduced-motion check
+  // Initial render and kick off loop
   const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if (prefersReducedMotion) {
     renderCarousel(0);
   } else {
     renderCarousel(0);
-    scheduleNext();
+    scheduleAutoNext();
     requestAnimationFrame(animationLoop);
   }
 
-  // Pause on mouse hover, resume on mouse leave
+  /* ─────────────────────────────────────────
+     Manual Drag / Swipe Handling (Mouse + Touch)
+  ───────────────────────────────────────── */
+  function onPointerStart(e) {
+    // Only primary button for mouse
+    if (e.pointerType === 'mouse' && e.button !== 0) return;
+
+    isPointerDown = true;
+    isDragging = false;
+    isTouchActionLocked = false;
+    activePointerId = e.pointerId;
+
+    startX = e.clientX;
+    startY = e.clientY;
+    lastMoveY = e.clientY;
+    lastMoveTime = performance.now();
+    dragVelocity = 0;
+    dragStartPos = currentPos;
+
+    // Pause any active transition or auto-rotation
+    isTransitioning = false;
+    clearTimeout(autoTimerId);
+  }
+
+  function onPointerMove(e) {
+    if (!isPointerDown) return;
+    if (activePointerId !== null && e.pointerId !== activePointerId) return;
+
+    const dx = e.clientX - startX;
+    const dy = e.clientY - startY;
+    const dist = Math.hypot(dx, dy);
+
+    // Check if dragging threshold is met
+    if (!isDragging && dist > DRAG_THRESHOLD) {
+      // Determine gesture direction on touch
+      if (e.pointerType === 'touch') {
+        const isMoreVertical = Math.abs(dy) >= Math.abs(dx) * 0.75;
+        if (isMoreVertical) {
+          isDragging = true;
+          isTouchActionLocked = true;
+          cardsTrack.classList.add('is-dragging');
+        } else {
+          // Horizontal swipe or ambiguous: allow default unless along curve
+          isDragging = true;
+          cardsTrack.classList.add('is-dragging');
+        }
+      } else {
+        isDragging = true;
+        cardsTrack.classList.add('is-dragging');
+        try { cardsTrack.setPointerCapture(e.pointerId); } catch (_) {}
+      }
+    }
+
+    if (isDragging) {
+      if (e.cancelable && isTouchActionLocked) {
+        e.preventDefault();
+      }
+
+      const now = performance.now();
+      const dt = now - lastMoveTime;
+      const stepDeltaY = e.clientY - lastMoveY;
+
+      if (dt > 0) {
+        // Track velocity (slots per ms)
+        const instantVel = (-stepDeltaY / (Ry * 0.65)) / dt;
+        dragVelocity = dragVelocity * 0.7 + instantVel * 0.3;
+      }
+
+      lastMoveTime = now;
+      lastMoveY = e.clientY;
+
+      // Sensitivity: ~160px of drag corresponds to 1 slot shift along the semicircle
+      const pixelsPerSlot = Math.max(90, Math.min(180, Ry * 0.7));
+      const posOffset = -dy / pixelsPerSlot;
+
+      currentPos = dragStartPos + posOffset;
+      renderCarousel(currentPos);
+    }
+  }
+
+  function onPointerEnd(e) {
+    if (!isPointerDown) return;
+    if (activePointerId !== null && e.pointerId !== activePointerId) return;
+
+    isPointerDown = false;
+    activePointerId = null;
+    cardsTrack.classList.remove('is-dragging');
+
+    if (isDragging) {
+      // Release pointer capture if held
+      try { cardsTrack.releasePointerCapture(e.pointerId); } catch (_) {}
+
+      // Calculate inertia based on velocity
+      let inertiaSlots = 0;
+      if (Math.abs(dragVelocity) > 0.0025) {
+        inertiaSlots = Math.sign(dragVelocity) * Math.min(2.5, Math.abs(dragVelocity) * 280);
+      }
+
+      // Smoothly snap to the closest tool card
+      snapToNearestSlot(inertiaSlots);
+
+      // Prevent immediate click event after drag
+      setTimeout(() => {
+        isDragging = false;
+      }, 50);
+
+      // Resume auto rotation after 4 seconds of inactivity
+      scheduleAutoResume(RESUME_DELAY_MS);
+    } else {
+      // It was a quick tap or click without dragging
+      if (!isHovered) {
+        scheduleAutoResume(RESUME_DELAY_MS);
+      }
+    }
+  }
+
+  cardsTrack.addEventListener('pointerdown', onPointerStart, { passive: false });
+  window.addEventListener('pointermove', onPointerMove, { passive: false });
+  window.addEventListener('pointerup', onPointerEnd, { passive: false });
+  window.addEventListener('pointercancel', onPointerEnd, { passive: false });
+
+  /* ─────────────────────────────────────────
+     Desktop Mouse Wheel Interaction
+  ───────────────────────────────────────── */
+  let wheelTimeout = null;
+  showcase.addEventListener('wheel', (e) => {
+    // Only capture when scrolling directly over the carousel
+    e.preventDefault();
+
+    // Pause auto rotation
+    clearTimeout(autoTimerId);
+    isTransitioning = false;
+
+    // Normalizing delta across trackpads and stepped mouse wheels
+    const delta = Math.sign(e.deltaY) * Math.min(1, Math.abs(e.deltaY) / 100);
+    const scrollStep = delta * 0.45;
+
+    currentPos += scrollStep;
+    renderCarousel(currentPos);
+
+    // Debounce snap-to-slot when wheel action pauses
+    clearTimeout(wheelTimeout);
+    wheelTimeout = setTimeout(() => {
+      snapToNearestSlot(0);
+      scheduleAutoResume(RESUME_DELAY_MS);
+    }, 180);
+  }, { passive: false });
+
+  /* ─────────────────────────────────────────
+     Hover & Focus State Handling
+  ───────────────────────────────────────── */
   showcase.addEventListener('mouseenter', () => {
-    isPaused = true;
-    clearTimeout(timerId);
+    isHovered = true;
+    clearTimeout(autoTimerId);
   });
 
   showcase.addEventListener('mouseleave', () => {
-    isPaused = false;
-    if (!isTransitioning) {
-      scheduleNext();
+    isHovered = false;
+    if (!isPointerDown && !isDragging && !isTransitioning) {
+      scheduleAutoResume(RESUME_DELAY_MS);
     }
   });
 
-  // Touch interactions
-  showcase.addEventListener('touchstart', () => {
-    isPaused = true;
-    clearTimeout(timerId);
-  }, { passive: true });
-
-  showcase.addEventListener('touchend', () => {
-    setTimeout(() => {
-      isPaused = false;
-      if (!isTransitioning) scheduleNext();
-    }, 2000);
-  }, { passive: true });
-
-  // Keyboard focus: pause when focus enters, resume when focus leaves
+  // Keyboard navigation & accessibility
   showcase.addEventListener('focusin', () => {
-    isPaused = true;
-    clearTimeout(timerId);
+    isHovered = true;
+    clearTimeout(autoTimerId);
   });
 
   showcase.addEventListener('focusout', () => {
-    isPaused = false;
-    if (!isTransitioning) scheduleNext();
+    isHovered = false;
+    if (!isPointerDown && !isDragging && !isTransitioning) {
+      scheduleAutoResume(RESUME_DELAY_MS);
+    }
   });
 
-  // Visibility change: save resources when tab is hidden
+  // Background tab visibility
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) {
-      isPaused = true;
-      clearTimeout(timerId);
+      clearTimeout(autoTimerId);
     } else {
-      isPaused = false;
-      if (!isTransitioning) scheduleNext();
+      if (!isPointerDown && !isDragging && !isHovered) {
+        scheduleAutoNext();
+      }
     }
   });
 }
