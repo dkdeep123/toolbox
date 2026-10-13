@@ -183,7 +183,7 @@ const search  = document.getElementById('search');
 const count   = document.getElementById('count');
 const empty   = document.getElementById('empty');
 const modal   = document.getElementById('modal');
-const modalBox = modal.querySelector('.modal-box');
+const modalBox = modal ? modal.querySelector('.modal-box') : null;
 const content = document.getElementById('toolContent');
 const themeBtn = document.getElementById('theme');
 const toast   = document.getElementById('toast');
@@ -219,7 +219,8 @@ themeBtn.addEventListener('click', () => applyTheme(!document.body.classList.con
    Grid Rendering
 ───────────────────────────────────────── */
 function render() {
-  const q = search.value.toLowerCase().trim();
+  if (!grid) return;
+  const q = search ? search.value.toLowerCase().trim() : '';
   const list = TOOLS.filter(t =>
     (category === 'all' || t.cat === category) &&
     (t.name + ' ' + t.desc).toLowerCase().includes(q)
@@ -243,8 +244,8 @@ function render() {
     </article>
   `).join('');
 
-  count.textContent = `${list.length} tool${list.length !== 1 ? 's' : ''}`;
-  empty.classList.toggle('hidden', list.length > 0);
+  if (count) count.textContent = `${list.length} tool${list.length !== 1 ? 's' : ''}`;
+  if (empty) empty.classList.toggle('hidden', list.length > 0);
 
   // Attach click + keyboard handlers to each card
   grid.querySelectorAll('.tool').forEach(card => {
@@ -263,26 +264,28 @@ function render() {
 /* ─────────────────────────────────────────
    Search & Filter
 ───────────────────────────────────────── */
-search.addEventListener('input', render);
-search.addEventListener('search', render);   // fires when native ❌ clear button is clicked
-search.addEventListener('keyup', render);    // fallback for all browsers
+if (search) {
+  search.addEventListener('input', render);
+  search.addEventListener('search', render);   // fires when native ❌ clear button is clicked
+  search.addEventListener('keyup', render);    // fallback for all browsers
 
-// Open top result on Enter
-search.addEventListener('keydown', e => {
-  if (e.key === 'Enter') {
-    e.preventDefault();
-    const q = search.value.toLowerCase().trim();
-    const list = TOOLS.filter(t =>
-      (category === 'all' || t.cat === category) &&
-      (t.name + ' ' + t.desc).toLowerCase().includes(q)
-    );
-    if (list.length > 0) openTool(list[0].id);
-  }
-});
+  // Open top result on Enter
+  search.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      const q = search.value.toLowerCase().trim();
+      const list = TOOLS.filter(t =>
+        (category === 'all' || t.cat === category) &&
+        (t.name + ' ' + t.desc).toLowerCase().includes(q)
+      );
+      if (list.length > 0) openTool(list[0].id);
+    }
+  });
+}
 
 // Keyboard shortcut ⌘K / Ctrl+K
 document.addEventListener('keydown', e => {
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k' && search) {
     e.preventDefault();
     search.focus();
     search.select();
@@ -334,34 +337,34 @@ function openTool(id) {
 
   previousFocus = document.activeElement;
   content.innerHTML = buildForm(id, tool);
-  modal.classList.remove('hidden');
-  modal.removeAttribute('aria-hidden');
+  if (modal) {
+    modal.classList.remove('hidden');
+    modal.removeAttribute('aria-hidden');
+  }
 
-  try {
-    history.replaceState(null, '', '#' + id);
-  } catch (_) {}
-
-  // Set modal title for screen readers
+  // Set modal or card title for screen readers
   const heading = content.querySelector('h2');
-  if (heading) {
+  if (heading && modal) {
     heading.id = 'modal-title';
     modal.setAttribute('aria-labelledby', 'modal-title');
   }
 
   // Focus first interactive element
   requestAnimationFrame(() => {
-    const first = modalBox.querySelector('input, button, select, [tabindex="0"]');
-    if (first) first.focus();
+    const root = modalBox || content;
+    const first = root.querySelector('input, button, select, [tabindex="0"]');
+    if (first && modal) first.focus();
   });
 
-  trapFocus(modalBox);
+  if (modalBox) trapFocus(modalBox);
 
   // Wire up Enter key for inputs inside the form
-  modalBox.querySelectorAll('input').forEach(inp => {
+  const formRoot = modalBox || content;
+  formRoot.querySelectorAll('input').forEach(inp => {
     inp.addEventListener('keydown', e => {
       if (e.key === 'Enter') {
         e.preventDefault();
-        const calcBtn = modalBox.querySelector('button.primary');
+        const calcBtn = formRoot.querySelector('button.primary');
         if (calcBtn) calcBtn.click();
       }
     });
@@ -369,16 +372,21 @@ function openTool(id) {
 }
 
 function closeModal() {
-  modal.classList.add('hidden');
-  modal.setAttribute('aria-hidden', 'true');
+  if (modal) {
+    modal.classList.add('hidden');
+    modal.setAttribute('aria-hidden', 'true');
+  }
   try {
     if (window.location.hash) history.replaceState(null, '', window.location.pathname);
   } catch (_) {}
   if (previousFocus) previousFocus.focus();
 }
 
-document.getElementById('close').addEventListener('click', closeModal);
-modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+const closeBtn = document.getElementById('close');
+if (closeBtn) closeBtn.addEventListener('click', closeModal);
+if (modal) {
+  modal.addEventListener('click', e => { if (e.target === modal) closeModal(); });
+}
 
 /* Focus trap for modal */
 function trapFocus(container) {
@@ -2619,7 +2627,12 @@ const SLUG_TO_TOOL = {
 };
 
 (function checkRoute() {
-  const path = window.location.pathname.replace(/^\/|\/$/g, '');
+  const autoTool = content && content.dataset.tool;
+  if (autoTool && ALLOWED_TOOL_IDS.has(autoTool)) {
+    openTool(autoTool);
+    return;
+  }
+  const path = window.location.pathname.replace(/^\/|\/$/g, '').replace(/\.html$/, '');
   const hash = window.location.hash.replace('#', '');
   const toolId = SLUG_TO_TOOL[path] || SLUG_TO_TOOL[hash] || (ALLOWED_TOOL_IDS.has(hash) ? hash : null);
   if (toolId) {
