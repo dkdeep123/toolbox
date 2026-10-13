@@ -193,37 +193,7 @@
       </div>
     </div>
     <div class="hero-art hero-carousel-showcase" id="hero-carousel-showcase" aria-label="Tool showcase carousel" role="region">
-      <!-- Ambient background mesh & neon glow -->
-      <div class="carousel-ambient-glow" aria-hidden="true"></div>
-      <div class="carousel-glow-orb" aria-hidden="true"></div>
-
-      <!-- SVG Semicircular Neon Track & Nodes -->
-      <svg class="carousel-track-svg" id="carousel-track-svg" aria-hidden="true" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <filter id="neon-glow-filter" x="-30%" y="-30%" width="160%" height="160%">
-            <feGaussianBlur stdDeviation="8" result="blur1" />
-            <feGaussianBlur stdDeviation="2.5" result="blur2" />
-            <feMerge>
-              <feMergeNode in="blur1" />
-              <feMergeNode in="blur2" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
-          <linearGradient id="neon-path-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.9" />
-            <stop offset="50%" stop-color="#00f0ff" stop-opacity="1" />
-            <stop offset="100%" stop-color="#818cf8" stop-opacity="0.9" />
-          </linearGradient>
-        </defs>
-        <!-- Soft glow backing path -->
-        <path class="carousel-track-glow" id="carousel-track-glow" />
-        <!-- Crisp core neon path -->
-        <path class="carousel-track-core" id="carousel-track-core" />
-        <!-- Glowing anchor nodes along the arc -->
-        <g class="carousel-track-nodes" id="carousel-track-nodes"></g>
-      </svg>
-
-      <!-- Carousel Cards Container -->
+      <!-- Carousel Cards Container along invisible semicircular trajectory -->
       <div class="carousel-cards-track" id="carousel-cards-track" role="list" aria-label="Available tools carousel"></div>
     </div>
   </section>
