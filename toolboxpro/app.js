@@ -187,7 +187,6 @@ const modalBox = modal ? modal.querySelector('.modal-box') : null;
 const content = document.getElementById('toolContent');
 const themeBtn = document.getElementById('theme');
 const toast   = document.getElementById('toast');
-const searchDropdown = document.getElementById('search-dropdown');
 
 /* ─────────────────────────────────────────
    State
@@ -263,168 +262,15 @@ function render() {
 }
 
 /* ─────────────────────────────────────────
-   Search & Filter with Interactive Live Dropdown
+   Search & Filter
 ───────────────────────────────────────── */
-let activeSearchIndex = -1;
-
-function highlightMatch(text, query) {
-  if (!query) return escapeHtml(text);
-  const regex = new RegExp(`(${query.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, '\\$&')})`, 'gi');
-  const safeText = escapeHtml(text);
-  return safeText.replace(regex, '<mark class="search-match-highlight">$1</mark>');
-}
-
-function closeSearchDropdown() {
-  if (!searchDropdown) return;
-  searchDropdown.classList.add('hidden');
-  searchDropdown.innerHTML = '';
-  activeSearchIndex = -1;
-  if (search) search.setAttribute('aria-expanded', 'false');
-}
-
-function updateSearchDropdown() {
-  if (!search || !searchDropdown) return;
-  const q = search.value.trim().toLowerCase();
-
-  if (!q) {
-    closeSearchDropdown();
-    return;
-  }
-
-  const matchingTools = TOOLS.filter(t =>
-    (t.name + ' ' + t.desc).toLowerCase().includes(q)
-  );
-
-  activeSearchIndex = -1;
-  search.setAttribute('aria-expanded', 'true');
-
-  if (matchingTools.length === 0) {
-    searchDropdown.innerHTML = `
-      <div class="search-empty-state" role="status">
-        <span aria-hidden="true">🔍</span>
-        No tools match "<strong>${escapeHtml(q)}</strong>". Try checking all categories below.
-      </div>
-    `;
-    searchDropdown.classList.remove('hidden');
-    return;
-  }
-
-  searchDropdown.innerHTML = matchingTools.map((tool, idx) => `
-    <div
-      class="search-item"
-      role="option"
-      id="search-opt-${idx}"
-      data-id="${tool.id}"
-      data-index="${idx}"
-      tabindex="-1"
-      aria-selected="false"
-    >
-      <div class="search-item-icon" aria-hidden="true">${tool.icon}</div>
-      <div class="search-item-text">
-        <span class="search-item-title">${highlightMatch(tool.name, q)}</span>
-        <span class="search-item-desc">${highlightMatch(tool.desc, q)}</span>
-      </div>
-      <span class="search-item-cat">${escapeHtml(tool.cat)}</span>
-    </div>
-  `).join('');
-
-  searchDropdown.classList.remove('hidden');
-
-  // Attach click handler to each item in dropdown
-  searchDropdown.querySelectorAll('.search-item').forEach(item => {
-    item.addEventListener('mousedown', (e) => {
-      // Use mousedown to trigger before input blur
-      e.preventDefault();
-      const toolId = item.dataset.id;
-      closeSearchDropdown();
-      if (search) search.blur();
-      openTool(toolId);
-    });
-  });
-}
-
-function selectDropdownItem(newIndex) {
-  if (!searchDropdown || searchDropdown.classList.contains('hidden')) return;
-  const items = searchDropdown.querySelectorAll('.search-item');
-  if (items.length === 0) return;
-
-  items.forEach(el => {
-    el.classList.remove('is-selected');
-    el.setAttribute('aria-selected', 'false');
-  });
-
-  if (newIndex >= 0 && newIndex < items.length) {
-    activeSearchIndex = newIndex;
-    const target = items[activeSearchIndex];
-    target.classList.add('is-selected');
-    target.setAttribute('aria-selected', 'true');
-    target.scrollIntoView({ block: 'nearest' });
-    search.setAttribute('aria-activedescendant', target.id);
-  } else {
-    activeSearchIndex = -1;
-    search.removeAttribute('aria-activedescendant');
-  }
-}
-
 if (search) {
-  search.addEventListener('input', () => {
-    render();
-    updateSearchDropdown();
-  });
+  search.addEventListener('input', render);
+  search.addEventListener('search', render);   // fires when native ❌ clear button is clicked
+  search.addEventListener('keyup', render);    // fallback for all browsers
 
-  search.addEventListener('focus', () => {
-    if (search.value.trim().length > 0) {
-      updateSearchDropdown();
-    }
-  });
-
-  search.addEventListener('blur', () => {
-    // Delay slightly so clicks on items register
-    setTimeout(closeSearchDropdown, 200);
-  });
-
-  search.addEventListener('search', () => {
-    render();
-    updateSearchDropdown();
-  });
-
+  // Open top result on Enter
   search.addEventListener('keydown', e => {
-    if (searchDropdown && !searchDropdown.classList.contains('hidden')) {
-      const items = searchDropdown.querySelectorAll('.search-item');
-
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        const next = activeSearchIndex + 1 >= items.length ? 0 : activeSearchIndex + 1;
-        selectDropdownItem(next);
-        return;
-      }
-
-      if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        const prev = activeSearchIndex - 1 < 0 ? items.length - 1 : activeSearchIndex - 1;
-        selectDropdownItem(prev);
-        return;
-      }
-
-      if (e.key === 'Enter') {
-        e.preventDefault();
-        if (activeSearchIndex >= 0 && activeSearchIndex < items.length) {
-          const selectedId = items[activeSearchIndex].dataset.id;
-          closeSearchDropdown();
-          search.blur();
-          openTool(selectedId);
-          return;
-        }
-      }
-
-      if (e.key === 'Escape') {
-        e.preventDefault();
-        closeSearchDropdown();
-        return;
-      }
-    }
-
-    // Default Enter key: open top filtered tool if dropdown wasn't navigated
     if (e.key === 'Enter') {
       e.preventDefault();
       const q = search.value.toLowerCase().trim();
@@ -432,20 +278,10 @@ if (search) {
         (category === 'all' || t.cat === category) &&
         (t.name + ' ' + t.desc).toLowerCase().includes(q)
       );
-      if (list.length > 0) {
-        closeSearchDropdown();
-        openTool(list[0].id);
-      }
+      if (list.length > 0) openTool(list[0].id);
     }
   });
 }
-
-// Close dropdown on outside click
-document.addEventListener('click', e => {
-  if (search && !search.contains(e.target) && searchDropdown && !searchDropdown.contains(e.target)) {
-    closeSearchDropdown();
-  }
-});
 
 // Keyboard shortcut ⌘K / Ctrl+K
 document.addEventListener('keydown', e => {
@@ -590,7 +426,7 @@ function showToast(msg, duration = 2500) {
    Clipboard Copy (rate-limited)
 ───────────────────────────────────────── */
 let _copyLastMs = 0;
-function copyResult(text, btnElement = null) {
+function copyResult(text) {
   // Rate-limit: one copy per 1 s to prevent spam
   const now = Date.now();
   if (now - _copyLastMs < 1000) return;
@@ -600,18 +436,7 @@ function copyResult(text, btnElement = null) {
     showToast('⚠️ Clipboard not available');
     return;
   }
-  navigator.clipboard.writeText(text).then(() => {
-    showToast('✓ Copied to clipboard!');
-    if (btnElement) {
-      btnElement.classList.add('copied');
-      const originalText = btnElement.textContent;
-      btnElement.textContent = '✓ Copied!';
-      setTimeout(() => {
-        btnElement.classList.remove('copied');
-        btnElement.textContent = originalText;
-      }, 1800);
-    }
-  });
+  navigator.clipboard.writeText(text).then(() => showToast('✓ Copied to clipboard!'));
 }
 
 /* ─────────────────────────────────────────
@@ -624,8 +449,7 @@ function showResult(html, plainText) {
     <button class="copy-btn" aria-label="Copy result" title="Copy result">Copy</button>
   `;
   res.classList.remove('hidden');
-  const btn = res.querySelector('.copy-btn');
-  btn.addEventListener('click', () => copyResult(plainText || res.innerText.replace('Copy', '').trim(), btn));
+  res.querySelector('.copy-btn').addEventListener('click', () => copyResult(plainText || res.innerText.replace('Copy', '').trim()));
 }
 
 function showError(msg) {
@@ -2566,7 +2390,7 @@ function initHeroCarousel() {
     }
   }
 
-  // Animation controller: Continuously rotates through tools every ~2 seconds with smooth 400ms transition
+  // Animation controller: Increased rotation speed to ~1 second per tool
   let currentStep = 0;
   let targetStep = 0;
   let currentContinuousPos = 0;
@@ -2574,8 +2398,8 @@ function initHeroCarousel() {
   let isTransitioning = false;
   let isPaused = false;
   let timerId = null;
-  const INTERVAL_MS = 2000; // ~2 seconds per tool with brief pause
-  const TRANSITION_MS = 400; // smooth 400ms transition between cards
+  const INTERVAL_MS = 1000; // ~1 second per tool
+  const TRANSITION_MS = 500; // smooth 500ms transition between cards
 
   function easeInOutCubic(t) {
     return t < 0.5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
