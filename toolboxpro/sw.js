@@ -8,7 +8,7 @@
    ─ Falls back to offline page on error
 ───────────────────────────────────────── */
 
-const CACHE_NAME = 'toolboxpro-v18';
+const CACHE_NAME = 'toolboxpro-v19';
 
 /** Trusted, explicitly-listed assets to pre-cache on install. */
 const PRECACHE_ASSETS = [
@@ -17,16 +17,34 @@ const PRECACHE_ASSETS = [
   '/styles.css?v=13',
   '/app.js?v=13',
   '/logo.svg',
+  '/og-image.png',
   '/manifest.json',
   '/pdf-lib.min.js',
   '/qrcode.min.js',
   '/jspdf.umd.min.js',
-  '/pdf-merger.html',
-  '/qr-code-generator.html',
-  '/image-compressor.html',
-  '/photo-resizer.html',
-  '/image-to-pdf.html',
+  '/about.html',
+  '/contact.html',
+  '/privacy.html',
+  '/terms.html',
+  '/age-calculator.html',
+  '/bmi-calculator.html',
+  '/date-difference-calculator.html',
+  '/discount-calculator.html',
   '/emi-calculator.html',
+  '/gst-calculator.html',
+  '/image-compressor.html',
+  '/image-resizer.html',
+  '/image-to-pdf.html',
+  '/number-converter.html',
+  '/pdf-compressor.html',
+  '/pdf-merger.html',
+  '/percentage-calculator.html',
+  '/photo-resizer.html',
+  '/qr-code-generator.html',
+  '/ratio-calculator.html',
+  '/salary-calculator.html',
+  '/tip-calculator.html',
+  '/unit-converter.html',
 ];
 
 /**

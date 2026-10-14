@@ -1,0 +1,256 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Free Number Converter Online — Decimal, Binary, Hex, Octal & Roman Numerals | ToolBoxPro</title>
+  <meta name="description" content="Convert numbers between Decimal (Base 10), Binary (Base 2), Hexadecimal (Base 16), Octal (Base 8), and Roman Numerals. Instant developer and student utility."/>
+  <link rel="canonical" href="https://toolboxpro.in/number-converter.html"/>
+  <link rel="icon" type="image/svg+xml" href="logo.svg"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap"/>
+  <link rel="stylesheet" href="styles.css?v=13"/>
+
+  <meta property="og:type" content="website"/>
+  <meta property="og:title" content="Free Number Converter Online — Decimal, Binary, Hex & Roman"/>
+  <meta property="og:description" content="Convert numbers between Decimal (Base 10), Binary (Base 2), Hexadecimal (Base 16), Octal (Base 8), and Roman Numerals. Instant developer and student utility."/>
+  <meta property="og:url" content="https://toolboxpro.in/number-converter.html"/>
+  <meta property="og:image" content="https://toolboxpro.in/og-image.png"/>
+
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="Free Number Converter Online — Decimal, Binary, Hex & Roman"/>
+  <meta name="twitter:description" content="Convert numbers between Decimal (Base 10), Binary (Base 2), Hexadecimal (Base 16), Octal (Base 8), and Roman Numerals. Instant developer and student utility."/>
+  <meta name="twitter:image" content="https://toolboxpro.in/og-image.png"/>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    "name": "ToolBoxPro Free Online Number Converter",
+    "operatingSystem": "All",
+    "applicationCategory": "UtilitiesApplication",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    },
+    "description": "Convert numbers between Decimal (Base 10), Binary (Base 2), Hexadecimal (Base 16), Octal (Base 8), and Roman Numerals. Instant developer and student utility."
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {
+        "@type": "ListItem",
+        "position": 1,
+        "name": "Home",
+        "item": "https://toolboxpro.in/"
+      },
+      {
+        "@type": "ListItem",
+        "position": 2,
+        "name": "Tools",
+        "item": "https://toolboxpro.in/#tools"
+      },
+      {
+        "@type": "ListItem",
+        "position": 3,
+        "name": "Free Online Number Converter",
+        "item": "https://toolboxpro.in/number-converter.html"
+      }
+    ]
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "Why do computers use binary and hexadecimal?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Computers rely on physical transistors that hold two electrical states: on (1) or off (0). Hexadecimal (base 16) is used because each hex digit represents exactly 4 binary bits (nibble), making byte reading clean."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "How do Roman numerals work?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Roman numerals use combinations of letters: I=1, V=5, X=10, L=50, C=100, D=500, and M=1000. Subtractive notation is used for numbers like 4 (IV) and 9 (IX)."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the binary representation of decimal 255?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Decimal 255 is equal to binary 11111111 and hexadecimal FF."
+        }
+      }
+    ]
+  }
+  </script>
+</head>
+<body>
+
+<header class="nav" role="banner">
+  <a class="logo" href="/" aria-label="ToolBoxPro home">
+    <img class="logo-icon" src="logo.svg" alt="" width="36" height="36" aria-hidden="true"/>
+    <span class="logo-text">ToolBox<span class="logo-pro-badge">PRO</span></span>
+  </a>
+  <nav aria-label="Primary navigation">
+    <a href="/#tools">All Tools</a>
+    <a href="/#popular">Popular</a>
+    <a href="about.html">About</a>
+    <a href="contact.html">Contact</a>
+  </nav>
+  <button id="theme" class="icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button>
+</header>
+
+<main class="landing-page" id="main-content">
+  <nav class="landing-breadcrumbs" aria-label="Breadcrumb">
+    <a href="/">Home</a>
+    <span aria-hidden="true">›</span>
+    <a href="/#tools">Tools</a>
+    <span aria-hidden="true">›</span>
+    <span aria-current="page">Free Online Number Converter</span>
+  </nav>
+
+  <div class="landing-hero">
+    <span class="badge">Computer Science & Math Base Converter</span>
+    <h1>Free Online Number Converter</h1>
+    <p>Convert numbers between Decimal (Base 10), Binary (Base 2), Hexadecimal (Base 16), Octal (Base 8), and Roman Numerals. Instant developer and student utility.</p>
+  </div>
+
+  <div class="tool-embed-card">
+    <div id="toolContent" data-tool="number"></div>
+  </div>
+
+  <div class="landing-features-grid">
+    <div class="landing-feat-card">
+      <div class="feat-icon">🔁</div>
+      <h3>All Major Number Bases</h3>
+      <p>Binary (base 2), Octal (base 8), Decimal (base 10), and Hexadecimal (base 16).</p>
+    </div>
+    <div class="landing-feat-card">
+      <div class="feat-icon">🏛️</div>
+      <h3>Roman Numeral Conversion</h3>
+      <p>Convert standard Arabic numbers into valid Roman numerals (I, V, X, L, C, D, M) and vice versa.</p>
+    </div>
+    <div class="landing-feat-card">
+      <div class="feat-icon">💻</div>
+      <h3>Developer & Student Friendly</h3>
+      <p>Instant bit-level conversion essential for programming, networking, and computer architecture.</p>
+    </div>
+  </div>
+
+  <section class="landing-content-section" aria-labelledby="guide-heading">
+    <h2 id="guide-heading">Number Bases and Computer Radix Systems</h2>
+    <p>While everyday human mathematics utilizes the base-10 decimal system, computing architectures operate natively on binary bits (0 and 1). Hexadecimal and Octal notation provide compact human-readable representations of binary bytes and memory addresses.</p>
+    
+    <div class="landing-steps" style="margin-top:24px;">
+      <div class="landing-step-item">
+        <div class="landing-step-num">1</div>
+        <div>
+          <strong>Choose Input Format</strong>
+          <p>Select whether you are typing a decimal number, binary string, or hex value.</p>
+        </div>
+      </div>
+      <div class="landing-step-item">
+        <div class="landing-step-num">2</div>
+        <div>
+          <strong>Type Your Number</strong>
+          <p>Input your numeric digits into the input box.</p>
+        </div>
+      </div>
+      <div class="landing-step-item">
+        <div class="landing-step-num">3</div>
+        <div>
+          <strong>Instant Multi-Base Output</strong>
+          <p>Simultaneously view the number represented across all standard bases and Roman numerals.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="landing-content-section" aria-labelledby="faq-heading">
+    <h2 id="faq-heading">Frequently Asked Questions</h2>
+    <div class="landing-faq-list">
+      <details class="landing-faq-item" open>
+        <summary>Why do computers use binary and hexadecimal?</summary>
+        <div class="faq-ans">
+          Computers rely on physical transistors that hold two electrical states: on (1) or off (0). Hexadecimal (base 16) is used because each hex digit represents exactly 4 binary bits (nibble), making byte reading clean.
+        </div>
+      </details>
+      <details class="landing-faq-item">
+        <summary>How do Roman numerals work?</summary>
+        <div class="faq-ans">
+          Roman numerals use combinations of letters: I=1, V=5, X=10, L=50, C=100, D=500, and M=1000. Subtractive notation is used for numbers like 4 (IV) and 9 (IX).
+        </div>
+      </details>
+      <details class="landing-faq-item">
+        <summary>What is the binary representation of decimal 255?</summary>
+        <div class="faq-ans">
+          Decimal 255 is equal to binary 11111111 and hexadecimal FF.
+        </div>
+      </details>
+    </div>
+  </section>
+
+  <div class="related-tools-box">
+    <h2>Related Tools & Utilities</h2>
+    <div class="popular-grid">
+      <a href="unit-converter.html" class="popular-card" style="text-decoration:none;">
+        <span aria-hidden="true">📏</span>
+        <h3>Unit Converter</h3>
+        <p>Convert bytes, kilobytes, gigabytes, and terabytes.</p>
+      </a>
+      <a href="ratio-calculator.html" class="popular-card" style="text-decoration:none;">
+        <span aria-hidden="true">🔢</span>
+        <h3>Ratio Calculator</h3>
+        <p>Simplify fractions and numerical proportions.</p>
+      </a>
+      <a href="qr-code-generator.html" class="popular-card" style="text-decoration:none;">
+        <span aria-hidden="true">📱</span>
+        <h3>QR Code Generator</h3>
+        <p>Encode alphanumeric and binary data into 2D QR codes.</p>
+      </a>
+    </div>
+  </div>
+</main>
+
+<footer id="about" role="contentinfo">
+  <div class="footer-top">
+    <a class="logo" href="/" aria-label="ToolBoxPro home">
+      <img class="logo-icon" src="logo.svg" alt="" width="36" height="36" aria-hidden="true"/>
+      <span class="logo-text">ToolBox<span class="logo-pro-badge">PRO</span></span>
+    </a>
+    <p>Simple tools for everyday problems. 100% free & private.</p>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 ToolBoxPro</span>
+    <nav aria-label="Footer navigation">
+      <a href="about.html">About</a>
+      <a href="privacy.html" rel="noopener">Privacy</a>
+      <a href="terms.html" rel="noopener">Terms</a>
+      <a href="contact.html" rel="noopener">Contact</a>
+    </nav>
+  </div>
+</footer>
+
+<div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
+
+<script src="jspdf.umd.min.js"></script>
+<script src="pdf-lib.min.js"></script>
+<script src="qrcode.min.js"></script>
+<script src="app.js?v=13" defer></script>
+</body>
+</html>
