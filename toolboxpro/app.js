@@ -51,7 +51,7 @@ function updateFluid() {
   }
 }
 
-if (cursorOutline) {
+if (cursorOutline && window.matchMedia && window.matchMedia('(pointer: fine)').matches) {
   let mouseX = 0;
   let mouseY = 0;
   let dotX = 0;
