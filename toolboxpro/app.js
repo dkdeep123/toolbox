@@ -255,7 +255,7 @@ const toast   = document.getElementById('toast');
 /* ─────────────────────────────────────────
    State
 ───────────────────────────────────────── */
-let category = 'image';
+let category = 'all';
 let toastTimer = null;
 let previousFocus = null; // for restoring focus on modal close
 
@@ -287,22 +287,27 @@ function buildToolCardHtml(t, idx) {
     <article
       class="tool reveal"
       data-reveal="fade-up"
-      style="transition-delay: ${(idx % 8) * 40}ms;"
+      style="transition-delay: ${(idx % 8) * 35}ms;"
       role="listitem"
       tabindex="0"
       data-id="${t.id}"
       data-cat="${t.cat}"
       aria-label="Open ${escapeHtml(t.name)}"
     >
-      <div class="tool-icon" aria-hidden="true">${getToolSvgIcon(t.iconName)}</div>
-      <div class="tool-info">
-        <h3>${escapeHtml(t.name)}</h3>
-        <p>${escapeHtml(t.desc)}</p>
+      <div class="tool-top">
+        <div class="tool-icon" aria-hidden="true">${getToolSvgIcon(t.iconName)}</div>
+        <span class="tool-cat-badge">${escapeHtml(t.cat.toUpperCase())}</span>
       </div>
-      <span class="tool-arrow" aria-hidden="true">
-        <span>Open tool</span>
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
-      </span>
+      <div class="tool-body">
+        <h3 class="tool-name">${escapeHtml(t.name)}</h3>
+        <p class="tool-desc">${escapeHtml(t.desc)}</p>
+      </div>
+      <div class="tool-footer">
+        <span class="tool-action-btn">
+          <span>Open Tool</span>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+        </span>
+      </div>
     </article>
   `;
 }
