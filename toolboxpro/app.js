@@ -151,29 +151,93 @@ const ALLOWED_IMAGE_TYPES = new Set([
 
 
 /* ─────────────────────────────────────────
-   Tool Registry
+   Tool Registry (Structured with Image & PDF First)
 ───────────────────────────────────────── */
 const TOOLS = [
-  { id: 'age',         name: 'Age Calculator',             icon: '🎂', cat: 'utility', desc: 'Calculate your exact age from your date of birth.' },
-  { id: 'emi',         name: 'EMI Calculator',              icon: '💰', cat: 'finance', desc: 'Calculate monthly EMI, interest and total payment.' },
-  { id: 'percentage',  name: 'Percentage Calculator',       icon: '％', cat: 'math',    desc: 'Find percentage, increase and decrease quickly.' },
-  { id: 'gst',         name: 'GST Calculator',              icon: '🧾', cat: 'finance', desc: 'Add or remove GST from any amount.' },
-  { id: 'unit',        name: 'Unit Converter',              icon: '📏', cat: 'utility', desc: 'Advanced scientific converter: substance, molarity, mass, length, energy, storage & laboratory units.' },
-  { id: 'bmi',         name: 'BMI Calculator',              icon: '⚖️',  cat: 'utility', desc: 'Check BMI using your height and weight.' },
-  { id: 'discount',    name: 'Discount Calculator',         icon: '🏷️',  cat: 'finance', desc: 'Calculate sale price and savings.' },
-  { id: 'tip',         name: 'Tip Calculator',              icon: '🍽️',  cat: 'finance', desc: 'Calculate tip and split a bill.' },
-  { id: 'ratio',       name: 'Ratio Calculator',            icon: '🔢', cat: 'math',    desc: 'Simplify and calculate ratios.' },
-  { id: 'number',      name: 'Number Converter',            icon: '🔁', cat: 'math',    desc: 'Convert numbers between common formats.' },
-  { id: 'date',        name: 'Date Difference',             icon: '📅', cat: 'utility', desc: 'Find the number of days between two dates.' },
-  { id: 'salary',      name: 'Salary Calculator',           icon: '💵', cat: 'finance', desc: 'Estimate monthly and annual salary breakdown.' },
-  { id: 'pdfmerge',    name: 'PDF Merger',                  icon: '📑', cat: 'pdf',     desc: 'Merge multiple PDF files in your preferred order.' },
-  { id: 'imgcompress', name: 'Image Compressor',           icon: '🗜️', cat: 'image',   desc: 'Compress JPG, PNG & WebP images with custom quality & before/after preview.' },
-  { id: 'photoresize', name: 'Photo & Signature Resizer',   icon: '✍️', cat: 'image',   desc: 'Resize photos & signatures to exact px dimensions or target KB file size.' },
-  { id: 'imgresize',   name: 'Image Resizer',              icon: '🖼️', cat: 'image',   desc: 'Resize images to exact dimensions or by percentage.' },
-  { id: 'imgtopdf',    name: 'Image to PDF Converter',      icon: '📄', cat: 'pdf',     desc: 'Convert multiple images into a PDF with A4/Letter size & margins.' },
-  { id: 'pdfcompress', name: 'PDF Compressor',             icon: '🗜️', cat: 'pdf',     desc: 'Compress PDF files directly in your browser.' },
-  { id: 'qrcode',      name: 'QR Code Generator',          icon: '📱', cat: 'utility', desc: 'Generate custom QR codes for URLs, text, Wi-Fi & email.' },
+  // ── Image Tools ──
+  { id: 'imgcompress', name: 'Image Compressor',           icon: '🗜️', iconName: 'image-compress', cat: 'image',   desc: 'Compress JPG, PNG & WebP images with custom quality & live preview.' },
+  { id: 'imgresize',   name: 'Image Resizer',              icon: '🖼️', iconName: 'image-resize',   cat: 'image',   desc: 'Resize images to exact dimensions or percentage with aspect ratio lock.' },
+  { id: 'photoresize', name: 'Photo & Signature Resizer',   icon: '✍️', iconName: 'photo-signature',cat: 'image',   desc: 'Resize photos & signatures to exact px dimensions or target KB file size.' },
+  { id: 'imgtopdf',    name: 'Image to PDF Converter',      icon: '📄', iconName: 'image-to-pdf',   cat: 'image',   desc: 'Convert multiple images into a clean PDF with custom page size & margins.' },
+
+  // ── PDF Tools ──
+  { id: 'pdfmerge',    name: 'PDF Merger',                  icon: '📑', iconName: 'pdf-merge',      cat: 'pdf',     desc: 'Merge multiple PDF files in your preferred sequence in seconds.' },
+  { id: 'pdfcompress', name: 'PDF Compressor',             icon: '🗜️', iconName: 'pdf-compress',   cat: 'pdf',     desc: 'Compress and optimize PDF file sizes directly in your browser.' },
+
+  // ── Finance Tools ──
+  { id: 'emi',         name: 'EMI Calculator',              icon: '💰', iconName: 'emi',            cat: 'finance', desc: 'Calculate monthly loan EMI, total interest, and amortisation breakdown.' },
+  { id: 'gst',         name: 'GST Calculator',              icon: '🧾', iconName: 'gst',            cat: 'finance', desc: 'Add or subtract GST from any amount with standard tax slabs.' },
+  { id: 'salary',      name: 'Salary Calculator',           icon: '💵', iconName: 'salary',         cat: 'finance', desc: 'Calculate in-hand monthly salary and annual take-home deductions.' },
+  { id: 'discount',    name: 'Discount Calculator',         icon: '🏷️', iconName: 'discount',       cat: 'finance', desc: 'Find discounted final prices, savings amount, and percentage off.' },
+  { id: 'tip',         name: 'Tip Calculator',              icon: '🍽️', iconName: 'tip',            cat: 'finance', desc: 'Calculate tip percentages and split restaurant bills evenly.' },
+
+  // ── Math Tools ──
+  { id: 'percentage',  name: 'Percentage Calculator',       icon: '％', iconName: 'percentage',     cat: 'math',    desc: 'Compute percentage differences, increases, decreases, and fractions.' },
+  { id: 'ratio',       name: 'Ratio Calculator',            icon: '🔢', iconName: 'ratio',          cat: 'math',    desc: 'Simplify mathematical ratios and compute proportional values.' },
+  { id: 'number',      name: 'Number Converter',            icon: '🔁', iconName: 'number',         cat: 'math',    desc: 'Convert numbers across decimal, binary, hex, and roman numerals.' },
+
+  // ── Utility Tools ──
+  { id: 'age',         name: 'Age Calculator',             icon: '🎂', iconName: 'age',            cat: 'utility', desc: 'Calculate exact chronological age in years, months, and days.' },
+  { id: 'unit',        name: 'Unit Converter',              icon: '📏', iconName: 'unit',           cat: 'utility', desc: 'Convert length, mass, temperature, speed, data storage, and lab units.' },
+  { id: 'date',        name: 'Date Difference',             icon: '📅', iconName: 'date',           cat: 'utility', desc: 'Compute exact day, week, and month intervals between two dates.' },
+  { id: 'bmi',         name: 'BMI Calculator',              icon: '⚖️',  iconName: 'bmi',            cat: 'utility', desc: 'Assess body mass index according to standard health categories.' },
+  { id: 'qrcode',      name: 'QR Code Generator',          icon: '📱', iconName: 'qrcode',         cat: 'utility', desc: 'Create custom QR codes for URLs, Wi-Fi networks, text, and contacts.' },
 ];
+
+/* Category display metadata for sectional organization */
+const CATEGORIES = [
+  { id: 'image',   name: 'Image Tools',   desc: 'Resize, compress and convert images effortlessly.' },
+  { id: 'pdf',     name: 'PDF Tools',     desc: 'Merge, compress and organize PDF documents privately.' },
+  { id: 'finance', name: 'Finance Tools', desc: 'Calculators for loans, taxes, salary and commercial savings.' },
+  { id: 'math',    name: 'Math Tools',    desc: 'Solve percentages, ratios, and numeric conversions.' },
+  { id: 'utility', name: 'Utility Tools', desc: 'Everyday utilities for dates, units, QR codes and calculations.' }
+];
+
+/* Clean SaaS Outline SVG Icons */
+function getToolSvgIcon(iconName) {
+  switch (iconName) {
+    case 'image-compress':
+      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/><line x1="12" y1="3" x2="12" y2="7"/><line x1="12" y1="21" x2="12" y2="17"/></svg>`;
+    case 'image-resize':
+      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6"/><path d="M9 21H3v-6"/><path d="M21 3l-7 7"/><path d="M3 21l7-7"/></svg>`;
+    case 'photo-signature':
+      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>`;
+    case 'image-to-pdf':
+      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>`;
+    case 'pdf-merge':
+      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/><path d="M4 8v12a2 2 0 0 0 2 2h10"/></svg>`;
+    case 'pdf-compress':
+      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="11" x2="12" y2="17"/><polyline points="9 14 12 11 15 14"/></svg>`;
+    case 'emi':
+      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><line x1="6" y1="15" x2="10" y2="15"/></svg>`;
+    case 'gst':
+      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1z"/><line x1="8" y1="7" x2="16" y2="7"/><line x1="8" y1="11" x2="16" y2="11"/><line x1="8" y1="15" x2="12" y2="15"/></svg>`;
+    case 'salary':
+      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>`;
+    case 'discount':
+      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>`;
+    case 'tip':
+      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/><line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/></svg>`;
+    case 'percentage':
+      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="5" x2="5" y2="19"/><circle cx="6.5" cy="6.5" r="2.5"/><circle cx="17.5" cy="17.5" r="2.5"/></svg>`;
+    case 'ratio':
+      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="7" r="2"/><circle cx="12" cy="17" r="2"/></svg>`;
+    case 'number':
+      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>`;
+    case 'age':
+      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M4 16s.5-1 2-1 2.5 2 4 2 2.5-2 4-2 2.5 2 4 2 2-1 2-1"/><line x1="12" y1="11" x2="12" y2="7"/><circle cx="12" cy="4" r="1"/></svg>`;
+    case 'unit':
+      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.3 8.7 8.7 21.3c-.4.4-1 .4-1.4 0l-4.6-4.6c-.4-.4-.4-1 0-1.4L15.3 2.7c.4-.4 1-.4 1.4 0l4.6 4.6c.4.4.4 1 0 1.4z"/><line x1="7.5" y1="10.5" x2="9" y2="12"/><line x1="10.5" y1="7.5" x2="12" y2="9"/><line x1="13.5" y1="4.5" x2="15" y2="6"/></svg>`;
+    case 'date':
+      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>`;
+    case 'bmi':
+      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/></svg>`;
+    case 'qrcode':
+      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="3" height="3"/><rect x="18" y="18" width="3" height="3"/><rect x="14" y="18" width="3" height="3"/><rect x="18" y="14" width="3" height="3"/></svg>`;
+    default:
+      return `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+  }
+}
 
 /* ─────────────────────────────────────────
    DOM References
@@ -191,7 +255,7 @@ const toast   = document.getElementById('toast');
 /* ─────────────────────────────────────────
    State
 ───────────────────────────────────────── */
-let category = 'all';
+let category = 'image';
 let toastTimer = null;
 let previousFocus = null; // for restoring focus on modal close
 
@@ -216,36 +280,91 @@ function applyTheme(dark) {
 themeBtn.addEventListener('click', () => applyTheme(!document.body.classList.contains('dark')));
 
 /* ─────────────────────────────────────────
-   Grid Rendering
+   Grid & Category Section Rendering
 ───────────────────────────────────────── */
-function render() {
-  if (!grid) return;
-  const q = search ? search.value.toLowerCase().trim() : '';
-  const list = TOOLS.filter(t =>
-    (category === 'all' || t.cat === category) &&
-    (t.name + ' ' + t.desc).toLowerCase().includes(q)
-  );
-
-  grid.innerHTML = list.map((t, idx) => `
+function buildToolCardHtml(t, idx) {
+  return `
     <article
       class="tool reveal"
       data-reveal="fade-up"
-      style="transition-delay: ${(idx % 8) * 80}ms;"
+      style="transition-delay: ${(idx % 8) * 40}ms;"
       role="listitem"
       tabindex="0"
       data-id="${t.id}"
       data-cat="${t.cat}"
-      aria-label="Open ${t.name}"
+      aria-label="Open ${escapeHtml(t.name)}"
     >
-      <div class="tool-icon" aria-hidden="true">${t.icon}</div>
-      <h3>${t.name}</h3>
-      <p>${t.desc}</p>
-      <span class="tool-arrow" aria-hidden="true">Open tool →</span>
+      <div class="tool-icon" aria-hidden="true">${getToolSvgIcon(t.iconName)}</div>
+      <div class="tool-info">
+        <h3>${escapeHtml(t.name)}</h3>
+        <p>${escapeHtml(t.desc)}</p>
+      </div>
+      <span class="tool-arrow" aria-hidden="true">
+        <span>Open tool</span>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
+      </span>
     </article>
-  `).join('');
+  `;
+}
 
-  if (count) count.textContent = `${list.length} tool${list.length !== 1 ? 's' : ''}`;
-  if (empty) empty.classList.toggle('hidden', list.length > 0);
+function render() {
+  if (!grid) return;
+  const q = search ? search.value.toLowerCase().trim() : '';
+
+  if (category === 'all' && !q) {
+    // Structured layout: Image -> PDF -> Finance -> Math -> Utility sections
+    let totalCount = 0;
+    const sectionsHtml = CATEGORIES.map(cat => {
+      const catTools = TOOLS.filter(t => t.cat === cat.id);
+      totalCount += catTools.length;
+      return `
+        <div class="category-block" data-category="${cat.id}">
+          <div class="category-head">
+            <div>
+              <h3 class="category-title">${cat.name}</h3>
+              <p class="category-desc">${cat.desc}</p>
+            </div>
+            <div class="category-meta">
+              <span class="category-count">${catTools.length} tools</span>
+              <button type="button" class="category-view-all" data-target-cat="${cat.id}">View all →</button>
+            </div>
+          </div>
+          <div class="tool-grid">
+            ${catTools.map((t, idx) => buildToolCardHtml(t, idx)).join('')}
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    grid.innerHTML = sectionsHtml;
+    if (count) count.textContent = `${totalCount} tools`;
+    if (empty) empty.classList.add('hidden');
+
+    // Wire up "View all" links
+    grid.querySelectorAll('.category-view-all').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.preventDefault();
+        const targetCat = btn.dataset.targetCat;
+        const chip = document.querySelector(`.chip[data-cat="${targetCat}"]`);
+        if (chip) chip.click();
+      });
+    });
+  } else {
+    // Filtered by specific category or search query
+    const list = TOOLS.filter(t =>
+      (category === 'all' || t.cat === category) &&
+      (t.name + ' ' + t.desc).toLowerCase().includes(q)
+    );
+
+    grid.innerHTML = `
+      <div class="tool-grid">
+        ${list.map((t, idx) => buildToolCardHtml(t, idx)).join('')}
+      </div>
+    `;
+
+    if (count) count.textContent = `${list.length} tool${list.length !== 1 ? 's' : ''}`;
+    if (empty) empty.classList.toggle('hidden', list.length > 0);
+  }
 
   // Attach click + keyboard handlers to each card
   grid.querySelectorAll('.tool').forEach(card => {
@@ -299,7 +418,9 @@ function updateSearchDropdown() {
   if (currentMatchingTools.length === 0) {
     searchDropdown.innerHTML = `
       <div class="search-empty-state" role="status">
-        <span aria-hidden="true">🔍</span>
+        <span class="search-empty-icon" aria-hidden="true">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        </span>
         <div>No matching tools found for "<strong>${escapeHtml(q)}</strong>"</div>
       </div>
     `;
@@ -316,12 +437,14 @@ function updateSearchDropdown() {
       data-index="${idx}"
       id="search-opt-${idx}"
     >
-      <div class="search-item-icon" aria-hidden="true">${tool.icon}</div>
+      <div class="search-item-icon" aria-hidden="true">${getToolSvgIcon(tool.iconName)}</div>
       <div class="search-item-info">
         <div class="search-item-title">${highlightMatch(tool.name, q)}</div>
         <div class="search-item-desc">${highlightMatch(tool.desc, q)}</div>
       </div>
-      <span class="tool-arrow" aria-hidden="true">↗</span>
+      <span class="tool-arrow" aria-hidden="true">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
+      </span>
     </div>
   `).join('');
 
