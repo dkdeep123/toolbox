@@ -3172,18 +3172,22 @@ function initHeroCarousel() {
   // ── Drag & Isolated Swipe Functionality ──
   let isDragging = false;
   let startY = 0;
+  let startX = 0;
   let startContinuousPos = 0;
   let hasDragged = false;
+  let touchScrollLock = false; // true when gesture is confirmed vertical and handled by carousel
 
   function onPointerDown(e) {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     initAudio();
     isDragging = true;
     hasDragged = false;
+    touchScrollLock = false;
     isPaused = true;
     isTransitioning = false;
     clearTimeout(timerId);
     startY = e.clientY;
+    startX = e.clientX;
     startContinuousPos = currentContinuousPos;
     try { showcase.setPointerCapture(e.pointerId); } catch (_) {}
   }
@@ -3191,22 +3195,38 @@ function initHeroCarousel() {
   function onPointerMove(e) {
     if (!isDragging) return;
     const deltaY = e.clientY - startY;
-    if (Math.abs(deltaY) > 5) {
+    const deltaX = e.clientX - startX;
+
+    // Detect if this is a deliberate vertical gesture
+    if (Math.abs(deltaY) > 6 && Math.abs(deltaY) > Math.abs(deltaX)) {
       hasDragged = true;
+      touchScrollLock = true;
     }
-    const stepDelta = -deltaY / 65;
-    currentContinuousPos = (startContinuousPos + stepDelta) % totalTools;
-    if (currentContinuousPos < 0) currentContinuousPos += totalTools;
-    renderCarousel(currentContinuousPos);
+
+    if (hasDragged) {
+      const stepDelta = -deltaY / 65;
+      let nextPos = startContinuousPos + stepDelta;
+      
+      // Enforce boundary limits [0, totalTools - 1] to avoid trapping user
+      if (nextPos < 0) {
+        nextPos = 0;
+      } else if (nextPos > totalTools - 1) {
+        nextPos = totalTools - 1;
+      }
+
+      currentContinuousPos = nextPos;
+      renderCarousel(currentContinuousPos);
+    }
   }
 
   function onPointerUp(e) {
     if (!isDragging) return;
     isDragging = false;
+    touchScrollLock = false;
     try { showcase.releasePointerCapture(e.pointerId); } catch (_) {}
 
-    const nearestStep = Math.round(currentContinuousPos) % totalTools;
-    currentStep = nearestStep < 0 ? nearestStep + totalTools : nearestStep;
+    const nearestStep = Math.max(0, Math.min(totalTools - 1, Math.round(currentContinuousPos)));
+    currentStep = nearestStep;
     targetStep = currentStep;
     isTransitioning = true;
     transitionStart = performance.now();
@@ -3223,14 +3243,50 @@ function initHeroCarousel() {
   showcase.addEventListener('pointerup', onPointerUp);
   showcase.addEventListener('pointercancel', onPointerUp);
 
+  // ── Touch Gesture Interceptor: Only cancel native scroll when active inside carousel bounds ──
+  showcase.addEventListener('touchmove', (e) => {
+    if (!touchScrollLock || !e.cancelable) return;
+
+    if (e.touches && e.touches.length > 0) {
+      const currentTouchY = e.touches[0].clientY;
+      const touchDeltaY = currentTouchY - startY;
+
+      // When dragging down at top boundary (first item), or dragging up at bottom boundary (last item),
+      // allow normal page scrolling instead of trapping the user.
+      if (currentContinuousPos <= 0.05 && touchDeltaY > 0) {
+        return; // Allow page to scroll down
+      }
+      if (currentContinuousPos >= totalTools - 1 - 0.05 && touchDeltaY < 0) {
+        return; // Allow page to scroll up
+      }
+    }
+
+    // Carousel is actively consuming vertical swipe: keep page stationary
+    e.preventDefault();
+  }, { passive: false });
+
   // ── Isolated Scrolling: Wheel & Trackpad Interceptor ──
   // ONLY the tools carousel scrolls when cursor/pointer is inside this area.
-  // The outer webpage never scrolls.
+  // When carousel reaches the first or last tool, allow normal page scrolling in that direction.
   let wheelAccumulator = 0;
   let wheelSnapTimer = null;
 
   showcase.addEventListener('wheel', (e) => {
-    e.preventDefault(); // Stop outer webpage scrolling
+    const delta = e.deltaY !== undefined ? e.deltaY : e.detail;
+    if (!delta) return;
+
+    // Boundary check:
+    // If scrolling up (delta < 0) and already at the first item (<= 0.05), allow outer page to scroll up.
+    if (delta < 0 && currentContinuousPos <= 0.05) {
+      return;
+    }
+    // If scrolling down (delta > 0) and already at the last item (>= totalTools - 1 - 0.05), allow outer page to scroll down.
+    if (delta > 0 && currentContinuousPos >= totalTools - 1 - 0.05) {
+      return;
+    }
+
+    // Carousel consumes the wheel event: keep main webpage stationary
+    e.preventDefault();
     e.stopPropagation();
     initAudio();
 
@@ -3239,19 +3295,20 @@ function initHeroCarousel() {
     clearTimeout(timerId);
     clearTimeout(wheelSnapTimer);
 
-    const delta = e.deltaY !== undefined ? e.deltaY : e.detail;
     wheelAccumulator += delta;
 
     // Smooth movement mapping
     const stepDelta = (delta / 120) * 0.45;
-    currentContinuousPos = (currentContinuousPos + stepDelta) % totalTools;
-    if (currentContinuousPos < 0) currentContinuousPos += totalTools;
+    let nextPos = currentContinuousPos + stepDelta;
+    if (nextPos < 0) nextPos = 0;
+    if (nextPos > totalTools - 1) nextPos = totalTools - 1;
+    currentContinuousPos = nextPos;
     renderCarousel(currentContinuousPos);
 
     // Debounce snap to closest tool
     wheelSnapTimer = setTimeout(() => {
-      const nearestStep = Math.round(currentContinuousPos) % totalTools;
-      currentStep = nearestStep < 0 ? nearestStep + totalTools : nearestStep;
+      const nearestStep = Math.max(0, Math.min(totalTools - 1, Math.round(currentContinuousPos)));
+      currentStep = nearestStep;
       targetStep = currentStep;
       isTransitioning = true;
       transitionStart = performance.now();
@@ -3262,11 +3319,6 @@ function initHeroCarousel() {
         scheduleNext(INTERVAL_MS);
       }, 300);
     }, 120);
-  }, { passive: false });
-
-  // Prevent touch gestures inside showcase from triggering page scroll
-  showcase.addEventListener('touchmove', (e) => {
-    e.preventDefault();
   }, { passive: false });
 
   // prefers-reduced-motion check

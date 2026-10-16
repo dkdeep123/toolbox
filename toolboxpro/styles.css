@@ -466,8 +466,7 @@ body.dark .search-item-title mark, body.dark .search-item-desc mark {
   user-select: none;
   overflow: hidden;
   perspective: 1000px;
-  touch-action: none;
-  overscroll-behavior: contain;
+  touch-action: pan-y;
 }
 
 /* Sound mute/unmute control */
@@ -522,8 +521,7 @@ body.dark .carousel-sound-btn:hover {
   z-index: 2;
   pointer-events: auto;
   cursor: grab;
-  touch-action: none;
-  overscroll-behavior: contain;
+  touch-action: pan-y;
 }
 
 .carousel-cards-track:active {
