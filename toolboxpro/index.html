@@ -71,7 +71,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap"/>
 
   <!-- ── Styles ── -->
-  <link rel="stylesheet" href="styles.css?v=16"/>
+  <link rel="stylesheet" href="styles.css?v=17"/>
 
   <!-- ── Structured Data: Organization ── -->
   <script type="application/ld+json">
@@ -201,14 +201,99 @@
         <button type="button" data-query="Age">Age</button>
       </div>
     </div>
-    <div class="hero-art hero-carousel-showcase reveal" data-reveal="fade-left" id="hero-carousel-showcase" aria-label="Tool showcase carousel" role="region">
-      <!-- Mute / Unmute mechanical tick sound control -->
-      <button id="carousel-sound-btn" class="carousel-sound-btn" type="button" aria-label="Toggle carousel sound" title="Toggle mechanical sound effects">
-        <span class="sound-icon" aria-hidden="true">🔊</span>
-        <span class="sound-label">Sound On</span>
-      </button>
-      <!-- Carousel Cards Container along invisible semicircular trajectory -->
-      <div class="carousel-cards-track" id="carousel-cards-track" role="list" aria-label="Available tools carousel"></div>
+    <div class="hero-art hero-preview-widget reveal" data-reveal="fade-left" aria-label="Quick launch tools preview" role="region">
+      <!-- Floating Header Stat Badge -->
+      <div class="preview-header-badge">
+        <span class="preview-pulse-dot" aria-hidden="true"></span>
+        <span class="preview-badge-text">19+ Instant Browser Tools • 100% Private</span>
+      </div>
+
+      <!-- Interactive Widget Showcase Container -->
+      <div class="preview-cards-stack">
+        <!-- Card 1: EMI Calculator Quick Preview -->
+        <div class="preview-card preview-card-featured" data-id="emi" tabindex="0" role="button" aria-label="Launch EMI Calculator">
+          <div class="preview-card-top">
+            <div class="preview-card-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="4" width="20" height="16" rx="3"/>
+                <line x1="2" y1="10" x2="22" y2="10"/>
+                <rect x="6" y="14" width="3.5" height="2.5" rx="0.5" fill="currentColor"/>
+                <line x1="13" y1="15" x2="18" y2="15"/>
+              </svg>
+            </div>
+            <div class="preview-card-title-wrap">
+              <strong>EMI Calculator</strong>
+              <span>Loan &amp; Interest Estimate</span>
+            </div>
+            <span class="preview-card-badge">Instant</span>
+          </div>
+          <div class="preview-stat-row">
+            <div class="preview-stat-item">
+              <span class="preview-stat-label">Loan Amount</span>
+              <strong class="preview-stat-val">₹ 10,00,000</strong>
+            </div>
+            <div class="preview-stat-divider" aria-hidden="true"></div>
+            <div class="preview-stat-item highlight">
+              <span class="preview-stat-label">Monthly EMI</span>
+              <strong class="preview-stat-val">₹ 12,398 /mo</strong>
+            </div>
+          </div>
+        </div>
+
+        <!-- Card 2: Image Compressor Preview -->
+        <div class="preview-card preview-card-secondary" data-id="imgcompress" tabindex="0" role="button" aria-label="Launch Image Compressor">
+          <div class="preview-card-top">
+            <div class="preview-card-icon img-icon" aria-hidden="true">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="18" height="18" rx="3"/>
+                <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor"/>
+                <path d="M21 15l-5-5L5 21"/>
+              </svg>
+            </div>
+            <div class="preview-card-title-wrap">
+              <strong>Image Compressor</strong>
+              <span>JPG, PNG &amp; WebP</span>
+            </div>
+            <span class="preview-savings-pill">-78% size</span>
+          </div>
+          <div class="preview-progress-bar" aria-hidden="true">
+            <div class="preview-progress-fill"></div>
+          </div>
+        </div>
+
+        <!-- Card 3: Quick Launch Row for PDF Merger & QR Code -->
+        <div class="preview-mini-row">
+          <div class="preview-mini-card" data-id="pdfmerge" tabindex="0" role="button" aria-label="Launch PDF Merger">
+            <div class="preview-mini-icon pdf-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M8 2h8a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2z"/>
+                <path d="M4 8v12a2 2 0 0 0 2 2h10"/>
+              </svg>
+            </div>
+            <div class="preview-mini-info">
+              <strong>PDF Merger</strong>
+              <span>Merge files</span>
+            </div>
+            <span class="preview-mini-arrow" aria-hidden="true">→</span>
+          </div>
+
+          <div class="preview-mini-card" data-id="qrcode" tabindex="0" role="button" aria-label="Launch QR Code Generator">
+            <div class="preview-mini-icon qr-icon" aria-hidden="true">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="3" y="3" width="7" height="7" rx="1"/>
+                <rect x="14" y="3" width="7" height="7" rx="1"/>
+                <rect x="3" y="14" width="7" height="7" rx="1"/>
+                <rect x="14" y="14" width="7" height="7" rx="1"/>
+              </svg>
+            </div>
+            <div class="preview-mini-info">
+              <strong>QR Generator</strong>
+              <span>Create QR</span>
+            </div>
+            <span class="preview-mini-arrow" aria-hidden="true">→</span>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -320,6 +405,6 @@
 <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <!-- ── Scripts ── -->
-<script src="app.js?v=15" defer referrerpolicy="no-referrer"></script>
+<script src="app.js?v=16" defer referrerpolicy="no-referrer"></script>
 </body>
 </html>

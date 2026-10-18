@@ -720,6 +720,14 @@ document.querySelectorAll('.popular-grid article').forEach(card => {
   });
 });
 
+// Bind hero live preview widget cards
+document.querySelectorAll('.hero-preview-widget [data-id]').forEach(card => {
+  card.addEventListener('click', () => openTool(card.dataset.id));
+  card.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openTool(card.dataset.id); }
+  });
+});
+
 /* ─────────────────────────────────────────
    Modal
 ───────────────────────────────────────── */
