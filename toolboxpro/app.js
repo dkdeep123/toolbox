@@ -397,17 +397,41 @@ function applyTheme(dark) {
 
 themeBtn.addEventListener('click', () => applyTheme(!document.body.classList.contains('dark')));
 
+/* Slug mapping for clean SEO URLs */
+const TOOL_ID_TO_SLUG = {
+  'imgcompress': 'image-compressor',
+  'imgresize':   'image-resizer',
+  'photoresize': 'photo-resizer',
+  'imgtopdf':    'image-to-pdf',
+  'pdfmerge':    'pdf-merger',
+  'pdfcompress': 'pdf-compressor',
+  'emi':         'emi-calculator',
+  'gst':         'gst-calculator',
+  'salary':      'salary-calculator',
+  'discount':    'discount-calculator',
+  'tip':         'tip-calculator',
+  'percentage':  'percentage-calculator',
+  'ratio':       'ratio-calculator',
+  'number':      'number-converter',
+  'age':         'age-calculator',
+  'unit':        'unit-converter',
+  'date':        'date-difference-calculator',
+  'bmi':         'bmi-calculator',
+  'qrcode':      'qr-code-generator'
+};
+
 /* ─────────────────────────────────────────
    Grid & Category Section Rendering
 ───────────────────────────────────────── */
 function buildToolCardHtml(t, idx) {
+  const toolSlug = TOOL_ID_TO_SLUG[t.id] || t.id;
   return `
-    <article
+    <a
+      href="${toolSlug}"
       class="tool reveal"
       data-reveal="fade-up"
       style="transition-delay: ${(idx % 8) * 35}ms;"
       role="listitem"
-      tabindex="0"
       data-id="${t.id}"
       data-cat="${t.cat}"
       aria-label="Open ${escapeHtml(t.name)}"
@@ -426,7 +450,7 @@ function buildToolCardHtml(t, idx) {
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"></line><polyline points="12 5 19 12 12 19"></polyline></svg>
         </span>
       </div>
-    </article>
+    </a>
   `;
 }
 
@@ -491,9 +515,17 @@ function render() {
 
   // Attach click + keyboard handlers to each card
   grid.querySelectorAll('.tool').forEach(card => {
-    card.addEventListener('click', () => openTool(card.dataset.id));
+    card.addEventListener('click', e => {
+      // Allow user to open in new tab with Cmd/Ctrl/middle-click
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.which === 2 || e.button === 1) return;
+      e.preventDefault();
+      openTool(card.dataset.id);
+    });
     card.addEventListener('keydown', e => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openTool(card.dataset.id); }
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        openTool(card.dataset.id);
+      }
     });
   });
 
@@ -551,8 +583,11 @@ function updateSearchDropdown() {
     return;
   }
 
-  searchDropdown.innerHTML = currentMatchingTools.slice(0, 7).map((tool, idx) => `
-    <div
+  searchDropdown.innerHTML = currentMatchingTools.slice(0, 7).map((tool, idx) => {
+    const toolSlug = TOOL_ID_TO_SLUG[tool.id] || tool.id;
+    return `
+    <a
+      href="${toolSlug}"
       class="search-item"
       role="option"
       tabindex="-1"
@@ -568,8 +603,9 @@ function updateSearchDropdown() {
       <span class="tool-arrow" aria-hidden="true">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="7" y1="17" x2="17" y2="7"></line><polyline points="7 7 17 7 17 17"></polyline></svg>
       </span>
-    </div>
-  `).join('');
+    </a>
+  `;
+  }).join('');
 
   searchDropdown.classList.remove('hidden');
 
@@ -578,6 +614,7 @@ function updateSearchDropdown() {
       setDropdownActiveIndex(idx);
     });
     item.addEventListener('click', (e) => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.which === 2 || e.button === 1) return;
       e.preventDefault();
       closeSearchDropdown();
       openTool(item.dataset.id);

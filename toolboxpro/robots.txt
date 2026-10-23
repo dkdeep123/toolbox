@@ -1,4 +1,6 @@
 User-agent: *
 Allow: /
 
+# Sitemap Index
 Sitemap: https://toolboxpro.in/sitemap.xml
+Host: https://toolboxpro.in

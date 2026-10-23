@@ -878,7 +878,10 @@ body.dark .preview-progress-bar {
   gap: 20px;
 }
 
+a.tool,
 .tool {
+  text-decoration: none;
+  color: inherit;
   background: var(--surface);
   border: 1px solid var(--line);
   border-radius: var(--radius);
