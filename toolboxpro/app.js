@@ -436,7 +436,7 @@ function buildToolCardHtml(t, idx) {
       class="tool reveal"
       data-reveal="fade-up"
       style="transition-delay: ${(idx % 8) * 35}ms;"
-      role="listitem"
+
       data-id="${t.id}"
       data-cat="${t.cat}"
       aria-label="Open ${escapeHtml(t.name)}"
@@ -3255,7 +3255,7 @@ function initHeroCarousel() {
   cardsTrack.innerHTML = TOOLS.map((tool, idx) => `
     <article
       class="carousel-card"
-      role="listitem"
+
       tabindex="0"
       data-id="${tool.id}"
       data-index="${idx}"
