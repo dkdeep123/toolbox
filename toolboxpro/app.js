@@ -402,7 +402,19 @@ themeBtn.addEventListener('click', () => {
   applyTheme(!document.body.classList.contains('dark'));
 });
 
-/* Slug mapping for clean SEO URLs */
+const TOOL_BADGES = {
+  'imgcompress': { label: '🔥 Popular', cls: 'badge-hot' },
+  'photoresize': { label: 'Govt Forms', cls: 'badge-gov' },
+  'imgtopdf':    { label: 'PDF Export', cls: 'badge-instant' },
+  'pdfmerge':    { label: '⚡ Instant', cls: 'badge-instant' },
+  'pdfcompress': { label: 'High Ratio', cls: 'badge-hot' },
+  'emi':         { label: 'Loans', cls: 'badge-finance' },
+  'gst':         { label: 'India Tax', cls: 'badge-tax' },
+  'salary':      { label: 'In-Hand', cls: 'badge-finance' },
+  'qrcode':      { label: '🔒 Private', cls: 'badge-priv' },
+  'unit':        { label: '50+ Units', cls: 'badge-util' },
+  'age':         { label: 'Exact Y/M/D', cls: 'badge-util' },
+};
 const TOOL_ID_TO_SLUG = {
   'imgcompress': 'image-compressor',
   'imgresize':   'image-resizer',
@@ -443,7 +455,10 @@ function buildToolCardHtml(t, idx) {
     >
       <div class="tool-top">
         <div class="tool-icon" aria-hidden="true">${getToolSvgIcon(t.iconName)}</div>
-        <span class="tool-cat-badge">${escapeHtml(t.cat.toUpperCase())}</span>
+        <div class="tool-top-badges">
+          ${(TOOL_BADGES[t.id] ? `<span class="tool-feat-badge ${TOOL_BADGES[t.id].cls}">${TOOL_BADGES[t.id].label}</span>` : '')}
+          <span class="tool-cat-badge">${escapeHtml(t.cat.toUpperCase())}</span>
+        </div>
       </div>
       <div class="tool-body">
         <h3 class="tool-name">${escapeHtml(t.name)}</h3>
@@ -537,6 +552,7 @@ function render() {
   // Re-observe newly rendered cards for scroll reveal
   if (typeof observeRevealElements === 'function') {
     observeRevealElements(grid);
+    if (typeof initMouseSpotlightGlow === 'function') initMouseSpotlightGlow();
   }
 }
 
@@ -3726,6 +3742,92 @@ function initScrollReveal() {
 render();
 initHeroCarousel();
 initScrollReveal();
+initHeroInteractiveDemo();
+initDynamicRotatingText();
+initDynamicSearchPlaceholder();
+initMouseSpotlightGlow();
+
+/* ─────────────────────────────────────────
+   Interactive Delight & Visual Engagement
+───────────────────────────────────────── */
+function initHeroInteractiveDemo() {
+  const slider = document.getElementById('hero-loan-slider');
+  const loanDisplay = document.getElementById('hero-loan-display');
+  const emiDisplay = document.getElementById('hero-emi-display');
+  if (!slider || !loanDisplay || !emiDisplay) return;
+
+  function updateHeroEmi() {
+    const P = parseFloat(slider.value) || 1000000;
+    loanDisplay.textContent = `₹ ${P.toLocaleString('en-IN')}`;
+    const r = 8.5 / 12 / 100;
+    const n = 120;
+    const emi = Math.round(P * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1));
+    emiDisplay.textContent = `₹ ${emi.toLocaleString('en-IN')} /mo`;
+  }
+
+  slider.addEventListener('input', updateHeroEmi);
+  slider.addEventListener('change', updateHeroEmi);
+}
+
+function initDynamicRotatingText() {
+  const textEl = document.getElementById('dynamicText');
+  if (!textEl) return;
+
+  const phrases = [
+    'Fast Everyday Tasks',
+    'Image Compression',
+    'Merging & Shrinking PDFs',
+    'Loan EMI & GST Math',
+    'Custom QR Codes',
+    'Photo & Signature Resizing',
+    'Scientific Unit Math'
+  ];
+  let idx = 0;
+
+  setInterval(() => {
+    textEl.classList.add('is-fading');
+    setTimeout(() => {
+      idx = (idx + 1) % phrases.length;
+      textEl.textContent = phrases[idx];
+      textEl.classList.remove('is-fading');
+    }, 320);
+  }, 2800);
+}
+
+function initDynamicSearchPlaceholder() {
+  const searchInput = document.getElementById('search');
+  if (!searchInput) return;
+
+  const placeholders = [
+    'Search a tool, e.g. Image, EMI, GST, PDF, Age…',
+    'e.g. Compress 5MB JPG photo to 100KB…',
+    'e.g. Calculate home loan EMI & interest…',
+    'e.g. Merge multiple PDF files together…',
+    'e.g. Add 18% GST to total amount…',
+    'e.g. Photo & signature resizer for exam forms…',
+    'e.g. Generate Wi-Fi or UPI QR Code…'
+  ];
+  let pIdx = 0;
+
+  setInterval(() => {
+    if (document.activeElement === searchInput || searchInput.value.trim().length > 0) return;
+    pIdx = (pIdx + 1) % placeholders.length;
+    searchInput.setAttribute('placeholder', placeholders[pIdx]);
+  }, 3200);
+}
+
+function initMouseSpotlightGlow() {
+  const cards = document.querySelectorAll('.tool, .preview-card, .popular article');
+  cards.forEach(card => {
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      card.style.setProperty('--mouse-x', `${x}px`);
+      card.style.setProperty('--mouse-y', `${y}px`);
+    });
+  });
+}
 
 /* ── Deep Link / Route Handler ── */
 const SLUG_TO_TOOL = {
