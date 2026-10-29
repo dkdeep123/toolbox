@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Page Not Found (404) — ToolBoxPro</title>
+  <meta name="description" content="The page you requested could not be found. Explore our 19+ free online calculators, converters, and productivity tools."/>
+  <meta name="robots" content="noindex, follow"/>
+  <link rel="icon" type="image/svg+xml" href="/logo.svg"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap"/>
+  <link rel="stylesheet" href="/styles.css?v=20"/>
+  <style>
+    .not-found-wrap {
+      max-width: 760px;
+      margin: 80px auto 100px;
+      padding: 0 24px;
+      text-align: center;
+    }
+    .not-found-card {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      padding: 56px 32px;
+      box-shadow: var(--shadow-sm);
+    }
+    .not-found-code {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 80px;
+      font-weight: 700;
+      line-height: 1;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, var(--accent), #ff764c);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    .not-found-card h1 {
+      font-size: 28px;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+    .not-found-card p {
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 520px;
+      margin: 0 auto 32px;
+    }
+    .not-found-actions {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+    .btn-home {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--accent);
+      color: #fff;
+      padding: 12px 24px;
+      border-radius: 999px;
+      font-weight: 600;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+    .btn-home:hover {
+      opacity: 0.9;
+    }
+    .btn-secondary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--surface2);
+      color: var(--text);
+      padding: 12px 24px;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      font-weight: 500;
+      text-decoration: none;
+    }
+    .btn-secondary:hover {
+      border-color: var(--accent);
+    }
+    .popular-links {
+      margin-top: 48px;
+      text-align: left;
+    }
+    .popular-links h2 {
+      font-size: 18px;
+      margin-bottom: 16px;
+      color: var(--text);
+      text-align: center;
+    }
+    .popular-links-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 12px;
+    }
+    .popular-links-grid a {
+      display: block;
+      padding: 12px 16px;
+      background: var(--surface2);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--text);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .popular-links-grid a:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+
+<header class="nav" role="banner">
+  <a class="logo" href="/" aria-label="ToolBoxPro home">
+    <img class="logo-icon" src="/logo.svg" alt="" width="36" height="36" aria-hidden="true"/>
+    <span class="logo-text">ToolBox<span class="logo-pro-badge">PRO</span></span>
+  </a>
+  <nav aria-label="Primary navigation">
+    <a href="/#tools">All Tools</a>
+    <a href="/#popular">Popular</a>
+    <a href="/about">About</a>
+    <a href="/contact">Contact</a>
+  </nav>
+</header>
+
+<main class="not-found-wrap">
+  <div class="not-found-card">
+    <div class="not-found-code">404</div>
+    <h1>Page Not Found</h1>
+    <p>Sorry, the page you're looking for doesn't exist, has been moved, or the link was mistyped.</p>
+    
+    <div class="not-found-actions">
+      <a href="/" class="btn-home">← Back to Homepage</a>
+      <a href="/#tools" class="btn-secondary">Browse All 19+ Tools</a>
+    </div>
+
+    <div class="popular-links">
+      <h2>Popular Free Tools</h2>
+      <div class="popular-links-grid">
+        <a href="/image-compressor">🖼️ Image Compressor</a>
+        <a href="/emi-calculator">💰 EMI Calculator</a>
+        <a href="/pdf-merger">📑 PDF Merger</a>
+        <a href="/gst-calculator">🧾 GST Calculator</a>
+        <a href="/age-calculator">🎂 Age Calculator</a>
+        <a href="/qr-code-generator">📱 QR Code Generator</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer id="about" role="contentinfo">
+  <div class="footer-top">
+    <a class="logo" href="/" aria-label="ToolBoxPro home">
+      <img class="logo-icon" src="/logo.svg" alt="" width="36" height="36" aria-hidden="true"/>
+      <span class="logo-text">ToolBox<span class="logo-pro-badge">PRO</span></span>
+    </a>
+    <p>Simple tools for everyday problems. 100% free & private.</p>
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 ToolBoxPro</span>
+    <nav aria-label="Footer navigation">
+      <a href="/about">About</a>
+      <a href="/privacy" rel="noopener">Privacy</a>
+      <a href="/terms" rel="noopener">Terms</a>
+      <a href="/contact" rel="noopener">Contact</a>
+    </nav>
+  </div>
+</footer>
+
+</body>
+</html>
