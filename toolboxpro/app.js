@@ -395,7 +395,12 @@ function applyTheme(dark) {
   applyTheme(saved === 'dark' || (!saved && prefersDark));
 })();
 
-themeBtn.addEventListener('click', () => applyTheme(!document.body.classList.contains('dark')));
+themeBtn.addEventListener('click', () => {
+  themeBtn.classList.remove('theme-spin');
+  void themeBtn.offsetWidth;
+  themeBtn.classList.add('theme-spin');
+  applyTheme(!document.body.classList.contains('dark'));
+});
 
 /* Slug mapping for clean SEO URLs */
 const TOOL_ID_TO_SLUG = {
@@ -895,7 +900,16 @@ function showResult(html, plainText) {
     <button class="copy-btn" aria-label="Copy result" title="Copy result">Copy</button>
   `;
   res.classList.remove('hidden');
-  res.querySelector('.copy-btn').addEventListener('click', () => copyResult(plainText || res.innerText.replace('Copy', '').trim()));
+  const copyBtn = res.querySelector('.copy-btn');
+  copyBtn.addEventListener('click', () => {
+    copyBtn.classList.add('copied');
+    copyBtn.textContent = '✓ Copied!';
+    setTimeout(() => {
+      copyBtn.classList.remove('copied');
+      copyBtn.textContent = 'Copy';
+    }, 1500);
+    copyResult(plainText || res.innerText.replace('✓ Copied!', '').replace('Copy', '').trim());
+  });
 }
 
 function showError(msg) {
@@ -2823,7 +2837,7 @@ async function i2pConvert() {
       const availH = Math.max(10, pageH - marginMm * 2);
       let renderW = availW;
       let renderH = availH;
-
+               
       if (imgAspect > (availW / availH)) {
         renderH = renderW / imgAspect;
       } else {
