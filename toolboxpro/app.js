@@ -402,6 +402,55 @@ themeBtn.addEventListener('click', () => {
   applyTheme(!document.body.classList.contains('dark'));
 });
 
+/* ─────────────────────────────────────────
+   Ambient Lighting Mode
+───────────────────────────────────────── */
+function ensureAmbientBackdrop() {
+  if (!document.querySelector('.ambient-backdrop')) {
+    const backdrop = document.createElement('div');
+    backdrop.className = 'ambient-backdrop';
+    backdrop.setAttribute('aria-hidden', 'true');
+    backdrop.innerHTML = `
+      <div class="ambient-orb ambient-orb-1"></div>
+      <div class="ambient-orb ambient-orb-2"></div>
+      <div class="ambient-orb ambient-orb-3"></div>
+      <div class="ambient-orb ambient-orb-4"></div>
+    `;
+    document.body.prepend(backdrop);
+  }
+}
+
+function applyAmbientMode(on) {
+  document.body.classList.toggle('ambient-on', on);
+  const ambientBtn = document.getElementById('ambient');
+  if (ambientBtn) {
+    ambientBtn.setAttribute('aria-pressed', on ? 'true' : 'false');
+    ambientBtn.setAttribute('title', on ? 'Ambient Light (Active — Click to Turn Off)' : 'Ambient Light (Off — Click to Turn On)');
+    ambientBtn.setAttribute('aria-label', on ? 'Disable ambient lighting' : 'Enable ambient lighting');
+  }
+  try { localStorage.setItem('tbp-ambient', on ? 'on' : 'off'); } catch (_) {}
+}
+
+(function initAmbientLighting() {
+  ensureAmbientBackdrop();
+  let saved;
+  try { saved = localStorage.getItem('tbp-ambient'); } catch (_) {}
+  // Default to ON as requested ("ambient light on kro")
+  applyAmbientMode(saved !== 'off');
+
+  const ambientBtn = document.getElementById('ambient');
+  if (ambientBtn) {
+    ambientBtn.addEventListener('click', () => {
+      const isCurrentlyOn = document.body.classList.contains('ambient-on');
+      const newState = !isCurrentlyOn;
+      applyAmbientMode(newState);
+      if (typeof showToast === 'function') {
+        showToast(newState ? 'Ambient Light Enabled ✨' : 'Ambient Light Disabled');
+      }
+    });
+  }
+})();
+
 const TOOL_BADGES = {
   'imgcompress': { label: '🔥 Popular', cls: 'badge-hot' },
   'photoresize': { label: 'Govt Forms', cls: 'badge-gov' },
