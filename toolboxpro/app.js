@@ -838,17 +838,22 @@ document.querySelectorAll('.hero-preview-widget [data-id]').forEach(card => {
 /* ─────────────────────────────────────────
    Modal
 ───────────────────────────────────────── */
+let isClosingModal = false;
+
 function openTool(id) {
   // Validate id against known allowlist to prevent prototype pollution / unexpected renders
   if (!ALLOWED_TOOL_IDS.has(id)) return;
   const tool = TOOLS.find(t => t.id === id);
   if (!tool) return;
 
+  isClosingModal = false;
   previousFocus = document.activeElement;
   content.innerHTML = buildForm(id, tool);
   if (modal) {
+    modal.classList.remove('modal-closing');
     modal.classList.remove('hidden');
     modal.removeAttribute('aria-hidden');
+    document.body.classList.add('modal-open');
   }
 
   // Set modal or card title for screen readers
@@ -888,14 +893,23 @@ function openTool(id) {
 }
 
 function closeModal() {
-  if (modal) {
+  if (!modal || modal.classList.contains('hidden') || isClosingModal) return;
+  isClosingModal = true;
+  modal.classList.add('modal-closing');
+
+  // Smooth exit animation
+  setTimeout(() => {
     modal.classList.add('hidden');
+    modal.classList.remove('modal-closing');
     modal.setAttribute('aria-hidden', 'true');
-  }
+    document.body.classList.remove('modal-open');
+    isClosingModal = false;
+    if (previousFocus) previousFocus.focus();
+  }, 220);
+
   try {
     if (window.location.hash) history.replaceState(null, '', window.location.pathname);
   } catch (_) {}
-  if (previousFocus) previousFocus.focus();
 }
 
 const closeBtn = document.getElementById('close');
@@ -3788,6 +3802,7 @@ function initScrollReveal() {
 /* ─────────────────────────────────────────
    Init
 ───────────────────────────────────────── */
+initWebsiteOpenAnimation();
 render();
 initHeroCarousel();
 initScrollReveal();
@@ -3915,3 +3930,42 @@ const SLUG_TO_TOOL = {
     openTool(toolId);
   }
 })();
+
+/* ─────────────────────────────────────────
+   Website Open / Page Entrance Animation
+───────────────────────────────────────── */
+function initWebsiteOpenAnimation() {
+  let beam = document.getElementById('site-open-beam');
+  if (!beam) {
+    beam = document.createElement('div');
+    beam.id = 'site-open-beam';
+    beam.setAttribute('aria-hidden', 'true');
+    document.body.prepend(beam);
+  }
+  document.body.classList.add('page-opening');
+
+  // Staggered high-speed loader beam (Linear / GitHub style)
+  requestAnimationFrame(() => {
+    beam.style.width = '38%';
+    setTimeout(() => {
+      beam.style.width = '78%';
+      setTimeout(() => {
+        beam.classList.add('beam-complete');
+        setTimeout(() => {
+          document.body.classList.remove('page-opening');
+          if (beam && beam.parentNode) beam.remove();
+        }, 500);
+      }, 160);
+    }, 120);
+  });
+
+  // Smooth internal route transition on link click
+  document.querySelectorAll('a[href^="/"]:not([target="_blank"]):not([href^="/#"])').forEach(link => {
+    link.addEventListener('click', e => {
+      if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.defaultPrevented) return;
+      const href = link.getAttribute('href');
+      if (!href || href === '/' || href.startsWith('/#')) return;
+      document.body.classList.add('page-leaving');
+    });
+  });
+}
