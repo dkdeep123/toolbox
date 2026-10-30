@@ -8,7 +8,7 @@
    ─ Falls back to offline page on error
 ───────────────────────────────────────── */
 
-const CACHE_NAME = 'toolboxpro-v28';
+const CACHE_NAME = 'toolboxpro-v29';
 
 /** Trusted, explicitly-listed assets to pre-cache on install. */
 const PRECACHE_ASSETS = [
@@ -113,6 +113,7 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
 
   // Only handle cacheable (same-origin) URLs
+  try { const p = new URL(request.url).pathname; if (p === '/ads.txt' || p === '/robots.txt' || p === '/sitemap.xml') return; } catch (_) {}
   if (!isCacheable(request.url)) return;
 
   event.respondWith(
@@ -123,7 +124,7 @@ self.addEventListener('fetch', (event) => {
       // Otherwise fetch from network with strict security options
       return fetch(request, {
         credentials: 'same-origin', // never send cookies to unexpected origins
-        redirect: 'error',          // block opaque cross-origin redirects
+        redirect: 'follow',         // allow normal redirects (e.g. apex to www)
       })
         .then((response) => {
           // Only cache safe, successful, same-origin responses
