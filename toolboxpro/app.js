@@ -1238,11 +1238,85 @@ function buildForm(id) {
         <p class="info-note">🔒 <strong>Privacy note:</strong> All PDF merging is executed client-side inside your browser via WebAssembly/JS. No files are uploaded to any server.</p>
       </div>`,
 
-    /* Tool 2: Image Compressor */
+        /* Tool 2: Image Compressor & Govt Exam Portal Optimizer */
     imgcompress: `
-      <h2>🗜️ Image Compressor</h2>
-      <p>Reduce image file size while preserving visual quality. Fully processed in your browser — zero server uploads.</p>
+      <h2>🗜️ Image Compressor &amp; Exam Portal Optimizer</h2>
+      <p>Compress standard images or auto-format strictly for <strong>SSC, RRB Railway, UPSC, IBPS/SBI &amp; Govt Portals</strong>.</p>
       <div class="form">
+        <!-- Mode Tabs -->
+        <div class="ic-mode-nav" role="tablist" aria-label="Compression modes">
+          <button type="button" class="ic-mode-tab is-active" id="ic-tab-govt" onclick="icSetMode('govt')" role="tab" aria-selected="true">
+            🏛️ Govt Exam Mode (SSC, RRB...)
+          </button>
+          <button type="button" class="ic-mode-tab" id="ic-tab-manual" onclick="icSetMode('manual')" role="tab" aria-selected="false">
+            ⚡ Custom Slider
+          </button>
+          <button type="button" class="ic-mode-tab" id="ic-tab-target" onclick="icSetMode('target')" role="tab" aria-selected="false">
+            🎯 Target Size (KB)
+          </button>
+        </div>
+
+        <!-- Govt Exam Selector (Active by default) -->
+        <div id="ic-govt-panel" class="ic-govt-card">
+          <div class="ic-govt-row">
+            <div class="ic-select-wrap">
+              <label for="ic-exam-select">Exam / Organization</label>
+              <select id="ic-exam-select" onchange="icApplyGovtPreset()" aria-label="Select Exam Portal">
+                <option value="ssc">SSC (CGL, CHSL, MTS, GD, CPO)</option>
+                <option value="rrb">RRB Railway (NTPC, Group D, ALP, JE)</option>
+                <option value="upsc">UPSC (Civil Services, NDA, CDS)</option>
+                <option value="ibps">IBPS / SBI (Bank PO &amp; Clerk)</option>
+                <option value="police">Police &amp; State PSC Exams</option>
+                <option value="passport">Indian Passport / Visa Form</option>
+              </select>
+            </div>
+            <div class="ic-select-wrap">
+              <label for="ic-type-select">Document Type</label>
+              <select id="ic-type-select" onchange="icApplyGovtPreset()" aria-label="Select Document Type">
+                <option value="photo">👤 Photograph</option>
+                <option value="sig">✍️ Signature</option>
+                <option value="thumb">🖐️ Left Thumb Impression</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Official Guideline Banner -->
+          <div class="ic-guideline-box" id="ic-guideline-box">
+            <div class="ic-guide-badge" id="ic-guide-badge">SSC Requirements</div>
+            <div class="ic-guide-specs" id="ic-guide-specs">
+              <span>File Size: <strong>20 KB – 50 KB</strong></span> • 
+              <span>Dimensions: <strong>3.5cm × 4.5cm</strong> (200 × 230 px)</span> • 
+              <span>Format: <strong>JPG / JPEG</strong></span>
+            </div>
+          </div>
+
+          <!-- Auto Dimensions Option -->
+          <div class="ic-opt-row">
+            <label class="ic-checkbox-wrap">
+              <input type="checkbox" id="ic-auto-dim" checked onchange="icCompress()"/>
+              <span>Auto-resize to official dimensions (<strong id="ic-dim-label">200 × 230 px</strong>)</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Custom Target KB Box (Hidden by default) -->
+        <div id="ic-target-panel" class="ic-target-panel hidden">
+          <div class="ic-target-input-wrap">
+            <label for="ic-target-kb">Enter Desired Maximum File Size (KB):</label>
+            <div class="ic-input-with-unit">
+              <input type="number" id="ic-target-kb" min="5" max="10000" value="50" placeholder="50" oninput="icCompress()"/>
+              <span class="unit-tag">KB</span>
+            </div>
+          </div>
+          <div class="ic-quick-chips">
+            <button type="button" class="preset-chip" onclick="icSetTargetKb(20)">Under 20 KB (Signature)</button>
+            <button type="button" class="preset-chip" onclick="icSetTargetKb(50)">Under 50 KB (Photo)</button>
+            <button type="button" class="preset-chip" onclick="icSetTargetKb(100)">Under 100 KB</button>
+            <button type="button" class="preset-chip" onclick="icSetTargetKb(200)">Under 200 KB</button>
+          </div>
+        </div>
+
+        <!-- Drop Zone -->
         <div
           id="ic-drop"
           class="img-drop-zone"
@@ -1260,6 +1334,8 @@ function buildForm(id) {
           <p class="drop-formats">Supports JPG, JPEG, PNG, WebP</p>
         </div>
         <input id="ic-file" type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" aria-hidden="true" onchange="icLoadFile(this.files[0])"/>
+
+        <!-- Preview and Output Area -->
         <div id="ic-preview-wrap" class="img-preview-wrap hidden">
           <div class="img-preview-pair">
             <div class="img-preview-panel">
@@ -1268,29 +1344,37 @@ function buildForm(id) {
               <div id="ic-orig-info" class="img-info"></div>
             </div>
             <div class="img-preview-panel">
-              <div class="img-preview-label">Compressed</div>
+              <div class="img-preview-label">Compressed Output</div>
               <img id="ic-comp-img" alt="Compressed image preview" />
               <div id="ic-comp-info" class="img-info"></div>
             </div>
           </div>
-          <div class="img-slider-wrap">
-            <label for="ic-quality" class="img-slider-label">
-              Quality: <span id="ic-quality-val">80</span>%
-            </label>
-            <input id="ic-quality" type="range" min="5" max="100" value="80" class="img-slider" oninput="icUpdateQuality(this.value)" aria-label="Compression quality"/>
-            <div class="img-slider-ticks"><span>Maximum Compression</span><span>Balanced</span><span>Highest Quality</span></div>
+
+          <!-- Official Portal Compliance Status Banner -->
+          <div id="ic-compliance-banner" class="ic-compliance-banner hidden"></div>
+
+          <!-- Manual Controls (Only in Manual Mode) -->
+          <div id="ic-manual-controls" class="ic-manual-controls hidden">
+            <div class="img-slider-wrap">
+              <label for="ic-quality" class="img-slider-label">
+                Quality: <span id="ic-quality-val">80</span>%
+              </label>
+              <input id="ic-quality" type="range" min="5" max="100" value="80" class="img-slider" oninput="icUpdateQuality(this.value)" aria-label="Compression quality"/>
+              <div class="img-slider-ticks"><span>Maximum Compression</span><span>Balanced</span><span>Highest Quality</span></div>
+            </div>
+            <div class="img-format-row">
+              <label for="ic-format">Output format</label>
+              <select id="ic-format" onchange="icCompress()" aria-label="Output image format">
+                <option value="image/jpeg">JPEG / JPG</option>
+                <option value="image/webp">WebP</option>
+                <option value="image/png">PNG</option>
+              </select>
+            </div>
           </div>
-          <div class="img-format-row">
-            <label for="ic-format">Output format</label>
-            <select id="ic-format" onchange="icCompress()" aria-label="Output image format">
-              <option value="image/jpeg">JPEG / JPG</option>
-              <option value="image/webp">WebP</option>
-              <option value="image/png">PNG</option>
-            </select>
-          </div>
+
           <button class="primary" type="button" id="ic-download-btn" onclick="icDownload()">⬇ Download Compressed Image</button>
           <button class="secondary-btn" type="button" onclick="icReset()">↩ Choose Another Image</button>
-          <p class="info-note">💡 <strong>Note:</strong> Compression results vary based on image content and format. Lossless formats like PNG may have higher file sizes with photorealistic scenes.</p>
+          <p class="info-note" id="ic-note-text">🔒 <strong>100% In-Browser:</strong> Your photos &amp; signatures are processed locally and never uploaded to any server.</p>
         </div>
       </div>`,
 
@@ -2288,9 +2372,295 @@ function fmtBytes(bytes) {
 /* ─────────────────────────────────────────
    Image Compressor
 ───────────────────────────────────────── */
-let _icImg = null;      // HTMLImageElement
-let _icOrigFile = null; // original File object
-let _icCompBlob = null; // latest compressed Blob
+
+
+
+
+/* ─────────────────────────────────────────
+   Official Govt Exam Presets (SSC, RRB, UPSC, IBPS/SBI, etc.)
+───────────────────────────────────────── */
+const GOVT_EXAM_PRESETS = {
+  'ssc_photo': {
+    name: 'SSC Photo',
+    portal: 'SSC',
+    minKb: 20,
+    maxKb: 50,
+    targetKb: 35,
+    w: 200,
+    h: 230,
+    format: 'image/jpeg',
+    specs: '20 KB – 50 KB • 3.5cm × 4.5cm (200×230 px) • JPG',
+    defaultFilename: 'SSC_Photo'
+  },
+  'ssc_sig': {
+    name: 'SSC Signature',
+    portal: 'SSC',
+    minKb: 10,
+    maxKb: 20,
+    targetKb: 15,
+    w: 140,
+    h: 60,
+    format: 'image/jpeg',
+    specs: '10 KB – 20 KB • 4.0cm × 2.0cm (140×60 px) • JPG',
+    defaultFilename: 'SSC_Signature'
+  },
+  'ssc_thumb': {
+    name: 'SSC Left Thumb',
+    portal: 'SSC',
+    minKb: 10,
+    maxKb: 30,
+    targetKb: 20,
+    w: 140,
+    h: 140,
+    format: 'image/jpeg',
+    specs: '10 KB – 30 KB • 140×140 px • JPG',
+    defaultFilename: 'SSC_Thumb'
+  },
+  'rrb_photo': {
+    name: 'RRB Railway Photo',
+    portal: 'RRB Railway',
+    minKb: 20,
+    maxKb: 50,
+    targetKb: 35,
+    w: 240,
+    h: 320,
+    format: 'image/jpeg',
+    specs: '20 KB – 50 KB • 35mm × 45mm (240×320 px) • JPG',
+    defaultFilename: 'RRB_Photo'
+  },
+  'rrb_sig': {
+    name: 'RRB Railway Signature',
+    portal: 'RRB Railway',
+    minKb: 10,
+    maxKb: 20,
+    targetKb: 15,
+    w: 140,
+    h: 60,
+    format: 'image/jpeg',
+    specs: '10 KB – 20 KB • 50mm × 20mm (140×60 px) • JPG',
+    defaultFilename: 'RRB_Signature'
+  },
+  'rrb_thumb': {
+    name: 'RRB Thumb Impression',
+    portal: 'RRB Railway',
+    minKb: 10,
+    maxKb: 50,
+    targetKb: 25,
+    w: 140,
+    h: 140,
+    format: 'image/jpeg',
+    specs: '10 KB – 50 KB • 140×140 px • JPG',
+    defaultFilename: 'RRB_Thumb'
+  },
+  'upsc_photo': {
+    name: 'UPSC Photo',
+    portal: 'UPSC',
+    minKb: 20,
+    maxKb: 300,
+    targetKb: 100,
+    w: 350,
+    h: 350,
+    format: 'image/jpeg',
+    specs: '20 KB – 300 KB • Min 350×350 px (1:1 Aspect) • JPG',
+    defaultFilename: 'UPSC_Photo'
+  },
+  'upsc_sig': {
+    name: 'UPSC Signature',
+    portal: 'UPSC',
+    minKb: 20,
+    maxKb: 300,
+    targetKb: 80,
+    w: 350,
+    h: 350,
+    format: 'image/jpeg',
+    specs: '20 KB – 300 KB • Min 350×350 px • JPG',
+    defaultFilename: 'UPSC_Signature'
+  },
+  'upsc_thumb': {
+    name: 'UPSC Thumb Impression',
+    portal: 'UPSC',
+    minKb: 20,
+    maxKb: 300,
+    targetKb: 80,
+    w: 350,
+    h: 350,
+    format: 'image/jpeg',
+    specs: '20 KB – 300 KB • 350×350 px • JPG',
+    defaultFilename: 'UPSC_Thumb'
+  },
+  'ibps_photo': {
+    name: 'IBPS/SBI Photo',
+    portal: 'IBPS / SBI Bank',
+    minKb: 20,
+    maxKb: 50,
+    targetKb: 35,
+    w: 200,
+    h: 230,
+    format: 'image/jpeg',
+    specs: '20 KB – 50 KB • 200×230 px • JPG',
+    defaultFilename: 'IBPS_Photo'
+  },
+  'ibps_sig': {
+    name: 'IBPS/SBI Signature',
+    portal: 'IBPS / SBI Bank',
+    minKb: 10,
+    maxKb: 20,
+    targetKb: 15,
+    w: 140,
+    h: 60,
+    format: 'image/jpeg',
+    specs: '10 KB – 20 KB • 140×60 px • JPG',
+    defaultFilename: 'IBPS_Signature'
+  },
+  'ibps_thumb': {
+    name: 'IBPS/SBI Left Thumb',
+    portal: 'IBPS / SBI Bank',
+    minKb: 20,
+    maxKb: 50,
+    targetKb: 30,
+    w: 240,
+    h: 240,
+    format: 'image/jpeg',
+    specs: '20 KB – 50 KB • 240×240 px (3cm × 3cm) • JPG',
+    defaultFilename: 'IBPS_Thumb'
+  },
+  'police_photo': {
+    name: 'Police / State PSC Photo',
+    portal: 'State Govt / Police',
+    minKb: 20,
+    maxKb: 50,
+    targetKb: 35,
+    w: 200,
+    h: 230,
+    format: 'image/jpeg',
+    specs: '20 KB – 50 KB • 200×230 px • JPG',
+    defaultFilename: 'Govt_Photo'
+  },
+  'police_sig': {
+    name: 'Police / State PSC Signature',
+    portal: 'State Govt / Police',
+    minKb: 10,
+    maxKb: 20,
+    targetKb: 15,
+    w: 140,
+    h: 60,
+    format: 'image/jpeg',
+    specs: '10 KB – 20 KB • 140×60 px • JPG',
+    defaultFilename: 'Govt_Signature'
+  },
+  'police_thumb': {
+    name: 'Thumb Impression',
+    portal: 'State Govt / Police',
+    minKb: 10,
+    maxKb: 50,
+    targetKb: 25,
+    w: 140,
+    h: 140,
+    format: 'image/jpeg',
+    specs: '10 KB – 50 KB • 140×140 px • JPG',
+    defaultFilename: 'Govt_Thumb'
+  },
+  'passport_photo': {
+    name: 'Indian Passport Photo',
+    portal: 'Passport Seva / Visa',
+    minKb: 20,
+    maxKb: 100,
+    targetKb: 50,
+    w: 413,
+    h: 531,
+    format: 'image/jpeg',
+    specs: '20 KB – 100 KB • 3.5cm × 4.5cm • JPG',
+    defaultFilename: 'Passport_Photo'
+  },
+  'passport_sig': {
+    name: 'Passport Signature',
+    portal: 'Passport Seva / Visa',
+    minKb: 10,
+    maxKb: 50,
+    targetKb: 25,
+    w: 280,
+    h: 120,
+    format: 'image/jpeg',
+    specs: '10 KB – 50 KB • JPG',
+    defaultFilename: 'Passport_Signature'
+  },
+  'passport_thumb': {
+    name: 'Thumb Impression',
+    portal: 'Passport / Visa',
+    minKb: 10,
+    maxKb: 50,
+    targetKb: 25,
+    w: 200,
+    h: 200,
+    format: 'image/jpeg',
+    specs: '10 KB – 50 KB • JPG',
+    defaultFilename: 'Passport_Thumb'
+  }
+};
+
+let _icImg = null;
+let _icOrigFile = null;
+let _icCompBlob = null;
+let _icMode = 'govt'; // default mode: 'govt', 'manual', or 'target'
+let _icCurrentPreset = null;
+let _icCompFilename = 'compressed-image.jpg';
+
+function icSetMode(mode) {
+  _icMode = mode;
+  document.querySelectorAll('.ic-mode-tab').forEach(t => {
+    t.classList.remove('active', 'is-active');
+    t.setAttribute('aria-selected', 'false');
+  });
+  const tab = document.getElementById(`ic-tab-${mode}`);
+  if (tab) {
+    tab.classList.add('active', 'is-active');
+    tab.setAttribute('aria-selected', 'true');
+  }
+
+  const govtPanel = document.getElementById('ic-govt-panel');
+  const targetPanel = document.getElementById('ic-target-panel');
+  const manualControls = document.getElementById('ic-manual-controls');
+
+  if (govtPanel) govtPanel.classList.toggle('hidden', mode !== 'govt');
+  if (targetPanel) targetPanel.classList.toggle('hidden', mode !== 'target');
+  if (manualControls) manualControls.classList.toggle('hidden', mode !== 'manual');
+
+  if (mode === 'govt') {
+    icApplyGovtPreset();
+  } else {
+    icCompress();
+  }
+}
+
+function icApplyGovtPreset() {
+  const examEl = document.getElementById('ic-exam-select');
+  const typeEl = document.getElementById('ic-type-select');
+  if (!examEl || !typeEl) return;
+
+  const key = `${examEl.value}_${typeEl.value}`;
+  const preset = GOVT_EXAM_PRESETS[key] || GOVT_EXAM_PRESETS['ssc_photo'];
+  _icCurrentPreset = preset;
+
+  const badge = document.getElementById('ic-guide-badge');
+  const specs = document.getElementById('ic-guide-specs');
+  const dimLabel = document.getElementById('ic-dim-label');
+
+  if (badge) badge.textContent = `${preset.portal} • ${preset.name}`;
+  if (specs) {
+    specs.innerHTML = `<span>Allowed File Size: <strong>${preset.minKb} KB – ${preset.maxKb} KB</strong></span> • <span>Dimensions: <strong>${preset.w} × ${preset.h} px</strong></span> • <span>Format: <strong>JPG / JPEG</strong></span>`;
+  }
+  if (dimLabel) dimLabel.textContent = `${preset.w} × ${preset.h} px`;
+
+  icCompress();
+}
+
+function icSetTargetKb(kb) {
+  const inp = document.getElementById('ic-target-kb');
+  if (inp) {
+    inp.value = kb;
+    icCompress();
+  }
+}
 
 function icHandleDrop(e) {
   e.preventDefault();
@@ -2331,10 +2701,14 @@ function icLoadFile(file) {
       document.getElementById('ic-orig-img').src = e.target.result;
       document.getElementById('ic-orig-info').textContent =
         `${img.naturalWidth} × ${img.naturalHeight}px — ${fmtBytes(file.size)}`;
-      // Auto-detect format
-      const fmt = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
-      document.getElementById('ic-format').value = fmt;
-      icCompress();
+
+      if (_icMode === 'govt') {
+        icApplyGovtPreset();
+      } else {
+        const fmt = file.type === 'image/png' ? 'image/png' : 'image/jpeg';
+        if (document.getElementById('ic-format')) document.getElementById('ic-format').value = fmt;
+        icCompress();
+      }
     };
     img.src = e.target.result;
   };
@@ -2346,56 +2720,157 @@ function icUpdateQuality(val) {
   icCompress();
 }
 
-function icCompress() {
+async function icCompress() {
   if (!_icImg) return;
-  const quality = parseInt(document.getElementById('ic-quality').value, 10) / 100;
-  const format  = document.getElementById('ic-format').value;
-  const canvas  = document.createElement('canvas');
-  canvas.width  = _icImg.naturalWidth;
-  canvas.height = _icImg.naturalHeight;
+
+  let targetW = _icImg.naturalWidth;
+  let targetH = _icImg.naturalHeight;
+  let format = 'image/jpeg';
+  let targetMinKb = null;
+  let targetMaxKb = null;
+
+  if (_icMode === 'govt') {
+    if (!_icCurrentPreset) {
+      const examEl = document.getElementById('ic-exam-select');
+      const typeEl = document.getElementById('ic-type-select');
+      const key = `${examEl ? examEl.value : 'ssc'}_${typeEl ? typeEl.value : 'photo'}`;
+      _icCurrentPreset = GOVT_EXAM_PRESETS[key] || GOVT_EXAM_PRESETS['ssc_photo'];
+    }
+    const autoDim = document.getElementById('ic-auto-dim');
+    if (!autoDim || autoDim.checked) {
+      targetW = _icCurrentPreset.w;
+      targetH = _icCurrentPreset.h;
+    }
+    format = 'image/jpeg';
+    targetMinKb = _icCurrentPreset.minKb;
+    targetMaxKb = _icCurrentPreset.maxKb;
+  } else if (_icMode === 'target') {
+    const targetKbInput = document.getElementById('ic-target-kb');
+    targetMaxKb = parseFloat(targetKbInput ? targetKbInput.value : 50) || 50;
+    format = 'image/jpeg';
+  } else {
+    // Manual slider mode
+    format = document.getElementById('ic-format') ? document.getElementById('ic-format').value : 'image/jpeg';
+  }
+
+  // Draw on Canvas with smooth scaling
+  const canvas = document.createElement('canvas');
+  canvas.width = targetW;
+  canvas.height = targetH;
   const ctx = canvas.getContext('2d');
-  
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+
   if (format === 'image/jpeg') {
     ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillRect(0, 0, targetW, targetH);
   } else {
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.clearRect(0, 0, targetW, targetH);
   }
-  ctx.drawImage(_icImg, 0, 0);
-  
-  canvas.toBlob((blob) => {
-    if (!blob) {
-      showToast('⚠️ Could not generate image in this format.');
-      return;
+
+  ctx.drawImage(_icImg, 0, 0, targetW, targetH);
+
+  function getBlob(q) {
+    return new Promise(resolve => {
+      canvas.toBlob(resolve, format, format === 'image/png' ? undefined : q);
+    });
+  }
+
+  let finalBlob;
+
+  if (_icMode === 'govt' || _icMode === 'target') {
+    // Binary search for ideal target file size
+    let minQ = 0.05, maxQ = 0.98;
+    let bestBlob = await getBlob(0.8);
+    const targetCap = targetMaxKb || 50;
+
+    for (let iter = 0; iter < 7; iter++) {
+      const midQ = (minQ + maxQ) / 2;
+      const b = await getBlob(midQ);
+      if (!b) break;
+      const kb = b.size / 1024;
+
+      if (kb <= targetCap) {
+        bestBlob = b;
+        minQ = midQ; // try to get highest quality within cap
+      } else {
+        maxQ = midQ;
+      }
     }
-    _icCompBlob = blob;
-    const url = URL.createObjectURL(blob);
-    const compImg = document.getElementById('ic-comp-img');
-    if (compImg._prevUrl) URL.revokeObjectURL(compImg._prevUrl);
-    compImg._prevUrl = url;
-    compImg.src = url;
-    const savings = ((_icOrigFile.size - blob.size) / _icOrigFile.size * 100);
-    const isSmaller = savings > 0;
-    document.getElementById('ic-comp-info').innerHTML =
-      `${_icImg.naturalWidth} × ${_icImg.naturalHeight}px — ${fmtBytes(blob.size)}
-       <span class="img-savings ${isSmaller ? 'positive' : 'negative'}">
-         ${isSmaller ? '↓ ' + savings.toFixed(1) + '% smaller' : '↑ ' + Math.abs(savings).toFixed(1) + '% larger'}
-       </span>`;
-    document.getElementById('ic-download-btn').style.display = 'block';
-  }, format, format === 'image/png' ? undefined : quality);
+    finalBlob = bestBlob;
+  } else {
+    const qualityEl = document.getElementById('ic-quality');
+    const quality = parseInt(qualityEl ? qualityEl.value : 80, 10) / 100;
+    finalBlob = await getBlob(quality);
+  }
+
+  if (!finalBlob) return;
+  _icCompBlob = finalBlob;
+
+  const url = URL.createObjectURL(finalBlob);
+  const compImg = document.getElementById('ic-comp-img');
+  if (compImg._prevUrl) URL.revokeObjectURL(compImg._prevUrl);
+  compImg._prevUrl = url;
+  compImg.src = url;
+
+  const finalKb = (finalBlob.size / 1024).toFixed(1);
+  const savings = ((_icOrigFile.size - finalBlob.size) / _icOrigFile.size * 100);
+  const isSmaller = savings > 0;
+
+  document.getElementById('ic-comp-info').innerHTML =
+    `<strong>${targetW} × ${targetH}px</strong> — <strong>${finalKb} KB</strong>
+     <span class="img-savings ${isSmaller ? 'positive' : 'negative'}">
+       ${isSmaller ? '↓ ' + savings.toFixed(1) + '% smaller' : '↑ ' + Math.abs(savings).toFixed(1) + '% larger'}
+     </span>`;
+
+  // Portal Compliance Banner
+  const compBanner = document.getElementById('ic-compliance-banner');
+  if (compBanner) {
+    if (_icMode === 'govt' && _icCurrentPreset) {
+      const kbNum = finalBlob.size / 1024;
+      const isCompliant = kbNum >= _icCurrentPreset.minKb && kbNum <= _icCurrentPreset.maxKb;
+      compBanner.className = `ic-compliance-banner ${isCompliant ? 'success' : 'warn'}`;
+      compBanner.innerHTML = isCompliant
+        ? `✅ <strong>Portal Ready:</strong> ${finalKb} KB satisfies official ${_icCurrentPreset.portal} requirements (${_icCurrentPreset.minKb}–${_icCurrentPreset.maxKb} KB • ${targetW}×${targetH}px)`
+        : `⚠️ <strong>Notice:</strong> Output is ${finalKb} KB (Official portal range: ${_icCurrentPreset.minKb}–${_icCurrentPreset.maxKb} KB).`;
+      compBanner.classList.remove('hidden');
+    } else if (_icMode === 'target') {
+      const kbNum = finalBlob.size / 1024;
+      const isUnder = kbNum <= (targetMaxKb || 50);
+      compBanner.className = `ic-compliance-banner ${isUnder ? 'pass' : 'warn'}`;
+      compBanner.innerHTML = `🎯 <strong>Target Check:</strong> Output is ${finalKb} KB (Target: ≤ ${targetMaxKb} KB)`;
+      compBanner.classList.remove('hidden');
+    } else {
+      compBanner.classList.add('hidden');
+    }
+  }
+
+  // Set smart download filename
+  const origName = _icOrigFile ? _icOrigFile.name.replace(/\.[^.]+$/, '') : 'image';
+  if (_icMode === 'govt' && _icCurrentPreset) {
+    _icCompFilename = `${_icCurrentPreset.defaultFilename}_${finalKb}KB.jpg`;
+  } else if (_icMode === 'target') {
+    _icCompFilename = `${origName}_${finalKb}KB.jpg`;
+  } else {
+    let ext = 'jpg';
+    if (format === 'image/png') ext = 'png';
+    if (format === 'image/webp') ext = 'webp';
+    _icCompFilename = `${origName}-compressed.${ext}`;
+  }
+
+  const downloadBtn = document.getElementById('ic-download-btn');
+  if (downloadBtn) {
+    downloadBtn.style.display = 'block';
+    downloadBtn.textContent = `⬇ Download ${_icCompFilename}`;
+  }
 }
 
 function icDownload() {
   if (!_icCompBlob) return;
-  const format = document.getElementById('ic-format').value;
-  let ext = 'jpg';
-  if (format === 'image/png') ext = 'png';
-  if (format === 'image/webp') ext = 'webp';
-  const origName = _icOrigFile ? _icOrigFile.name.replace(/\.[^.]+$/, '') : 'image';
   const a = document.createElement('a');
   const url = URL.createObjectURL(_icCompBlob);
   a.href = url;
-  a.download = `${origName}-compressed.${ext}`;
+  a.download = _icCompFilename || 'compressed-image.jpg';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -2656,6 +3131,14 @@ function prApplyPreset(type) {
     document.getElementById('pr-h').value = 230;
     document.getElementById('pr-max-kb').value = 50;
   } else if (type === 'signature') {
+    document.getElementById('pr-w').value = 140;
+    document.getElementById('pr-h').value = 60;
+    document.getElementById('pr-max-kb').value = 20;
+  } else if (type === 'rrb_photo') {
+    document.getElementById('pr-w').value = 240;
+    document.getElementById('pr-h').value = 320;
+    document.getElementById('pr-max-kb').value = 50;
+  } else if (type === 'rrb_sig') {
     document.getElementById('pr-w').value = 140;
     document.getElementById('pr-h').value = 60;
     document.getElementById('pr-max-kb').value = 20;
