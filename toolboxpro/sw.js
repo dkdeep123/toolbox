@@ -8,15 +8,15 @@
    ─ Falls back to offline page on error
 ───────────────────────────────────────── */
 
-const CACHE_NAME = 'toolboxpro-v30';
+const CACHE_NAME = 'toolboxpro-v31';
 
 /** Trusted, explicitly-listed assets to pre-cache on install. */
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
   '/404.html',
-  '/styles.css?v=27',
-  '/app.js?v=27',
+  '/styles.css?v=28',
+  '/app.js?v=28',
   '/logo.svg',
   '/og-image.png',
   '/manifest.json',

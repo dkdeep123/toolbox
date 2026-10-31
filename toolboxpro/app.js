@@ -890,6 +890,15 @@ function openTool(id) {
       onUnitCatChange();
     }
   }
+  if (id === 'imgcompress') {
+    if (typeof icApplyGovtPreset === 'function') icApplyGovtPreset();
+  }
+  if (id === 'photoresize') {
+    if (typeof prApplyGovtPreset === 'function') prApplyGovtPreset();
+  }
+  if (id === 'imgresize') {
+    if (typeof irApplyGovtPreset === 'function') irApplyGovtPreset();
+  }
 }
 
 function closeModal() {
@@ -1381,8 +1390,56 @@ function buildForm(id) {
     /* Tool 3: Photo & Signature Resizer */
     photoresize: `
       <h2>✍️ Photo &amp; Signature Resizer</h2>
-      <p>Resize photos and signatures to custom dimensions or target file size in KB for exam portals, jobs, and IDs.</p>
+      <p>Resize, crop, and compress passport photos and signatures to official Government Exam portal specifications (SSC, RRB, UPSC, IBPS, State PSC, Police).</p>
       <div class="form">
+        <!-- Mode Tabs -->
+        <div class="ic-mode-nav" role="tablist" aria-label="Resizer mode">
+          <button type="button" class="ic-mode-tab active" id="pr-tab-govt" role="tab" aria-selected="true" onclick="prSetMode('govt')">
+            <span class="tab-badge">Govt Exam</span> SSC / RRB / UPSC
+          </button>
+          <button type="button" class="ic-mode-tab" id="pr-tab-custom" role="tab" aria-selected="false" onclick="prSetMode('custom')">
+            📐 Custom Dimensions
+          </button>
+        </div>
+
+        <!-- Govt Exam Card -->
+        <div id="pr-govt-panel" class="ic-govt-card">
+          <div class="ic-govt-row">
+            <div class="ic-select-wrap">
+              <label for="pr-exam-select" class="control-label">🏛️ Exam / Portal</label>
+              <select id="pr-exam-select" class="form-select" onchange="prApplyGovtPreset()" aria-label="Select Exam Portal">
+                <option value="ssc" selected>SSC (CGL, CHSL, MTS, GD, Steno)</option>
+                <option value="rrb">RRB Railway (NTPC, Group D, ALP, JE)</option>
+                <option value="upsc">UPSC (Civil Services, NDA, CDS)</option>
+                <option value="ibps">IBPS / SBI (PO, Clerk, SO)</option>
+                <option value="police">Police &amp; State PSC (UP, Bihar, MP, Delhi)</option>
+                <option value="passport">Indian Passport &amp; Visa</option>
+              </select>
+            </div>
+            <div class="ic-select-wrap">
+              <label for="pr-type-select" class="control-label">📋 Document Type</label>
+              <select id="pr-type-select" class="form-select" onchange="prApplyGovtPreset()" aria-label="Select Document Type">
+                <option value="photo" selected>📸 Photograph</option>
+                <option value="sig">✍️ Signature</option>
+                <option value="thumb">🖐️ Left Thumb Impression</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Official Portal Guidelines -->
+          <div id="pr-guideline-box" class="ic-guideline-box">
+            <div class="ic-guide-badge" id="pr-guide-badge">SSC • Official Requirement</div>
+            <div class="ic-guide-specs" id="pr-guide-specs">
+              <span class="ic-spec-chip">📦 20 KB – 50 KB</span>
+              <span class="ic-spec-chip">📏 200 × 230 px (3.5 × 4.5 cm)</span>
+              <span class="ic-spec-chip">📄 JPG / JPEG only</span>
+            </div>
+            <div class="ic-guide-note" id="pr-guide-note">
+              Light background, 80% face coverage, clear signature on white paper with black/blue ink.
+            </div>
+          </div>
+        </div>
+
         <div
           id="pr-drop"
           class="img-drop-zone"
@@ -1404,23 +1461,13 @@ function buildForm(id) {
         <div id="pr-controls" class="hidden">
           <div id="pr-orig-info" class="img-orig-info"></div>
 
-          <label style="margin-top:10px;">Configurable Presets (Common Indian Exam Guidelines):</label>
-          <div class="presets-container">
-            <button class="preset-chip" type="button" onclick="prApplyPreset('passport')">Passport Photo (200x230, ~50KB)</button>
-            <button class="preset-chip" type="button" onclick="prApplyPreset('signature')">Signature (140x60, ~20KB)</button>
-            <button class="preset-chip" type="button" onclick="prApplyPreset('ssc_photo')">SSC Photo (100x120, ~40KB)</button>
-            <button class="preset-chip" type="button" onclick="prApplyPreset('upsc_photo')">UPSC Photo (350x350, ~100KB)</button>
-            <button class="preset-chip" type="button" onclick="prApplyPreset('thumb')">Thumb Impression (140x140, ~30KB)</button>
-          </div>
-          <p style="font-size:11px; color:var(--muted); margin-bottom:12px;">* Presets are configurable references; please verify official notification guidelines for your specific exam.</p>
-
           <div class="resize-dim-row">
             <div>
               <label for="pr-w">Width (px)</label>
               <input id="pr-w" type="number" min="10" placeholder="200" aria-required="true" oninput="prSyncDim('w')"/>
             </div>
             <div class="resize-lock" id="pr-lock-btn" onclick="prToggleLock()" title="Lock aspect ratio" aria-label="Lock aspect ratio" role="button" tabindex="0" onkeydown="if(event.key==='Enter')prToggleLock()">
-              🔒
+              🔓
             </div>
             <div>
               <label for="pr-h">Height (px)</label>
@@ -1430,29 +1477,43 @@ function buildForm(id) {
 
           <div class="tool-options-grid">
             <div>
-              <label for="pr-max-kb">Target Max Size (KB, optional)</label>
-              <input id="pr-max-kb" type="number" min="5" max="2048" placeholder="e.g. 50" aria-label="Target file size in KB"/>
+              <label for="pr-max-kb">Target Max Size (KB)</label>
+              <div class="ic-input-with-unit">
+                <input id="pr-max-kb" type="number" min="5" max="2048" placeholder="50" value="50" aria-label="Target file size in KB"/>
+                <span class="ic-unit-badge">KB</span>
+              </div>
+              <div class="ic-quick-chips" style="margin-top:6px;">
+                <span>Quick Limits:</span>
+                <button type="button" class="chip-btn" onclick="document.getElementById('pr-max-kb').value=20">20 KB (Sig)</button>
+                <button type="button" class="chip-btn" onclick="document.getElementById('pr-max-kb').value=50">50 KB (Photo)</button>
+                <button type="button" class="chip-btn" onclick="document.getElementById('pr-max-kb').value=100">100 KB</button>
+                <button type="button" class="chip-btn" onclick="document.getElementById('pr-max-kb').value=300">300 KB (UPSC)</button>
+              </div>
             </div>
             <div>
               <label for="pr-format">Format</label>
-              <select id="pr-format">
-                <option value="image/jpeg">JPG / JPEG</option>
+              <select id="pr-format" class="form-select">
+                <option value="image/jpeg" selected>JPG / JPEG (Govt Standard)</option>
                 <option value="image/png">PNG</option>
               </select>
             </div>
           </div>
 
-          <button class="primary" type="button" onclick="prResize()">Generate Resized Photo/Signature</button>
+          <button class="primary" type="button" id="pr-generate-btn" onclick="prResize()">Generate Resized Photo/Signature</button>
+
+          <!-- Official Portal Compliance Banner -->
+          <div id="pr-compliance-banner" class="ic-compliance-banner hidden"></div>
 
           <div id="pr-preview-wrap" class="img-preview-wrap hidden" style="margin-top:16px;">
-            <div class="img-preview-panel" style="margin: 0 auto; max-width: 320px; text-align: center;">
+            <div class="img-preview-panel" style="margin: 0 auto; max-width: 340px; text-align: center;">
               <div class="img-preview-label">Output Preview</div>
-              <img id="pr-out-img" alt="Resized output preview" style="max-height:180px; margin:0 auto;" />
+              <img id="pr-out-img" alt="Resized output preview" style="max-height:200px; margin:0 auto; object-fit:contain; border-radius:6px; border:1px solid var(--line);" />
               <div id="pr-out-info" class="img-info" style="margin-top:8px; font-weight:600;"></div>
             </div>
             <button class="primary" type="button" id="pr-download-btn" onclick="prDownload()">⬇ Download File</button>
           </div>
           <button class="secondary-btn" type="button" onclick="prReset()" style="margin-top:8px;">↩ Choose Another File</button>
+          <p class="info-note" style="margin-top:12px;">🔒 <strong>100% In-Browser:</strong> Your photos &amp; signatures never leave your device.</p>
         </div>
       </div>`,
 
@@ -1480,6 +1541,16 @@ function buildForm(id) {
         <input id="i2p-file" type="file" accept="image/jpeg,image/png,image/webp" multiple class="sr-only" aria-hidden="true" onchange="i2pAddFiles(this.files)"/>
 
         <div id="i2p-controls" class="hidden">
+          <!-- Govt Exam & Certificate Presets Bar -->
+          <div class="ic-govt-card" style="padding:12px 14px; margin-bottom:12px;">
+            <label class="control-label" style="font-size:11.5px; font-weight:700; color:var(--muted); text-transform:uppercase;">🏛️ Quick Presets for Govt Exams &amp; Applications:</label>
+            <div class="ic-quick-chips" style="margin-top:6px;">
+              <button type="button" class="chip-btn" onclick="i2pApplyPreset('ssc')">SSC / RRB Document (A4, 12mm margin)</button>
+              <button type="button" class="chip-btn" onclick="i2pApplyPreset('upsc')">UPSC Certificate (A4 Portrait, 5mm margin)</button>
+              <button type="button" class="chip-btn" onclick="i2pApplyPreset('idcard')">ID / Marksheet (Fit to Page)</button>
+              <button type="button" class="chip-btn" onclick="i2pApplyPreset('fullbleed')">Full Bleed (No Margin)</button>
+            </div>
+          </div>
           <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
             <label style="margin:0; font-weight:700;">Pages Queue (<span id="i2p-count">0</span> images):</label>
             <button class="preset-chip" type="button" onclick="document.getElementById('i2p-file').click()">+ Add More Images</button>
@@ -1610,9 +1681,55 @@ function buildForm(id) {
       </div>`,
 
     imgresize: `
-      <h2>🖼️ Image Resizer</h2>
-      <p>Resize images to exact pixel dimensions or by percentage — no quality loss for PNG. Works entirely in your browser.</p>
+      <h2>📐 Image Resizer</h2>
+      <p>Resize images by official Govt Exam presets (SSC, RRB, UPSC, IBPS), custom pixel dimensions, or percentage scale.</p>
       <div class="form">
+        <!-- Mode Tabs -->
+        <div class="ic-mode-nav" role="tablist" aria-label="Resize mode">
+          <button type="button" class="ic-mode-tab active" id="ir-tab-govt" role="tab" aria-selected="true" onclick="irSwitchMode('govt')">
+            <span class="tab-badge">Govt Exam</span> SSC / RRB / UPSC
+          </button>
+          <button type="button" class="ic-mode-tab" id="ir-tab-px" role="tab" aria-selected="false" onclick="irSwitchMode('px')">
+            Exact Pixels (px)
+          </button>
+          <button type="button" class="ic-mode-tab" id="ir-tab-pct" role="tab" aria-selected="false" onclick="irSwitchMode('pct')">
+            Percentage (%)
+          </button>
+        </div>
+
+        <!-- Govt Exam Panel -->
+        <div id="ir-govt-panel" class="ic-govt-card">
+          <div class="ic-govt-row">
+            <div class="ic-select-wrap">
+              <label for="ir-exam-select" class="control-label">🏛️ Exam / Portal</label>
+              <select id="ir-exam-select" class="form-select" onchange="irApplyGovtPreset()" aria-label="Select Exam Portal">
+                <option value="ssc" selected>SSC (CGL, CHSL, MTS, GD)</option>
+                <option value="rrb">RRB Railway (NTPC, Group D, ALP)</option>
+                <option value="upsc">UPSC (Civil Services, NDA, CDS)</option>
+                <option value="ibps">IBPS / SBI (PO, Clerk)</option>
+                <option value="police">Police &amp; State PSC</option>
+                <option value="passport">Passport Seva / Visa</option>
+              </select>
+            </div>
+            <div class="ic-select-wrap">
+              <label for="ir-type-select" class="control-label">📋 Document Type</label>
+              <select id="ir-type-select" class="form-select" onchange="irApplyGovtPreset()" aria-label="Select Document Type">
+                <option value="photo" selected>📸 Photograph</option>
+                <option value="sig">✍️ Signature</option>
+                <option value="thumb">🖐️ Thumb Impression</option>
+              </select>
+            </div>
+          </div>
+          <div id="ir-guideline-box" class="ic-guideline-box">
+            <div class="ic-guide-badge" id="ir-guide-badge">SSC • Official Requirement</div>
+            <div class="ic-guide-specs" id="ir-guide-specs">
+              <span class="ic-spec-chip">📏 200 × 230 px (3.5 × 4.5 cm)</span>
+              <span class="ic-spec-chip">📦 20 KB – 50 KB</span>
+              <span class="ic-spec-chip">📄 JPG</span>
+            </div>
+          </div>
+        </div>
+
         <div
           id="ir-drop"
           class="img-drop-zone"
@@ -1625,18 +1742,16 @@ function buildForm(id) {
           ondragleave="this.classList.remove('drag-over')"
           ondrop="irHandleDrop(event)"
         >
-          <div class="drop-icon" aria-hidden="true">📂</div>
+          <div class="drop-icon" aria-hidden="true">📐</div>
           <p>Drag &amp; drop an image here<br><small>or click to browse</small></p>
           <p class="drop-formats">Supports JPEG, PNG, WebP, GIF, BMP</p>
         </div>
         <input id="ir-file" type="file" accept="image/*" class="sr-only" aria-hidden="true" onchange="irLoadFile(this.files[0])"/>
+
         <div id="ir-controls" class="hidden">
           <div id="ir-orig-info" class="img-orig-info"></div>
-          <div class="resize-mode-tabs" role="group" aria-label="Resize mode">
-            <button id="ir-tab-px" class="resize-tab active" type="button" onclick="irSwitchMode('px')" aria-pressed="true">Pixels</button>
-            <button id="ir-tab-pct" class="resize-tab" type="button" onclick="irSwitchMode('pct')" aria-pressed="false">Percentage</button>
-          </div>
-          <div id="ir-px-mode">
+
+          <div id="ir-dim-wrap">
             <div class="resize-dim-row">
               <div>
                 <label for="ir-w">Width (px)</label>
@@ -1651,19 +1766,35 @@ function buildForm(id) {
               </div>
             </div>
           </div>
+
           <div id="ir-pct-mode" class="hidden">
-            <label for="ir-pct">Scale (%)</label>
-            <input id="ir-pct" type="number" min="1" max="1000" value="50" placeholder="50" aria-required="true"/>
+            <label for="ir-pct">Scale Percentage (%)</label>
+            <input id="ir-pct" type="number" min="1" max="1000" value="50" placeholder="50" oninput="irSyncPct()"/>
           </div>
-          <div class="img-format-row">
-            <label for="ir-format">Output format</label>
-            <select id="ir-format" aria-label="Output image format">
-              <option value="image/png">PNG</option>
-              <option value="image/jpeg">JPEG</option>
-              <option value="image/webp">WebP</option>
-            </select>
+
+          <div class="tool-options-grid">
+            <div>
+              <label for="ir-max-kb">Target Max KB (optional)</label>
+              <div class="ic-input-with-unit">
+                <input id="ir-max-kb" type="number" min="5" max="10000" placeholder="Auto" aria-label="Target file size in KB"/>
+                <span class="ic-unit-badge">KB</span>
+              </div>
+            </div>
+            <div>
+              <label for="ir-format">Output format</label>
+              <select id="ir-format" class="form-select" aria-label="Output image format">
+                <option value="image/jpeg" selected>JPEG / JPG</option>
+                <option value="image/png">PNG</option>
+                <option value="image/webp">WebP</option>
+              </select>
+            </div>
           </div>
+
           <button class="primary" type="button" onclick="irResize()">Resize Image</button>
+
+          <!-- Compliance Banner -->
+          <div id="ir-compliance-banner" class="ic-compliance-banner hidden"></div>
+
           <div id="ir-preview-wrap" class="img-preview-wrap hidden">
             <div class="img-preview-pair">
               <div class="img-preview-panel">
@@ -1680,6 +1811,7 @@ function buildForm(id) {
             <button class="primary" type="button" id="ir-download-btn" onclick="irDownload()">⬇ Download Resized Image</button>
           </div>
           <button class="secondary-btn" type="button" onclick="irReset()">↩ Choose Another Image</button>
+          <p class="info-note" style="margin-top:12px;">🔒 <strong>100% In-Browser:</strong> Your images are processed on your device only.</p>
         </div>
       </div>`,
 
@@ -1705,6 +1837,16 @@ function buildForm(id) {
         </div>
         <input id="pc-file" type="file" accept="application/pdf" class="sr-only" aria-hidden="true" onchange="pcLoadFile(this.files[0])"/>
         
+        <!-- Quick Govt Exam PDF Limits -->
+        <div class="ic-govt-card" style="padding:12px 14px; margin-bottom:12px;">
+          <label class="control-label" style="font-size:11.5px; font-weight:700; color:var(--muted); text-transform:uppercase;">🏛️ Govt Exam PDF Upload Limits:</label>
+          <div class="ic-quick-chips" style="margin-top:6px;">
+            <button type="button" class="chip-btn" onclick="pcSetTarget('300')">SSC &amp; State PSC (&lt;300 KB)</button>
+            <button type="button" class="chip-btn" onclick="pcSetTarget('500')">UPSC &amp; IBPS (&lt;500 KB)</button>
+            <button type="button" class="chip-btn" onclick="pcSetTarget('1024')">General Job Portal (&lt;1 MB)</button>
+          </div>
+        </div>
+
         <div id="pc-preview-wrap" class="img-preview-wrap hidden">
           <div class="img-preview-panel" style="margin: 0 auto; width: 100%;">
              <div id="pc-info" class="img-info" style="margin-bottom: 1rem; font-size: 1.1em; color: var(--text);"></div>
@@ -3055,12 +3197,73 @@ function pmReset() {
 ───────────────────────────────────────── */
 let _prImg = null;
 let _prOrigFile = null;
+let _prLocked = false;
+let _prMode = 'govt'; // 'govt' or 'custom'
+let _prCurrentPreset = null;
 let _prOutBlob = null;
-let _prLocked = true;
+let _prOutFilename = 'resized-photo.jpg';
+
+function prSetMode(mode) {
+  _prMode = mode;
+  document.querySelectorAll('#modal [id^="pr-tab-"], #toolContent [id^="pr-tab-"]').forEach(t => {
+    t.classList.remove('active', 'is-active');
+    t.setAttribute('aria-selected', 'false');
+  });
+  const tab = document.getElementById(`pr-tab-${mode}`);
+  if (tab) {
+    tab.classList.add('active', 'is-active');
+    tab.setAttribute('aria-selected', 'true');
+  }
+  const govtPanel = document.getElementById('pr-govt-panel');
+  if (govtPanel) govtPanel.classList.toggle('hidden', mode !== 'govt');
+
+  if (mode === 'govt') {
+    prApplyGovtPreset();
+  }
+}
+
+function prApplyGovtPreset() {
+  const examEl = document.getElementById('pr-exam-select');
+  const typeEl = document.getElementById('pr-type-select');
+  if (!examEl || !typeEl) return;
+
+  const key = `${examEl.value}_${typeEl.value}`;
+  const preset = GOVT_EXAM_PRESETS[key] || GOVT_EXAM_PRESETS['ssc_photo'];
+  _prCurrentPreset = preset;
+
+  const badge = document.getElementById('pr-guide-badge');
+  const specs = document.getElementById('pr-guide-specs');
+  const wInput = document.getElementById('pr-w');
+  const hInput = document.getElementById('pr-h');
+  const kbInput = document.getElementById('pr-max-kb');
+  const fmtSelect = document.getElementById('pr-format');
+
+  if (badge) badge.textContent = `${preset.portal} • ${preset.name}`;
+  if (specs) {
+    specs.innerHTML = `
+      <span class="ic-spec-chip">📦 ${preset.minKb} KB – ${preset.maxKb} KB</span>
+      <span class="ic-spec-chip">📏 ${preset.w} × ${preset.h} px</span>
+      <span class="ic-spec-chip">📄 JPG</span>
+    `;
+  }
+  if (wInput) wInput.value = preset.w;
+  if (hInput) hInput.value = preset.h;
+  if (kbInput) kbInput.value = preset.maxKb;
+  if (fmtSelect) fmtSelect.value = 'image/jpeg';
+
+  _prLocked = false;
+  const lockBtn = document.getElementById('pr-lock-btn');
+  if (lockBtn) lockBtn.textContent = '🔓';
+
+  if (_prImg) {
+    prResize();
+  }
+}
 
 function prHandleDrop(e) {
   e.preventDefault();
-  document.getElementById('pr-drop').classList.remove('drag-over');
+  const dropZone = document.getElementById('pr-drop');
+  if (dropZone) dropZone.classList.remove('drag-over');
   const file = e.dataTransfer.files[0];
   if (!file) return;
   if (!file.type.startsWith('image/')) {
@@ -3086,13 +3289,25 @@ function prLoadFile(file) {
     const img = new Image();
     img.onload = () => {
       _prImg = img;
-      document.getElementById('pr-drop').classList.add('hidden');
-      document.getElementById('pr-controls').classList.remove('hidden');
-      document.getElementById('pr-orig-info').innerHTML =
-        `<strong>${escapeHtml(file.name)}</strong>: ${img.naturalWidth} × ${img.naturalHeight}px (${fmtBytes(file.size)})`;
-      document.getElementById('pr-w').value = img.naturalWidth;
-      document.getElementById('pr-h').value = img.naturalHeight;
-      document.getElementById('pr-preview-wrap').classList.add('hidden');
+      const dropZone = document.getElementById('pr-drop');
+      const controls = document.getElementById('pr-controls');
+      const origInfo = document.getElementById('pr-orig-info');
+
+      if (dropZone) dropZone.classList.add('hidden');
+      if (controls) controls.classList.remove('hidden');
+      if (origInfo) {
+        origInfo.innerHTML = `<strong>${escapeHtml(file.name)}</strong>: ${img.naturalWidth} × ${img.naturalHeight}px (${fmtBytes(file.size)})`;
+      }
+
+      if (_prMode === 'govt') {
+        prApplyGovtPreset();
+      } else {
+        const wInp = document.getElementById('pr-w');
+        const hInp = document.getElementById('pr-h');
+        if (wInp) wInp.value = img.naturalWidth;
+        if (hInp) hInp.value = img.naturalHeight;
+        prResize();
+      }
     };
     img.src = e.target.result;
   };
@@ -3102,8 +3317,10 @@ function prLoadFile(file) {
 function prToggleLock() {
   _prLocked = !_prLocked;
   const btn = document.getElementById('pr-lock-btn');
-  btn.textContent = _prLocked ? '🔒' : '🔓';
-  btn.title = _prLocked ? 'Lock aspect ratio' : 'Unlock aspect ratio';
+  if (btn) {
+    btn.textContent = _prLocked ? '🔒' : '🔓';
+    btn.title = _prLocked ? 'Lock aspect ratio' : 'Unlock aspect ratio';
+  }
 }
 
 function prSyncDim(changed) {
@@ -3118,60 +3335,20 @@ function prSyncDim(changed) {
   }
 }
 
-function prApplyPreset(type) {
-  if (!_prImg) {
-    showToast('Please upload an image first.');
-    return;
-  }
-  _prLocked = false;
-  document.getElementById('pr-lock-btn').textContent = '🔓';
-
-  if (type === 'passport') {
-    document.getElementById('pr-w').value = 200;
-    document.getElementById('pr-h').value = 230;
-    document.getElementById('pr-max-kb').value = 50;
-  } else if (type === 'signature') {
-    document.getElementById('pr-w').value = 140;
-    document.getElementById('pr-h').value = 60;
-    document.getElementById('pr-max-kb').value = 20;
-  } else if (type === 'rrb_photo') {
-    document.getElementById('pr-w').value = 240;
-    document.getElementById('pr-h').value = 320;
-    document.getElementById('pr-max-kb').value = 50;
-  } else if (type === 'rrb_sig') {
-    document.getElementById('pr-w').value = 140;
-    document.getElementById('pr-h').value = 60;
-    document.getElementById('pr-max-kb').value = 20;
-  } else if (type === 'ssc_photo') {
-    document.getElementById('pr-w').value = 100;
-    document.getElementById('pr-h').value = 120;
-    document.getElementById('pr-max-kb').value = 40;
-  } else if (type === 'upsc_photo') {
-    document.getElementById('pr-w').value = 350;
-    document.getElementById('pr-h').value = 350;
-    document.getElementById('pr-max-kb').value = 100;
-  } else if (type === 'thumb') {
-    document.getElementById('pr-w').value = 140;
-    document.getElementById('pr-h').value = 140;
-    document.getElementById('pr-max-kb').value = 30;
-  }
-  showToast('Applied preset dimensions!');
-}
-
 async function prResize() {
   if (!_prImg) {
-    showToast('Please upload an image first.');
+    showToast('⚠️ Please upload an image first.');
     return;
   }
   const w = parseInt(document.getElementById('pr-w').value, 10);
   const h = parseInt(document.getElementById('pr-h').value, 10);
   if (isNaN(w) || w <= 0 || isNaN(h) || h <= 0) {
-    showToast('Please enter valid positive width and height.');
+    showToast('⚠️ Please enter valid positive width and height.');
     return;
   }
 
   const targetKb = parseFloat(document.getElementById('pr-max-kb').value);
-  const format = document.getElementById('pr-format').value;
+  const format = document.getElementById('pr-format') ? document.getElementById('pr-format').value : 'image/jpeg';
 
   const canvas = document.createElement('canvas');
   canvas.width = w;
@@ -3188,32 +3365,33 @@ async function prResize() {
   }
   ctx.drawImage(_prImg, 0, 0, w, h);
 
-  async function getBlobAtQuality(q) {
+  function getBlob(q) {
     return new Promise(resolve => {
-      canvas.toBlob(b => resolve(b), format, format === 'image/png' ? undefined : q);
+      canvas.toBlob(resolve, format, format === 'image/png' ? undefined : q);
     });
   }
 
   let finalBlob;
   if (!isNaN(targetKb) && targetKb > 0 && format === 'image/jpeg') {
-    // Binary search for target file size
     let minQ = 0.05, maxQ = 0.98;
-    let bestBlob = await getBlobAtQuality(minQ);
-    for (let iter = 0; iter < 6; iter++) {
+    let bestBlob = await getBlob(minQ);
+    for (let iter = 0; iter < 7; iter++) {
       const midQ = (minQ + maxQ) / 2;
-      const b = await getBlobAtQuality(midQ);
+      const b = await getBlob(midQ);
+      if (!b) break;
       if (b.size / 1024 <= targetKb) {
         bestBlob = b;
-        minQ = midQ; // try to get higher quality that fits
+        minQ = midQ;
       } else {
         maxQ = midQ;
       }
     }
     finalBlob = bestBlob;
   } else {
-    finalBlob = await getBlobAtQuality(0.92);
+    finalBlob = await getBlob(0.92);
   }
 
+  if (!finalBlob) return;
   _prOutBlob = finalBlob;
   const url = URL.createObjectURL(finalBlob);
   const outImg = document.getElementById('pr-out-img');
@@ -3221,22 +3399,52 @@ async function prResize() {
   outImg._prevUrl = url;
   outImg.src = url;
 
-  const kbSize = (finalBlob.size / 1024).toFixed(1);
-  document.getElementById('pr-out-info').textContent =
-    `Output: ${w} × ${h}px — ${kbSize} KB (${finalBlob.size} bytes)`;
+  const finalKb = (finalBlob.size / 1024).toFixed(1);
+  const infoEl = document.getElementById('pr-out-info');
+  if (infoEl) {
+    infoEl.innerHTML = `<strong>${w} × ${h}px</strong> — <strong>${finalKb} KB</strong> (${finalBlob.size.toLocaleString()} bytes)`;
+  }
+
+  // Compliance Banner
+  const compBanner = document.getElementById('pr-compliance-banner');
+  if (compBanner) {
+    if (_prMode === 'govt' && _prCurrentPreset) {
+      const kbNum = finalBlob.size / 1024;
+      const isCompliant = kbNum >= _prCurrentPreset.minKb && kbNum <= _prCurrentPreset.maxKb;
+      compBanner.className = `ic-compliance-banner ${isCompliant ? 'success' : 'warn'}`;
+      compBanner.innerHTML = isCompliant
+        ? `✅ <strong>Portal Ready:</strong> ${finalKb} KB satisfies official ${_prCurrentPreset.portal} requirements (${_prCurrentPreset.minKb}–${_prCurrentPreset.maxKb} KB • ${w}×${h}px)`
+        : `⚠️ <strong>Notice:</strong> Output is ${finalKb} KB (Official portal range: ${_prCurrentPreset.minKb}–${_prCurrentPreset.maxKb} KB).`;
+      compBanner.classList.remove('hidden');
+    } else {
+      compBanner.classList.add('hidden');
+    }
+  }
+
+  // Smart Filename
+  const origName = _prOrigFile ? _prOrigFile.name.replace(/\.[^.]+$/, '') : 'photo';
+  if (_prMode === 'govt' && _prCurrentPreset) {
+    _prOutFilename = `${_prCurrentPreset.defaultFilename}_${finalKb}KB.jpg`;
+  } else {
+    const ext = format === 'image/png' ? 'png' : 'jpg';
+    _prOutFilename = `${origName}-${w}x${h}.${ext}`;
+  }
+
+  const downloadBtn = document.getElementById('pr-download-btn');
+  if (downloadBtn) {
+    downloadBtn.textContent = `⬇ Download ${_prOutFilename}`;
+  }
+
   document.getElementById('pr-preview-wrap').classList.remove('hidden');
-  showToast('✓ Photo/Signature generated!');
+  showToast('✓ Resized photo/signature generated!');
 }
 
 function prDownload() {
   if (!_prOutBlob) return;
-  const format = document.getElementById('pr-format').value;
-  const ext = format === 'image/png' ? 'png' : 'jpg';
-  const origName = _prOrigFile ? _prOrigFile.name.replace(/\.[^.]+$/, '') : 'photo';
   const a = document.createElement('a');
   const url = URL.createObjectURL(_prOutBlob);
   a.href = url;
-  a.download = `${origName}-${document.getElementById('pr-w').value}x${document.getElementById('pr-h').value}.${ext}`;
+  a.download = _prOutFilename || 'resized-photo.jpg';
   document.body.appendChild(a);
   a.click();
   document.body.removeChild(a);
@@ -3250,15 +3458,354 @@ function prReset() {
   _prOutBlob = null;
   const outImg = document.getElementById('pr-out-img');
   if (outImg && outImg._prevUrl) URL.revokeObjectURL(outImg._prevUrl);
-  document.getElementById('pr-drop').classList.remove('hidden');
-  document.getElementById('pr-controls').classList.add('hidden');
-  document.getElementById('pr-file').value = '';
+  const dropZone = document.getElementById('pr-drop');
+  const controls = document.getElementById('pr-controls');
+  const fileInp = document.getElementById('pr-file');
+  if (dropZone) dropZone.classList.remove('hidden');
+  if (controls) controls.classList.add('hidden');
+  if (fileInp) fileInp.value = '';
+}
+
+/* ─────────────────────────────────────────
+   Tool 2: Image Resizer Implementation
+───────────────────────────────────────── */
+let _irImg = null;
+let _irOrigFile = null;
+let _irLocked = true;
+let _irMode = 'govt'; // 'govt', 'px', 'pct'
+let _irCurrentPreset = null;
+let _irOutBlob = null;
+let _irOutFilename = 'resized-image.jpg';
+
+function irSwitchMode(mode) {
+  _irMode = mode;
+  document.querySelectorAll('#modal [id^="ir-tab-"], #toolContent [id^="ir-tab-"]').forEach(t => {
+    t.classList.remove('active', 'is-active');
+    t.setAttribute('aria-selected', 'false');
+  });
+  const tab = document.getElementById(`ir-tab-${mode}`);
+  if (tab) {
+    tab.classList.add('active', 'is-active');
+    tab.setAttribute('aria-selected', 'true');
+  }
+
+  const govtPanel = document.getElementById('ir-govt-panel');
+  const dimWrap = document.getElementById('ir-dim-wrap');
+  const pctMode = document.getElementById('ir-pct-mode');
+
+  if (govtPanel) govtPanel.classList.toggle('hidden', mode !== 'govt');
+  if (dimWrap) dimWrap.classList.toggle('hidden', mode === 'pct');
+  if (pctMode) pctMode.classList.toggle('hidden', mode !== 'pct');
+
+  if (mode === 'govt') {
+    irApplyGovtPreset();
+  } else if (_irImg) {
+    if (mode === 'pct') {
+      irSyncPct();
+    } else {
+      irResize();
+    }
+  }
+}
+
+function irApplyGovtPreset() {
+  const examEl = document.getElementById('ir-exam-select');
+  const typeEl = document.getElementById('ir-type-select');
+  if (!examEl || !typeEl) return;
+
+  const key = `${examEl.value}_${typeEl.value}`;
+  const preset = GOVT_EXAM_PRESETS[key] || GOVT_EXAM_PRESETS['ssc_photo'];
+  _irCurrentPreset = preset;
+
+  const badge = document.getElementById('ir-guide-badge');
+  const specs = document.getElementById('ir-guide-specs');
+  const wInput = document.getElementById('ir-w');
+  const hInput = document.getElementById('ir-h');
+  const kbInput = document.getElementById('ir-max-kb');
+  const fmtSelect = document.getElementById('ir-format');
+
+  if (badge) badge.textContent = `${preset.portal} • ${preset.name}`;
+  if (specs) {
+    specs.innerHTML = `
+      <span class="ic-spec-chip">📏 ${preset.w} × ${preset.h} px</span>
+      <span class="ic-spec-chip">📦 ${preset.minKb} KB – ${preset.maxKb} KB</span>
+      <span class="ic-spec-chip">📄 JPG</span>
+    `;
+  }
+  if (wInput) wInput.value = preset.w;
+  if (hInput) hInput.value = preset.h;
+  if (kbInput) kbInput.value = preset.maxKb;
+  if (fmtSelect) fmtSelect.value = 'image/jpeg';
+
+  _irLocked = false;
+  const lockBtn = document.getElementById('ir-lock-btn');
+  if (lockBtn) lockBtn.textContent = '🔓';
+
+  if (_irImg) {
+    irResize();
+  }
+}
+
+function irHandleDrop(e) {
+  e.preventDefault();
+  const dropZone = document.getElementById('ir-drop');
+  if (dropZone) dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    showToast('⚠️ Please upload an image file (JPG, PNG, WebP).');
+    return;
+  }
+  irLoadFile(file);
+}
+
+function irLoadFile(file) {
+  if (!file) return;
+  if (!file.type.startsWith('image/')) {
+    showToast('⚠️ Please select a valid image file.');
+    return;
+  }
+  if (file.size > MAX_IMAGE_BYTES) {
+    showToast(`⚠️ File too large (max ${MAX_IMAGE_BYTES / 1024 / 1024} MB).`);
+    return;
+  }
+  _irOrigFile = file;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const img = new Image();
+    img.onload = () => {
+      _irImg = img;
+      const dropZone = document.getElementById('ir-drop');
+      const controls = document.getElementById('ir-controls');
+      const origInfo = document.getElementById('ir-orig-info');
+      const origInfo2 = document.getElementById('ir-orig-info2');
+      const origImg = document.getElementById('ir-orig-img');
+
+      if (dropZone) dropZone.classList.add('hidden');
+      if (controls) controls.classList.remove('hidden');
+      if (origInfo) {
+        origInfo.innerHTML = `<strong>${escapeHtml(file.name)}</strong>: ${img.naturalWidth} × ${img.naturalHeight}px (${fmtBytes(file.size)})`;
+      }
+      if (origInfo2) {
+        origInfo2.textContent = `${img.naturalWidth} × ${img.naturalHeight}px (${fmtBytes(file.size)})`;
+      }
+      if (origImg) origImg.src = e.target.result;
+
+      if (_irMode === 'govt') {
+        irApplyGovtPreset();
+      } else {
+        const wInp = document.getElementById('ir-w');
+        const hInp = document.getElementById('ir-h');
+        if (wInp) wInp.value = img.naturalWidth;
+        if (hInp) hInp.value = img.naturalHeight;
+        irResize();
+      }
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function irToggleLock() {
+  _irLocked = !_irLocked;
+  const btn = document.getElementById('ir-lock-btn');
+  if (btn) {
+    btn.textContent = _irLocked ? '🔒' : '🔓';
+    btn.title = _irLocked ? 'Lock aspect ratio' : 'Unlock aspect ratio';
+  }
+}
+
+function irSyncDim(changed) {
+  if (!_irLocked || !_irImg) return;
+  const aspect = _irImg.naturalWidth / _irImg.naturalHeight;
+  if (changed === 'w') {
+    const w = parseFloat(document.getElementById('ir-w').value);
+    if (!isNaN(w) && w > 0) document.getElementById('ir-h').value = Math.round(w / aspect);
+  } else {
+    const h = parseFloat(document.getElementById('ir-h').value);
+    if (!isNaN(h) && h > 0) document.getElementById('ir-w').value = Math.round(h * aspect);
+  }
+}
+
+function irSyncPct() {
+  if (!_irImg) return;
+  const pct = parseFloat(document.getElementById('ir-pct').value) || 100;
+  const w = Math.round(_irImg.naturalWidth * (pct / 100));
+  const h = Math.round(_irImg.naturalHeight * (pct / 100));
+  const wInp = document.getElementById('ir-w');
+  const hInp = document.getElementById('ir-h');
+  if (wInp) wInp.value = Math.max(1, w);
+  if (hInp) hInp.value = Math.max(1, h);
+  irResize();
+}
+
+async function irResize() {
+  if (!_irImg) return;
+  const w = parseInt(document.getElementById('ir-w').value, 10);
+  const h = parseInt(document.getElementById('ir-h').value, 10);
+  if (isNaN(w) || w <= 0 || isNaN(h) || h <= 0) {
+    showToast('⚠️ Please enter valid positive width and height.');
+    return;
+  }
+
+  const targetKb = parseFloat(document.getElementById('ir-max-kb').value);
+  const format = document.getElementById('ir-format') ? document.getElementById('ir-format').value : 'image/jpeg';
+
+  const canvas = document.createElement('canvas');
+  canvas.width = w;
+  canvas.height = h;
+  const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
+
+  if (format === 'image/jpeg') {
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+  } else {
+    ctx.clearRect(0, 0, w, h);
+  }
+  ctx.drawImage(_irImg, 0, 0, w, h);
+
+  function getBlob(q) {
+    return new Promise(resolve => {
+      canvas.toBlob(resolve, format, format === 'image/png' ? undefined : q);
+    });
+  }
+
+  let finalBlob;
+  if (!isNaN(targetKb) && targetKb > 0 && format === 'image/jpeg') {
+    let minQ = 0.05, maxQ = 0.98;
+    let bestBlob = await getBlob(minQ);
+    for (let iter = 0; iter < 7; iter++) {
+      const midQ = (minQ + maxQ) / 2;
+      const b = await getBlob(midQ);
+      if (!b) break;
+      if (b.size / 1024 <= targetKb) {
+        bestBlob = b;
+        minQ = midQ;
+      } else {
+        maxQ = midQ;
+      }
+    }
+    finalBlob = bestBlob;
+  } else {
+    finalBlob = await getBlob(0.92);
+  }
+
+  if (!finalBlob) return;
+  _irOutBlob = finalBlob;
+  const url = URL.createObjectURL(finalBlob);
+  const outImg = document.getElementById('ir-out-img');
+  if (outImg._prevUrl) URL.revokeObjectURL(outImg._prevUrl);
+  outImg._prevUrl = url;
+  outImg.src = url;
+
+  const finalKb = (finalBlob.size / 1024).toFixed(1);
+  const outInfo = document.getElementById('ir-out-info');
+  if (outInfo) {
+    outInfo.innerHTML = `<strong>${w} × ${h}px</strong> — <strong>${finalKb} KB</strong>`;
+  }
+
+  // Compliance Banner
+  const compBanner = document.getElementById('ir-compliance-banner');
+  if (compBanner) {
+    if (_irMode === 'govt' && _irCurrentPreset) {
+      const kbNum = finalBlob.size / 1024;
+      const isCompliant = kbNum >= _irCurrentPreset.minKb && kbNum <= _irCurrentPreset.maxKb;
+      compBanner.className = `ic-compliance-banner ${isCompliant ? 'success' : 'warn'}`;
+      compBanner.innerHTML = isCompliant
+        ? `✅ <strong>Portal Ready:</strong> ${finalKb} KB satisfies official ${_irCurrentPreset.portal} requirements (${_irCurrentPreset.minKb}–${_irCurrentPreset.maxKb} KB • ${w}×${h}px)`
+        : `⚠️ <strong>Notice:</strong> Output is ${finalKb} KB (Official portal range: ${_irCurrentPreset.minKb}–${_irCurrentPreset.maxKb} KB).`;
+      compBanner.classList.remove('hidden');
+    } else {
+      compBanner.classList.add('hidden');
+    }
+  }
+
+  // Smart Filename
+  const origName = _irOrigFile ? _irOrigFile.name.replace(/\.[^.]+$/, '') : 'resized-image';
+  if (_irMode === 'govt' && _irCurrentPreset) {
+    _irOutFilename = `${_irCurrentPreset.defaultFilename}_${w}x${h}_${finalKb}KB.jpg`;
+  } else {
+    let ext = 'jpg';
+    if (format === 'image/png') ext = 'png';
+    if (format === 'image/webp') ext = 'webp';
+    _irOutFilename = `${origName}-${w}x${h}.${ext}`;
+  }
+
+  const downloadBtn = document.getElementById('ir-download-btn');
+  if (downloadBtn) {
+    downloadBtn.textContent = `⬇ Download ${_irOutFilename}`;
+  }
+
+  const previewWrap = document.getElementById('ir-preview-wrap');
+  if (previewWrap) previewWrap.classList.remove('hidden');
+}
+
+function irDownload() {
+  if (!_irOutBlob) return;
+  const a = document.createElement('a');
+  const url = URL.createObjectURL(_irOutBlob);
+  a.href = url;
+  a.download = _irOutFilename || 'resized-image.jpg';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 10000);
+  showToast('✓ Resized image downloaded!');
+}
+
+function irReset() {
+  _irImg = null;
+  _irOrigFile = null;
+  _irOutBlob = null;
+  const outImg = document.getElementById('ir-out-img');
+  if (outImg && outImg._prevUrl) URL.revokeObjectURL(outImg._prevUrl);
+  const dropZone = document.getElementById('ir-drop');
+  const controls = document.getElementById('ir-controls');
+  const fileInp = document.getElementById('ir-file');
+  if (dropZone) dropZone.classList.remove('hidden');
+  if (controls) controls.classList.add('hidden');
+  if (fileInp) fileInp.value = '';
 }
 
 /* ─────────────────────────────────────────
    Tool 4: Multi-Image to PDF Converter
 ───────────────────────────────────────── */
 let _i2pFiles = [];
+let _i2pCustomFilename = 'converted-document.pdf';
+
+function i2pApplyPreset(type) {
+  const sizeSelect = document.getElementById('i2p-page-size');
+  const orientSelect = document.getElementById('i2p-orientation');
+  const marginSelect = document.getElementById('i2p-margin');
+
+  if (type === 'ssc') {
+    if (sizeSelect) sizeSelect.value = 'a4';
+    if (orientSelect) orientSelect.value = 'p';
+    if (marginSelect) marginSelect.value = '12';
+    _i2pCustomFilename = 'SSC_Document.pdf';
+    showToast('Applied SSC / RRB Document Preset (A4 Portrait, 12mm margins)');
+  } else if (type === 'upsc') {
+    if (sizeSelect) sizeSelect.value = 'a4';
+    if (orientSelect) orientSelect.value = 'p';
+    if (marginSelect) marginSelect.value = '5';
+    _i2pCustomFilename = 'UPSC_Certificate.pdf';
+    showToast('Applied UPSC Certificate Preset (A4 Portrait, 5mm margins)');
+  } else if (type === 'idcard') {
+    if (sizeSelect) sizeSelect.value = 'fit';
+    if (orientSelect) orientSelect.value = 'auto';
+    if (marginSelect) marginSelect.value = '0';
+    _i2pCustomFilename = 'ID_Card_Document.pdf';
+    showToast('Applied ID Card / Marksheet Fit Preset');
+  } else if (type === 'fullbleed') {
+    if (sizeSelect) sizeSelect.value = 'a4';
+    if (orientSelect) orientSelect.value = 'p';
+    if (marginSelect) marginSelect.value = '0';
+    _i2pCustomFilename = 'Document_FullBleed.pdf';
+    showToast('Applied Full Bleed Preset (No Margins)');
+  }
+}
 
 function i2pHandleDrop(e) {
   e.preventDefault();
@@ -3421,7 +3968,7 @@ async function i2pConvert() {
       doc.addImage(imgData, 'JPEG', x, y, renderW, renderH);
     }
 
-    doc.save(`images-${Date.now()}.pdf`);
+    doc.save(_i2pCustomFilename || `document-${Date.now()}.pdf`);
     showToast('✓ PDF converted & downloaded!');
   } catch (err) {
     console.error('Image to PDF error:', err);
@@ -3605,6 +4152,12 @@ function pcHandleDrop(e) {
   }
 }
 
+let _pcTargetKb = null;
+function pcSetTarget(kb) {
+  _pcTargetKb = parseInt(kb, 10);
+  showToast(`Target limit set to <${kb} KB (Govt Portal Requirement)`);
+  if (pcCurrentFile) pcCompress();
+}
 function pcLoadFile(file) {
   if (!file) return;
   if (file.type !== 'application/pdf') {
