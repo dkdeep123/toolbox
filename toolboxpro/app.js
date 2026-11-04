@@ -612,6 +612,48 @@ function render() {
   if (typeof observeRevealElements === 'function') {
     observeRevealElements(grid);
     if (typeof initMouseSpotlightGlow === 'function') initMouseSpotlightGlow();
+initHeroInteractiveDemo();
+initHeroPreviewCards();
+initQuickSearchButtons();
+function initHeroPreviewCards() {
+  document.querySelectorAll('.preview-card, .preview-mini-card').forEach(card => {
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', (e) => {
+      if (e.target.closest('#hero-loan-slider') || e.target.closest('input')) return;
+      const toolId = card.dataset.id;
+      if (toolId && ALLOWED_TOOL_IDS.has(toolId)) {
+        openTool(toolId);
+      }
+    });
+    card.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        if (e.target.closest('#hero-loan-slider') || e.target.closest('input')) return;
+        const toolId = card.dataset.id;
+        if (toolId && ALLOWED_TOOL_IDS.has(toolId)) {
+          e.preventDefault();
+          openTool(toolId);
+        }
+      }
+    });
+  });
+}
+
+function initQuickSearchButtons() {
+  document.querySelectorAll('.quick button').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const q = btn.dataset.query;
+      if (search && q) {
+        search.value = q;
+        render();
+        const toolsSec = document.getElementById('tools');
+        if (toolsSec) {
+          toolsSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }
+    });
+  });
+}
+
   }
 }
 
@@ -5947,11 +5989,43 @@ const SLUG_TO_TOOL = {
 };
 
 (function checkRoute() {
+  // A. Standalone Tool Page: Auto-scroll tool to top of screen
   const autoTool = content && content.dataset.tool;
   if (autoTool && ALLOWED_TOOL_IDS.has(autoTool)) {
     openTool(autoTool);
+    requestAnimationFrame(() => {
+      const embedCard = document.querySelector('.tool-embed-card') || content;
+      if (embedCard) {
+        const topPos = embedCard.getBoundingClientRect().top + window.pageYOffset - 14;
+        window.scrollTo({ top: Math.max(0, topPos), behavior: 'smooth' });
+      }
+    });
     return;
   }
+
+  // B. URL Search Params (?tool=... or ?t=... or ?q=...)
+  const params = new URLSearchParams(window.location.search);
+  const qParam = params.get('q') || params.get('query');
+  const toolParam = params.get('tool') || params.get('t');
+
+  if (toolParam) {
+    const matchedId = SLUG_TO_TOOL[toolParam] || (ALLOWED_TOOL_IDS.has(toolParam) ? toolParam : null);
+    if (matchedId) {
+      openTool(matchedId);
+      return;
+    }
+  }
+
+  if (qParam && search) {
+    search.value = qParam;
+    render();
+    const toolsSec = document.getElementById('tools');
+    if (toolsSec) {
+      toolsSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }
+
+  // C. Path or Hash (e.g. /video-to-shorts or #photoresize)
   const path = window.location.pathname.replace(/^\/|\/$/g, '').replace(/\.html$/, '');
   const hash = window.location.hash.replace('#', '');
   const toolId = SLUG_TO_TOOL[path] || SLUG_TO_TOOL[hash] || (ALLOWED_TOOL_IDS.has(hash) ? hash : null);
