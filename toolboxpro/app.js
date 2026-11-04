@@ -1461,9 +1461,10 @@ function buildForm(id) {
               <label for="pr-exam-select" class="control-label">🏛️ Exam / Portal</label>
               <select id="pr-exam-select" class="form-select" onchange="prApplyGovtPreset()" aria-label="Select Exam Portal">
                 <option value="ssc" selected>SSC (CGL, CHSL, MTS, GD, Steno)</option>
-                <option value="rrb">RRB Railway (NTPC, Group D, ALP, JE)</option>
-                <option value="upsc">UPSC (Civil Services, NDA, CDS)</option>
-                <option value="ibps">IBPS / SBI (PO, Clerk, SO)</option>
+                <option value="rrb">RRB Railway (NTPC, ALP, Tech, JE, Group D)</option>
+                <option value="upsc">UPSC (Civil Services, NDA, CDS, OTR)</option>
+                <option value="ibps">IBPS / SBI (Bank PO, Clerk, SO)</option>
+                <option value="nta">NTA (NEET UG, JEE Main, CUET)</option>
                 <option value="police">Police &amp; State PSC (UP, Bihar, MP, Delhi)</option>
                 <option value="passport">Indian Passport &amp; Visa</option>
               </select>
@@ -1474,6 +1475,7 @@ function buildForm(id) {
                 <option value="photo" selected>📸 Photograph</option>
                 <option value="sig">✍️ Signature</option>
                 <option value="thumb">🖐️ Left Thumb Impression</option>
+                <option value="decl">📝 Hand-Written Declaration (IBPS/SBI)</option>
               </select>
             </div>
           </div>
@@ -2822,8 +2824,9 @@ function fmtBytes(bytes) {
    Official Govt Exam Presets (SSC, RRB, UPSC, IBPS/SBI, etc.)
 ───────────────────────────────────────── */
 const GOVT_EXAM_PRESETS = {
+  // ── SSC (Staff Selection Commission: CGL, CHSL, MTS, GD, Steno) ──
   'ssc_photo': {
-    name: 'SSC Photo',
+    name: 'SSC Photo (Live & Upload)',
     portal: 'SSC',
     minKb: 20,
     maxKb: 50,
@@ -2831,8 +2834,9 @@ const GOVT_EXAM_PRESETS = {
     w: 200,
     h: 230,
     format: 'image/jpeg',
-    specs: '20 KB – 50 KB • 3.5cm × 4.5cm (200×230 px) • JPG',
-    defaultFilename: 'SSC_Photo'
+    specs: '20 KB – 50 KB • 3.5cm × 4.5cm (200×230 px) • JPG / JPEG',
+    defaultFilename: 'SSC_Photo',
+    note: 'Plain white or light background. 80% face coverage. No caps, dark glasses, or masks.'
   },
   'ssc_sig': {
     name: 'SSC Signature',
@@ -2843,8 +2847,9 @@ const GOVT_EXAM_PRESETS = {
     w: 140,
     h: 60,
     format: 'image/jpeg',
-    specs: '10 KB – 20 KB • 4.0cm × 2.0cm (140×60 px) • JPG',
-    defaultFilename: 'SSC_Signature'
+    specs: '10 KB – 20 KB • 4.0cm × 2.0cm (140×60 px) • JPG / JPEG',
+    defaultFilename: 'SSC_Signature',
+    note: 'Black or dark blue ink on white paper. Running handwriting only (NO CAPITAL LETTERS).'
   },
   'ssc_thumb': {
     name: 'SSC Left Thumb',
@@ -2855,47 +2860,77 @@ const GOVT_EXAM_PRESETS = {
     w: 140,
     h: 140,
     format: 'image/jpeg',
-    specs: '10 KB – 30 KB • 140×140 px • JPG',
+    specs: '10 KB – 30 KB • 140×140 px • JPG / JPEG',
     defaultFilename: 'SSC_Thumb'
   },
+  'ssc_decl': {
+    name: 'SSC Certificate / Document',
+    portal: 'SSC',
+    minKb: 20,
+    maxKb: 100,
+    targetKb: 60,
+    w: 600,
+    h: 400,
+    format: 'image/jpeg',
+    specs: '20 KB – 100 KB • JPG / JPEG',
+    defaultFilename: 'SSC_Doc'
+  },
+
+  // ── RRB Railway (NTPC, ALP, Technician, JE, Group D) - Official CEN Verified ──
   'rrb_photo': {
     name: 'RRB Railway Photo',
-    portal: 'RRB Railway',
-    minKb: 20,
-    maxKb: 50,
-    targetKb: 35,
+    portal: 'RRB Railway (NTPC, ALP, Tech, JE)',
+    minKb: 30, // Official CEN rule: 30 KB to 70 KB strictly enforced on rrbapply.gov.in
+    maxKb: 70,
+    targetKb: 50,
     w: 240,
     h: 320,
     format: 'image/jpeg',
-    specs: '20 KB – 50 KB • 35mm × 45mm (240×320 px) • JPG',
-    defaultFilename: 'RRB_Photo'
+    specs: '30 KB – 70 KB • 35mm × 45mm (240×320 px) • JPG / JPEG',
+    defaultFilename: 'RRB_Photo',
+    note: 'Official CEN rule: 30 KB to 70 KB. Plain white/light background. Dark clothing recommended.'
   },
   'rrb_sig': {
     name: 'RRB Railway Signature',
-    portal: 'RRB Railway',
-    minKb: 10,
-    maxKb: 20,
-    targetKb: 15,
+    portal: 'RRB Railway (NTPC, ALP, Tech, JE)',
+    minKb: 30, // Official CEN rule: 30 KB to 70 KB strictly enforced
+    maxKb: 70,
+    targetKb: 45,
     w: 140,
     h: 60,
     format: 'image/jpeg',
-    specs: '10 KB – 20 KB • 50mm × 20mm (140×60 px) • JPG',
-    defaultFilename: 'RRB_Signature'
+    specs: '30 KB – 70 KB • 50mm × 20mm (140×60 px) • JPG / JPEG',
+    defaultFilename: 'RRB_Signature',
+    note: 'Official CEN rule: 30 KB to 70 KB. Black/blue ink on white paper. Running cursive hand only (NO block letters).'
   },
   'rrb_thumb': {
     name: 'RRB Thumb Impression',
     portal: 'RRB Railway',
     minKb: 10,
     maxKb: 50,
-    targetKb: 25,
+    targetKb: 30,
     w: 140,
     h: 140,
     format: 'image/jpeg',
-    specs: '10 KB – 50 KB • 140×140 px • JPG',
+    specs: '10 KB – 50 KB • 140×140 px • JPG / JPEG',
     defaultFilename: 'RRB_Thumb'
   },
+  'rrb_decl': {
+    name: 'RRB Document / Travel Pass',
+    portal: 'RRB Railway',
+    minKb: 30,
+    maxKb: 100,
+    targetKb: 65,
+    w: 600,
+    h: 400,
+    format: 'image/jpeg',
+    specs: '30 KB – 100 KB • JPG / JPEG',
+    defaultFilename: 'RRB_Doc'
+  },
+
+  // ── UPSC (Civil Services, NDA, CDS, OTR) - Official Portal Verified ──
   'upsc_photo': {
-    name: 'UPSC Photo',
+    name: 'UPSC Photo (OTR & Exam)',
     portal: 'UPSC',
     minKb: 20,
     maxKb: 300,
@@ -2903,20 +2938,22 @@ const GOVT_EXAM_PRESETS = {
     w: 350,
     h: 350,
     format: 'image/jpeg',
-    specs: '20 KB – 300 KB • Min 350×350 px (1:1 Aspect) • JPG',
-    defaultFilename: 'UPSC_Photo'
+    specs: '20 KB – 300 KB • Min 350×350 px (1:1 Square) • JPG / JPEG',
+    defaultFilename: 'UPSC_Photo',
+    note: 'Face must cover ~75% of photo. Plain white background. Name & Date of Photo printed at bottom.'
   },
   'upsc_sig': {
-    name: 'UPSC Signature',
+    name: 'UPSC Signature (Triple Sig Rule)',
     portal: 'UPSC',
     minKb: 20,
-    maxKb: 300,
-    targetKb: 80,
+    maxKb: 100, // UPSC OTR strictly 20 KB to 100 KB
+    targetKb: 60,
     w: 350,
     h: 350,
     format: 'image/jpeg',
-    specs: '20 KB – 300 KB • Min 350×350 px • JPG',
-    defaultFilename: 'UPSC_Signature'
+    specs: '20 KB – 100 KB • 350×350 px to 500×500 px • JPG / JPEG',
+    defaultFilename: 'UPSC_Signature',
+    note: 'UPSC Triple Signature: Sign three times vertically on white paper with black ink and scan as one image.'
   },
   'upsc_thumb': {
     name: 'UPSC Thumb Impression',
@@ -2927,11 +2964,25 @@ const GOVT_EXAM_PRESETS = {
     w: 350,
     h: 350,
     format: 'image/jpeg',
-    specs: '20 KB – 300 KB • 350×350 px • JPG',
+    specs: '20 KB – 300 KB • 350×350 px • JPG / JPEG',
     defaultFilename: 'UPSC_Thumb'
   },
+  'upsc_decl': {
+    name: 'UPSC Document',
+    portal: 'UPSC',
+    minKb: 20,
+    maxKb: 300,
+    targetKb: 120,
+    w: 700,
+    h: 500,
+    format: 'image/jpeg',
+    specs: '20 KB – 300 KB • JPG / JPEG',
+    defaultFilename: 'UPSC_Doc'
+  },
+
+  // ── IBPS / SBI (Bank PO, Clerk, SO, RRB) - Official IBPS Verified ──
   'ibps_photo': {
-    name: 'IBPS/SBI Photo',
+    name: 'IBPS / SBI Photo',
     portal: 'IBPS / SBI Bank',
     minKb: 20,
     maxKb: 50,
@@ -2939,11 +2990,12 @@ const GOVT_EXAM_PRESETS = {
     w: 200,
     h: 230,
     format: 'image/jpeg',
-    specs: '20 KB – 50 KB • 200×230 px • JPG',
-    defaultFilename: 'IBPS_Photo'
+    specs: '20 KB – 50 KB • 200×230 px (3.5cm × 4.5cm) • JPG / JPEG',
+    defaultFilename: 'IBPS_Photo',
+    note: 'Recent color picture. Light/white background. Even lighting, no red eye.'
   },
   'ibps_sig': {
-    name: 'IBPS/SBI Signature',
+    name: 'IBPS / SBI Signature',
     portal: 'IBPS / SBI Bank',
     minKb: 10,
     maxKb: 20,
@@ -2951,21 +3003,91 @@ const GOVT_EXAM_PRESETS = {
     w: 140,
     h: 60,
     format: 'image/jpeg',
-    specs: '10 KB – 20 KB • 140×60 px • JPG',
-    defaultFilename: 'IBPS_Signature'
+    specs: '10 KB – 20 KB • 140×60 px • JPG / JPEG',
+    defaultFilename: 'IBPS_Signature',
+    note: 'Must sign with BLACK INK only on white paper. Capital letters will lead to rejection.'
   },
   'ibps_thumb': {
-    name: 'IBPS/SBI Left Thumb',
+    name: 'IBPS Left Thumb Impression',
     portal: 'IBPS / SBI Bank',
     minKb: 20,
     maxKb: 50,
-    targetKb: 30,
+    targetKb: 35,
     w: 240,
     h: 240,
     format: 'image/jpeg',
-    specs: '20 KB – 50 KB • 240×240 px (3cm × 3cm) • JPG',
-    defaultFilename: 'IBPS_Thumb'
+    specs: '20 KB – 50 KB • 240×240 px (3cm × 3cm at 200 DPI) • JPG / JPEG',
+    defaultFilename: 'IBPS_Thumb',
+    note: 'Stamped with black or blue ink on white paper. Clean impression without smudges.'
   },
+  'ibps_decl': {
+    name: 'IBPS Hand-Written Declaration',
+    portal: 'IBPS / SBI Bank',
+    minKb: 50,
+    maxKb: 100,
+    targetKb: 75,
+    w: 800,
+    h: 400,
+    format: 'image/jpeg',
+    specs: '50 KB – 100 KB • 800×400 px (10cm × 5cm at 200 DPI) • JPG / JPEG',
+    defaultFilename: 'IBPS_Declaration',
+    note: 'Must be written by candidate in English with BLACK INK on white paper. CAPITAL LETTERS not accepted.'
+  },
+
+  // ── NTA (NEET UG, JEE Main, CUET, UGC NET) - Official NTA Information Bulletin ──
+  'nta_photo': {
+    name: 'NTA Photo (NEET / JEE / CUET)',
+    portal: 'NTA (NEET, JEE, CUET)',
+    minKb: 10,
+    maxKb: 200,
+    targetKb: 80,
+    w: 350,
+    h: 450,
+    format: 'image/jpeg',
+    specs: '10 KB – 200 KB • 3.5cm × 4.5cm • JPG / JPEG',
+    defaultFilename: 'NTA_Photo',
+    note: 'White background. 80% face coverage, ears visible. Name and Date of Taking Photo printed on photo.'
+  },
+  'nta_sig': {
+    name: 'NTA Signature',
+    portal: 'NTA (NEET, JEE, CUET)',
+    minKb: 4,
+    maxKb: 30,
+    targetKb: 18,
+    w: 140,
+    h: 60,
+    format: 'image/jpeg',
+    specs: '4 KB – 30 KB • 140×60 px • JPG / JPEG',
+    defaultFilename: 'NTA_Signature',
+    note: 'Signed with black ink on white paper in running handwriting. Do not sign in capital letters.'
+  },
+  'nta_thumb': {
+    name: 'NTA Finger & Thumb Impression',
+    portal: 'NTA (NEET / JEE)',
+    minKb: 10,
+    maxKb: 200,
+    targetKb: 70,
+    w: 400,
+    h: 300,
+    format: 'image/jpeg',
+    specs: '10 KB – 200 KB • Left & right fingers/thumb • JPG / JPEG',
+    defaultFilename: 'NTA_Thumb_Impression',
+    note: 'Left and right hands fingers and thumb impressions on white paper with blue ink.'
+  },
+  'nta_decl': {
+    name: 'NTA Category / Marksheet Document',
+    portal: 'NTA (NEET, JEE, CUET)',
+    minKb: 50,
+    maxKb: 300,
+    targetKb: 150,
+    w: 800,
+    h: 1100,
+    format: 'image/jpeg',
+    specs: '50 KB – 300 KB • JPG / PDF',
+    defaultFilename: 'NTA_Doc'
+  },
+
+  // ── Police & State PSC (UP Police, Bihar BPSC/Police, MP, Rajasthan, Delhi) ──
   'police_photo': {
     name: 'Police / State PSC Photo',
     portal: 'State Govt / Police',
@@ -2975,20 +3097,22 @@ const GOVT_EXAM_PRESETS = {
     w: 200,
     h: 230,
     format: 'image/jpeg',
-    specs: '20 KB – 50 KB • 200×230 px • JPG',
-    defaultFilename: 'Govt_Photo'
+    specs: '20 KB – 50 KB • 200×230 px (3.5cm × 4.5cm) • JPG / JPEG',
+    defaultFilename: 'Govt_Photo',
+    note: 'Plain light/white background. Full front view.'
   },
   'police_sig': {
     name: 'Police / State PSC Signature',
     portal: 'State Govt / Police',
-    minKb: 10,
+    minKb: 5,
     maxKb: 20,
-    targetKb: 15,
+    targetKb: 12,
     w: 140,
     h: 60,
     format: 'image/jpeg',
-    specs: '10 KB – 20 KB • 140×60 px • JPG',
-    defaultFilename: 'Govt_Signature'
+    specs: '5 KB – 20 KB • 140×60 px • JPG / JPEG',
+    defaultFilename: 'Govt_Signature',
+    note: 'Signed in running hand on white paper with black or blue ink.'
   },
   'police_thumb': {
     name: 'Thumb Impression',
@@ -2999,9 +3123,23 @@ const GOVT_EXAM_PRESETS = {
     w: 140,
     h: 140,
     format: 'image/jpeg',
-    specs: '10 KB – 50 KB • 140×140 px • JPG',
+    specs: '10 KB – 50 KB • 140×140 px • JPG / JPEG',
     defaultFilename: 'Govt_Thumb'
   },
+  'police_decl': {
+    name: 'State PSC Document',
+    portal: 'State Govt / Police',
+    minKb: 20,
+    maxKb: 100,
+    targetKb: 60,
+    w: 600,
+    h: 400,
+    format: 'image/jpeg',
+    specs: '20 KB – 100 KB • JPG / JPEG',
+    defaultFilename: 'State_Doc'
+  },
+
+  // ── Indian Passport & Visa ──
   'passport_photo': {
     name: 'Indian Passport Photo',
     portal: 'Passport Seva / Visa',
@@ -3011,8 +3149,9 @@ const GOVT_EXAM_PRESETS = {
     w: 413,
     h: 531,
     format: 'image/jpeg',
-    specs: '20 KB – 100 KB • 3.5cm × 4.5cm • JPG',
-    defaultFilename: 'Passport_Photo'
+    specs: '20 KB – 100 KB (up to 200 KB) • 3.5cm × 4.5cm (413×531 px at 300 DPI) • JPG / JPEG',
+    defaultFilename: 'Passport_Photo',
+    note: 'White background. Head occupies 68% to 70%. Neutral expression, both ears visible.'
   },
   'passport_sig': {
     name: 'Passport Signature',
@@ -3023,20 +3162,32 @@ const GOVT_EXAM_PRESETS = {
     w: 280,
     h: 120,
     format: 'image/jpeg',
-    specs: '10 KB – 50 KB • JPG',
+    specs: '10 KB – 50 KB • 280×120 px • JPG / JPEG',
     defaultFilename: 'Passport_Signature'
   },
   'passport_thumb': {
-    name: 'Thumb Impression',
-    portal: 'Passport / Visa',
+    name: 'Passport Thumb Impression',
+    portal: 'Passport Seva / Visa',
     minKb: 10,
     maxKb: 50,
     targetKb: 25,
     w: 200,
     h: 200,
     format: 'image/jpeg',
-    specs: '10 KB – 50 KB • JPG',
+    specs: '10 KB – 50 KB • 200×200 px • JPG / JPEG',
     defaultFilename: 'Passport_Thumb'
+  },
+  'passport_decl': {
+    name: 'Passport Supporting Document',
+    portal: 'Passport Seva',
+    minKb: 50,
+    maxKb: 300,
+    targetKb: 150,
+    w: 800,
+    h: 1000,
+    format: 'image/jpeg',
+    specs: '50 KB – 300 KB • JPG / PDF',
+    defaultFilename: 'Passport_Doc'
   }
 };
 
@@ -3540,11 +3691,15 @@ function prApplyGovtPreset() {
 
   if (badge) badge.textContent = `${preset.portal} • ${preset.name}`;
   if (specs) {
-    specs.innerHTML = `
+    let html = `
       <span class="ic-spec-chip">📦 ${preset.minKb} KB – ${preset.maxKb} KB</span>
       <span class="ic-spec-chip">📏 ${preset.w} × ${preset.h} px</span>
       <span class="ic-spec-chip">📄 JPG</span>
     `;
+    if (preset.note) {
+      html += `<div style="margin-top:8px; font-size:12px; color:var(--text); background:var(--surface); padding:6px 10px; border-radius:6px; border:1px solid var(--line); line-height:1.4;">📌 <strong>Official Guideline:</strong> ${preset.note}</div>`;
+    }
+    specs.innerHTML = html;
   }
   if (wInput) wInput.value = preset.w;
   if (hInput) hInput.value = preset.h;
@@ -3826,11 +3981,15 @@ function irApplyGovtPreset() {
 
   if (badge) badge.textContent = `${preset.portal} • ${preset.name}`;
   if (specs) {
-    specs.innerHTML = `
+    let html = `
       <span class="ic-spec-chip">📏 ${preset.w} × ${preset.h} px</span>
       <span class="ic-spec-chip">📦 ${preset.minKb} KB – ${preset.maxKb} KB</span>
       <span class="ic-spec-chip">📄 JPG</span>
     `;
+    if (preset.note) {
+      html += `<div style="margin-top:8px; font-size:12px; color:var(--text); background:var(--surface); padding:6px 10px; border-radius:6px; border:1px solid var(--line); line-height:1.4;">📌 <strong>Official Guideline:</strong> ${preset.note}</div>`;
+    }
+    specs.innerHTML = html;
   }
   if (wInput) wInput.value = preset.w;
   if (hInput) hInput.value = preset.h;
