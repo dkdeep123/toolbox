@@ -4201,3 +4201,52 @@ body.dark .vs-info-callout {
   padding: 8px 12px;
   font-size: 12.5px;
 }
+
+
+/* Video to Shorts Production Additions */
+.vs-mode-nav {
+  margin-bottom: 16px;
+}
+.vs-btn-zip {
+  background: linear-gradient(135deg, #10b981, #059669) !important;
+  color: #fff !important;
+  border: none !important;
+  box-shadow: 0 2px 6px rgba(16, 185, 129, 0.25);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.vs-btn-zip:hover {
+  background: linear-gradient(135deg, #059669, #047857) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35);
+}
+#vs-trim-inputs,
+#vs-overlay-inputs {
+  background: var(--surface-subtle);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px 14px;
+}
+#vs-trim-toggle.active,
+#vs-overlay-toggle.active {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+}
+@media (max-width: 640px) {
+  .vs-framing-grid {
+    grid-template-columns: 1fr;
+  }
+  .vs-chips-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .vs-results-header {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .vs-results-header > div:last-child {
+    flex-direction: column;
+  }
+  .vs-results-header button {
+    width: 100%;
+  }
+}

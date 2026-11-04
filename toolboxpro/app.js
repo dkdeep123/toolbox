@@ -1866,6 +1866,254 @@ function buildForm(id) {
           <button class="secondary-btn" type="button" onclick="pcReset()">↩ Choose Another PDF</button>
         </div>
       </div>`,
+
+    videoshorts: `
+      <h2>🎬 Video to Shorts Splitter &amp; 9:16 Maker</h2>
+      <p>Convert long horizontal videos into viral 9:16 vertical YouTube Shorts, Instagram Reels &amp; TikTok clips. Split by duration with podcast-style blurred background, smart center crop, or viral headline hooks.</p>
+      <div class="form">
+        <!-- Input Tabs -->
+        <div class="ic-mode-nav vs-mode-nav" role="tablist" aria-label="Input mode">
+          <button type="button" class="ic-mode-tab active" id="vs-tab-file" role="tab" aria-selected="true" onclick="vsSwitchTab('file')">
+            <span class="tab-badge">Fast &amp; 100% Private</span> 📁 Upload Video File
+          </button>
+          <button type="button" class="ic-mode-tab" id="vs-tab-yt" role="tab" aria-selected="false" onclick="vsSwitchTab('yt')">
+            🔗 YouTube Video Link Guide
+          </button>
+        </div>
+
+        <!-- Tab 1: Video File Upload Dropzone -->
+        <div id="vs-file-panel">
+          <div
+            id="vs-drop"
+            class="img-drop-zone"
+            role="button"
+            tabindex="0"
+            aria-label="Drop video file here or click to select"
+            onclick="document.getElementById('vs-file').value=''; document.getElementById('vs-file').click()"
+            onkeydown="if(event.key==='Enter'||event.key===' '){document.getElementById('vs-file').value='';document.getElementById('vs-file').click()}"
+            ondragover="event.preventDefault();this.classList.add('drag-over')"
+            ondragleave="this.classList.remove('drag-over')"
+            ondrop="vsHandleDrop(event)"
+          >
+            <div class="drop-icon" aria-hidden="true">🎬</div>
+            <p>Drag &amp; drop your video recording here<br><small>or click to browse from device</small></p>
+            <p class="drop-formats">Supports MP4, WebM, MOV, MKV • Up to 500 MB • 100% In-Browser Privacy</p>
+          </div>
+          <input id="vs-file" type="file" accept="video/mp4,video/webm,video/quicktime,video/x-matroska,video/*" class="sr-only" aria-hidden="true" onchange="vsLoadFile(this.files[0])"/>
+        </div>
+
+        <!-- Tab 2: YouTube URL Guide Panel -->
+        <div id="vs-yt-panel" class="hidden">
+          <div class="ic-govt-card" style="padding:16px;">
+            <label for="vs-yt-input" class="control-label" style="font-weight:700;">🔗 Paste YouTube Video URL</label>
+            <div style="display:flex; gap:8px; margin-top:8px;">
+              <input id="vs-yt-input" type="url" placeholder="https://www.youtube.com/watch?v=... or https://youtu.be/..." class="form-input" oninput="vsHandleYtInput(this.value)" style="flex:1;"/>
+              <button class="primary" type="button" onclick="vsPasteYtUrl()" style="white-space:nowrap; padding:0 14px;">📋 Paste</button>
+            </div>
+            
+            <div id="vs-yt-preview" class="hidden" style="margin-top:14px; padding:12px; border-radius:10px; background:var(--surface); border:1px solid var(--line);">
+              <div style="display:flex; gap:12px; align-items:center; flex-wrap:wrap;">
+                <img id="vs-yt-thumb" src="" alt="YouTube Thumbnail" style="width:120px; height:68px; object-fit:cover; border-radius:6px; background:#000;"/>
+                <div style="flex:1; min-width:200px;">
+                  <strong id="vs-yt-title" style="display:block; font-size:13.5px; color:var(--text); margin-bottom:4px;">YouTube Video Identified</strong>
+                  <span id="vs-yt-id-badge" style="font-size:12px; color:var(--muted); font-family:monospace;"></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="vs-info-callout" style="margin-top:14px; margin-bottom:0;">
+              <div class="vs-info-icon">💡</div>
+              <div>
+                <strong>How to turn your YouTube video into Shorts:</strong>
+                <p>Due to YouTube's CORS security policy and Google AdSense rules, browsers cannot directly rip video streams without a file. Download your video from <strong>YouTube Studio</strong> (or your video files) as MP4, then click below to upload it:</p>
+                <button type="button" class="primary" style="margin-top:10px; padding:8px 16px; font-size:13px;" onclick="vsSwitchTab('file'); document.getElementById('vs-file').click();">📁 Upload Downloaded Video File Now</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loaded Video Config Panel -->
+        <div id="vs-controls" class="hidden">
+          <div id="vs-orig-info" class="img-orig-info"></div>
+
+          <!-- Video Preview -->
+          <div class="vs-preview-container">
+            <video id="vs-video-preview" controls playsinline preload="metadata"></video>
+          </div>
+
+          <!-- 1. Duration Slicing Selection -->
+          <div class="vs-config-section">
+            <label class="control-label" style="font-weight:700; font-size:13px;">⏱️ Slicing Duration per Short:</label>
+            <div class="vs-chips-grid">
+              <div class="vs-chip" id="vs-dur-15" onclick="vsSetDuration('15')">
+                <span class="vs-chip-title">15 Seconds</span>
+                <span class="vs-chip-desc">Fast Hook / TikTok</span>
+              </div>
+              <div class="vs-chip active" id="vs-dur-30" onclick="vsSetDuration('30')">
+                <span class="vs-chip-title">30 Seconds ⭐</span>
+                <span class="vs-chip-desc">Reels &amp; Shorts Best</span>
+              </div>
+              <div class="vs-chip" id="vs-dur-60" onclick="vsSetDuration('60')">
+                <span class="vs-chip-title">60 Seconds</span>
+                <span class="vs-chip-desc">Full 1-Min Deep Dive</span>
+              </div>
+              <div class="vs-chip" id="vs-dur-custom" onclick="vsSetDuration('custom')">
+                <span class="vs-chip-title">Custom Sec</span>
+                <span class="vs-chip-desc">Set custom length</span>
+              </div>
+            </div>
+            
+            <div id="vs-custom-dur-wrap" class="hidden" style="margin-top:8px;">
+              <label for="vs-custom-sec" style="font-size:12px; color:var(--muted);">Clip Length (seconds, 5 to 180s):</label>
+              <input id="vs-custom-sec" type="number" min="5" max="180" value="45" oninput="vsUpdateSplitEstimate()"/>
+            </div>
+          </div>
+
+          <!-- 2. Trim Range (Optional) -->
+          <div class="vs-config-section">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <label class="control-label" style="font-weight:700; font-size:13px;">✂️ Video Trim Range (Optional):</label>
+              <button type="button" class="chip-btn" id="vs-trim-toggle" onclick="vsToggleTrim()" style="font-size:11.5px; padding:3px 8px;">Custom Range: Off</button>
+            </div>
+            <div id="vs-trim-inputs" class="hidden" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:6px;">
+              <div>
+                <label for="vs-trim-start" style="font-size:12px; color:var(--muted);">Start Time (mm:ss or sec)</label>
+                <input id="vs-trim-start" type="text" placeholder="00:00" value="00:00" onchange="vsUpdateSplitEstimate()"/>
+              </div>
+              <div>
+                <label for="vs-trim-end" style="font-size:12px; color:var(--muted);">End Time (mm:ss or sec)</label>
+                <input id="vs-trim-end" type="text" placeholder="End of video" onchange="vsUpdateSplitEstimate()"/>
+              </div>
+            </div>
+          </div>
+
+          <!-- 3. Framing Style (9:16 Vertical) -->
+          <div class="vs-config-section">
+            <label class="control-label" style="font-weight:700; font-size:13px;">📱 9:16 Vertical Framing Style:</label>
+            <div class="vs-framing-grid">
+              <div class="vs-frame-card active" id="vs-frame-blur" onclick="vsSetFraming('blur')">
+                <span class="vs-frame-icon">🪄</span>
+                <span class="vs-frame-name">Blurred Background</span>
+                <span class="vs-frame-desc">Centers 16:9 video with soft blurred background. #1 for Podcasts &amp; Tutorials.</span>
+              </div>
+              <div class="vs-frame-card" id="vs-frame-crop" onclick="vsSetFraming('crop')">
+                <span class="vs-frame-icon">✂️</span>
+                <span class="vs-frame-name">Center Crop 9:16</span>
+                <span class="vs-frame-desc">Fills entire 9:16 vertical screen by zooming center. Best for single-speaker videos.</span>
+              </div>
+              <div class="vs-frame-card" id="vs-frame-fit" onclick="vsSetFraming('fit')">
+                <span class="vs-frame-icon">⬛</span>
+                <span class="vs-frame-name">Fit Black Bars</span>
+                <span class="vs-frame-desc">Letterbox fit with clean top/bottom black borders. Zero content cropped.</span>
+              </div>
+              <div class="vs-frame-card" id="vs-frame-original" onclick="vsSetFraming('original')">
+                <span class="vs-frame-icon">📐</span>
+                <span class="vs-frame-name">Original Ratio</span>
+                <span class="vs-frame-desc">Keeps original video dimensions. Slices only duration without re-framing.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 4. Viral Hook / Headline Overlay (Optional) -->
+          <div class="vs-config-section">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <label class="control-label" style="font-weight:700; font-size:13px;">🔥 Viral Hook / Headline Overlay:</label>
+              <button type="button" class="chip-btn" id="vs-overlay-toggle" onclick="vsToggleOverlay()" style="font-size:11.5px; padding:3px 8px;">Hook Text: Off</button>
+            </div>
+            <div id="vs-overlay-inputs" class="hidden" style="margin-top:8px; display:flex; flex-direction:column; gap:8px;">
+              <input id="vs-overlay-text" type="text" placeholder="e.g. Wait for the end 😱 or Part {i} 🔥" class="form-input" style="font-size:13px;"/>
+              <div style="display:flex; gap:10px; font-size:12px; color:var(--muted); align-items:center;">
+                <span>Use <code>{i}</code> to automatically insert Short number (Part 1, Part 2...).</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- 5. Resolution & Max Parts Options -->
+          <div class="tool-options-grid">
+            <div>
+              <label for="vs-resolution">Output Quality</label>
+              <select id="vs-resolution" class="form-select">
+                <option value="1080" selected>1080 × 1920 (Full HD • Best Quality)</option>
+                <option value="720">720 × 1280 (HD • Fast Export)</option>
+              </select>
+            </div>
+            <div>
+              <label for="vs-max-parts">Max Shorts to Generate</label>
+              <select id="vs-max-parts" class="form-select" onchange="vsUpdateSplitEstimate()">
+                <option value="all" selected>All possible Shorts</option>
+                <option value="3">First 3 Shorts</option>
+                <option value="5">First 5 Shorts</option>
+                <option value="10">First 10 Shorts</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Dynamic Estimate -->
+          <div id="vs-estimate-box" class="vs-estimate-banner">
+            🎬 Calculating split parts...
+          </div>
+
+          <!-- Action Buttons -->
+          <div style="margin-top:16px; display:flex; gap:10px; flex-wrap:wrap;">
+            <button class="primary vs-generate-btn" id="vs-start-btn" type="button" onclick="vsStartSplitting()" style="flex:1; min-width:200px; padding:12px 18px; font-size:15px; font-weight:700;">
+              🚀 Generate 9:16 Shorts Now
+            </button>
+            <button class="secondary-btn" type="button" onclick="vsReset()" style="padding:12px 16px;">
+              ↩ Choose Another Video
+            </button>
+          </div>
+        </div>
+
+        <!-- In-Progress Rendering Box -->
+        <div id="vs-progress-wrap" class="vs-progress-wrap hidden">
+          <div class="vs-progress-header">
+            <span id="vs-progress-status">Preparing video renderer...</span>
+            <span id="vs-progress-pct">0%</span>
+          </div>
+          <div class="vs-progress-track">
+            <div id="vs-progress-bar" class="vs-progress-bar" style="width:0%;"></div>
+          </div>
+          
+          <div class="vs-live-canvas-wrap">
+            <div class="vs-canvas-label">🔴 Live 9:16 Render Preview:</div>
+            <canvas id="vs-canvas"></canvas>
+          </div>
+
+          <div style="text-align:center; margin-top:14px;">
+            <button type="button" class="secondary-btn" onclick="vsCancelSplitting()" style="padding:8px 18px; font-size:13px;">
+              ⏹ Cancel Splitting
+            </button>
+          </div>
+        </div>
+
+        <!-- Completed Output Gallery -->
+        <div id="vs-results-wrap" class="vs-results-wrap hidden">
+          <div class="vs-results-header">
+            <div>
+              <h3 id="vs-results-title">🎉 Generated Viral Shorts!</h3>
+              <p id="vs-results-sub">All Shorts are ready in 9:16 vertical format for YouTube Shorts, Instagram Reels &amp; TikTok.</p>
+            </div>
+            <div style="display:flex; gap:8px; flex-wrap:wrap;">
+              <button class="primary" type="button" id="vs-btn-zip" onclick="vsDownloadAllZip()" style="padding:9px 15px; font-size:13px; background:linear-gradient(135deg, #10b981, #059669); border:none; color:#fff;">
+                📦 Download All as ZIP
+              </button>
+              <button class="secondary-btn" type="button" onclick="vsDownloadAll()" style="padding:9px 15px; font-size:13px;">
+                ⬇ Download All (Sequential)
+              </button>
+              <button class="secondary-btn" type="button" onclick="vsReset()" style="padding:9px 15px; font-size:13px;">
+                ↩ Process Another
+              </button>
+            </div>
+          </div>
+
+          <div id="vs-shorts-grid" class="vs-shorts-grid"></div>
+        </div>
+
+        <p class="info-note" style="margin-top:16px;">
+          🔒 <strong>100% Client-Side Privacy:</strong> Your video is sliced and framed directly inside your browser. No files are ever sent to an external server or cloud.
+        </p>
+      </div>`,
+
   };
 
   const tool = TOOLS.find(t => t.id === id);
@@ -4952,6 +5200,107 @@ let _vsGeneratedShorts = [];
 let _vsAudioCtx = null;
 let _vsAudioSource = null;
 let _vsAudioDest = null;
+let _vsTrimCustom = false;
+let _vsOverlayCustom = false;
+
+function vsSwitchTab(tab) {
+  const fileTab = document.getElementById('vs-tab-file');
+  const ytTab = document.getElementById('vs-tab-yt');
+  const filePanel = document.getElementById('vs-file-panel');
+  const ytPanel = document.getElementById('vs-yt-panel');
+
+  if (tab === 'file') {
+    if (fileTab) { fileTab.classList.add('active'); fileTab.setAttribute('aria-selected', 'true'); }
+    if (ytTab) { ytTab.classList.remove('active'); ytTab.setAttribute('aria-selected', 'false'); }
+    if (filePanel) filePanel.classList.remove('hidden');
+    if (ytPanel) ytPanel.classList.add('hidden');
+  } else {
+    if (fileTab) { fileTab.classList.remove('active'); fileTab.setAttribute('aria-selected', 'false'); }
+    if (ytTab) { ytTab.classList.add('active'); ytTab.setAttribute('aria-selected', 'true'); }
+    if (filePanel) filePanel.classList.add('hidden');
+    if (ytPanel) ytPanel.classList.remove('hidden');
+  }
+}
+
+function vsHandleYtInput(val) {
+  if (!val) {
+    const preview = document.getElementById('vs-yt-preview');
+    if (preview) preview.classList.add('hidden');
+    return;
+  }
+  const m = val.match(/(?:youtu\.be\/|youtube\.com\/(?:embed\/|v\/|watch\?v=|shorts\/|live\/))([\w-]{11})/i);
+  const preview = document.getElementById('vs-yt-preview');
+  const thumb = document.getElementById('vs-yt-thumb');
+  const badge = document.getElementById('vs-yt-id-badge');
+
+  if (m && m[1]) {
+    const id = m[1];
+    if (thumb) thumb.src = `https://img.youtube.com/vi/${id}/mqdefault.jpg`;
+    if (badge) badge.textContent = `Video ID: ${id} • Ready for Shorts Conversion`;
+    if (preview) preview.classList.remove('hidden');
+  } else {
+    if (preview) preview.classList.add('hidden');
+  }
+}
+
+async function vsPasteYtUrl() {
+  try {
+    if (navigator.clipboard && navigator.clipboard.readText) {
+      const text = await navigator.clipboard.readText();
+      const inp = document.getElementById('vs-yt-input');
+      if (inp) {
+        inp.value = text.trim();
+        vsHandleYtInput(inp.value);
+        showToast('✓ Pasted link from clipboard');
+      }
+    } else {
+      showToast('⚠️ Please paste manually (Ctrl+V)');
+    }
+  } catch (err) {
+    showToast('⚠️ Please paste manually (Ctrl+V)');
+  }
+}
+
+function vsToggleTrim() {
+  _vsTrimCustom = !_vsTrimCustom;
+  const wrap = document.getElementById('vs-trim-inputs');
+  const btn = document.getElementById('vs-trim-toggle');
+  if (wrap) {
+    wrap.classList.toggle('hidden', !_vsTrimCustom);
+  }
+  if (btn) {
+    btn.textContent = _vsTrimCustom ? 'Custom Range: ON' : 'Custom Range: Off';
+    btn.classList.toggle('active', _vsTrimCustom);
+  }
+  vsUpdateSplitEstimate();
+}
+
+function vsToggleOverlay() {
+  _vsOverlayCustom = !_vsOverlayCustom;
+  const wrap = document.getElementById('vs-overlay-inputs');
+  const btn = document.getElementById('vs-overlay-toggle');
+  if (wrap) {
+    wrap.classList.toggle('hidden', !_vsOverlayCustom);
+  }
+  if (btn) {
+    btn.textContent = _vsOverlayCustom ? 'Hook Text: ON' : 'Hook Text: Off';
+    btn.classList.toggle('active', _vsOverlayCustom);
+  }
+}
+
+function vsParseTime(str) {
+  if (!str) return 0;
+  str = String(str).trim();
+  if (str.includes(':')) {
+    const parts = str.split(':');
+    if (parts.length === 2) {
+      return (parseFloat(parts[0]) || 0) * 60 + (parseFloat(parts[1]) || 0);
+    } else if (parts.length === 3) {
+      return (parseFloat(parts[0]) || 0) * 3600 + (parseFloat(parts[1]) || 0) * 60 + (parseFloat(parts[2]) || 0);
+    }
+  }
+  return parseFloat(str) || 0;
+}
 
 function vsHandleDrop(e) {
   e.preventDefault();
@@ -4973,6 +5322,7 @@ function vsLoadFile(file) {
     return;
   }
   _vsFile = file;
+  _vsGeneratedShorts.forEach(s => URL.revokeObjectURL(s.url));
   _vsGeneratedShorts = [];
 
   const dropZone = document.getElementById('vs-drop');
@@ -5005,6 +5355,10 @@ function vsLoadFile(file) {
     const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
     if (origInfo) {
       origInfo.innerHTML = `<strong>${escapeHtml(file.name)}</strong>: ${vsFmtDuration(_vsDuration)} • ${_vsVideo.videoWidth} × ${_vsVideo.videoHeight}px (${sizeMb} MB)`;
+    }
+    const trimEndInp = document.getElementById('vs-trim-end');
+    if (trimEndInp && !trimEndInp.value) {
+      trimEndInp.placeholder = vsFmtDuration(_vsDuration);
     }
     vsUpdateSplitEstimate();
   };
@@ -5056,15 +5410,28 @@ function vsUpdateSplitEstimate() {
     _vsChunkDur = chunk;
   }
 
+  let startSec = 0;
+  let endSec = _vsDuration;
+  if (_vsTrimCustom) {
+    const startInp = document.getElementById('vs-trim-start');
+    const endInp = document.getElementById('vs-trim-end');
+    if (startInp && startInp.value) startSec = vsParseTime(startInp.value);
+    if (endInp && endInp.value) endSec = vsParseTime(endInp.value) || _vsDuration;
+  }
+  startSec = Math.max(0, Math.min(startSec, _vsDuration));
+  endSec = Math.max(startSec + 1, Math.min(endSec, _vsDuration));
+  const span = endSec - startSec;
+
   const maxSelect = document.getElementById('vs-max-parts');
   const maxChoice = maxSelect ? maxSelect.value : 'all';
 
-  const totalPossible = Math.ceil(_vsDuration / chunk);
+  const totalPossible = Math.max(1, Math.ceil(span / chunk));
   const willCreate = maxChoice === 'all' ? totalPossible : Math.min(totalPossible, parseInt(maxChoice, 10));
 
   const estimateBox = document.getElementById('vs-estimate-box');
   if (estimateBox) {
-    estimateBox.innerHTML = `🎬 This <strong>${vsFmtDuration(_vsDuration)}</strong> video will produce <strong>${willCreate} Shorts</strong> (~${Math.round(chunk)}s each) in vertical 9:16 format.`;
+    const trimText = _vsTrimCustom ? ` (Trimmed: ${vsFmtDuration(startSec)} - ${vsFmtDuration(endSec)})` : '';
+    estimateBox.innerHTML = `🎬 This <strong>${vsFmtDuration(span)}</strong> segment${trimText} will produce <strong>${willCreate} Shorts</strong> (~${Math.round(chunk)}s each) in vertical 9:16 format.`;
   }
 }
 
@@ -5110,6 +5477,7 @@ async function vsStartSplitting() {
   }
 
   _vsIsCancelling = false;
+  _vsGeneratedShorts.forEach(s => URL.revokeObjectURL(s.url));
   _vsGeneratedShorts = [];
 
   const startBtn = document.getElementById('vs-start-btn');
@@ -5128,14 +5496,25 @@ async function vsStartSplitting() {
   if (resultsWrap) resultsWrap.classList.add('hidden');
 
   const chunkDur = _vsChunkDur || 30;
+  let startSec = 0;
+  let endSec = _vsDuration;
+  if (_vsTrimCustom) {
+    const startInp = document.getElementById('vs-trim-start');
+    const endInp = document.getElementById('vs-trim-end');
+    if (startInp && startInp.value) startSec = vsParseTime(startInp.value);
+    if (endInp && endInp.value) endSec = vsParseTime(endInp.value) || _vsDuration;
+  }
+  startSec = Math.max(0, Math.min(startSec, _vsDuration));
+  endSec = Math.max(startSec + 1, Math.min(endSec, _vsDuration));
+
   const maxChoice = document.getElementById('vs-max-parts') ? document.getElementById('vs-max-parts').value : 'all';
-  const totalPossible = Math.ceil(_vsDuration / chunkDur);
+  const totalPossible = Math.ceil((endSec - startSec) / chunkDur);
   const countToMake = maxChoice === 'all' ? totalPossible : Math.min(totalPossible, parseInt(maxChoice, 10));
 
   const parts = [];
   for (let i = 0; i < countToMake; i++) {
-    const s = i * chunkDur;
-    const e = Math.min((i + 1) * chunkDur, _vsDuration);
+    const s = startSec + (i * chunkDur);
+    const e = Math.min(startSec + ((i + 1) * chunkDur), endSec);
     if ((e - s) >= 1.5) {
       parts.push({ index: i + 1, start: s, end: e });
     }
@@ -5146,6 +5525,13 @@ async function vsStartSplitting() {
     if (startBtn) { startBtn.disabled = false; startBtn.style.display = 'block'; }
     if (progressWrap) progressWrap.classList.add('hidden');
     return;
+  }
+
+  // Hook Text
+  let overlayText = '';
+  if (_vsOverlayCustom) {
+    const overlayInp = document.getElementById('vs-overlay-text');
+    overlayText = overlayInp ? overlayInp.value.trim() : '';
   }
 
   // Target Resolution
@@ -5168,7 +5554,7 @@ async function vsStartSplitting() {
   }
   const liveCtx = liveCanvas ? liveCanvas.getContext('2d') : null;
 
-  // Codec
+  // Codec probing
   let mimeType = 'video/webm;codecs=vp9,opus';
   let fileExt = 'webm';
   if (typeof MediaRecorder !== 'undefined') {
@@ -5196,6 +5582,9 @@ async function vsStartSplitting() {
       _vsAudioSource = _vsAudioCtx.createMediaElementSource(_vsVideo);
       _vsAudioDest = _vsAudioCtx.createMediaStreamDestination();
       _vsAudioSource.connect(_vsAudioDest);
+    }
+    if (_vsAudioCtx && _vsAudioCtx.state === 'suspended') {
+      await _vsAudioCtx.resume();
     }
     if (_vsAudioDest) {
       audioTracks = _vsAudioDest.stream.getAudioTracks();
@@ -5227,7 +5616,8 @@ async function vsStartSplitting() {
     if (_vsIsCancelling) break;
 
     const canvasStream = renderCanvas.captureStream(30);
-    const combinedTracks = [...canvasStream.getVideoTracks(), ...audioTracks];
+    const videoTracks = canvasStream.getVideoTracks();
+    const combinedTracks = audioTracks.length > 0 ? [...videoTracks, ...audioTracks] : [...videoTracks];
     const combinedStream = new MediaStream(combinedTracks);
 
     const chunks = [];
@@ -5249,6 +5639,9 @@ async function vsStartSplitting() {
     recorder.start(100);
 
     try {
+      if (_vsAudioCtx && _vsAudioCtx.state === 'suspended') {
+        await _vsAudioCtx.resume();
+      }
       await _vsVideo.play();
     } catch (_) {}
 
@@ -5258,7 +5651,7 @@ async function vsStartSplitting() {
 
     await new Promise(resolve => {
       function renderFrame() {
-        if (_vsIsCancelling || _vsVideo.currentTime >= part.end || _vsVideo.paused || _vsVideo.ended) {
+        if (_vsIsCancelling || _vsVideo.currentTime >= (part.end - 0.05) || _vsVideo.ended) {
           resolve();
           return;
         }
@@ -5296,6 +5689,44 @@ async function vsStartSplitting() {
         } else {
           // Original ratio
           ctx.drawImage(_vsVideo, 0, 0, targetW, targetH);
+        }
+
+        // Optional Viral Hook Overlay
+        if (overlayText) {
+          const textToDraw = overlayText.replace(/\{i\}/gi, part.index);
+          ctx.save();
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          const fontSize = Math.round(targetW * 0.052);
+          ctx.font = `bold ${fontSize}px sans-serif`;
+          const textMetrics = ctx.measureText(textToDraw);
+          const textWidth = textMetrics.width;
+          const paddingH = 24;
+          const paddingV = 14;
+          const boxW = Math.min(targetW - 40, textWidth + paddingH * 2);
+          const boxH = fontSize + paddingV * 2;
+          const boxX = (targetW - boxW) / 2;
+          const boxY = Math.round(targetH * 0.12);
+
+          // High contrast dark rounded box
+          ctx.fillStyle = 'rgba(0, 0, 0, 0.82)';
+          ctx.beginPath();
+          if (ctx.roundRect) {
+            ctx.roundRect(boxX, boxY, boxW, boxH, 12);
+          } else {
+            ctx.rect(boxX, boxY, boxW, boxH);
+          }
+          ctx.fill();
+
+          // Gold border
+          ctx.strokeStyle = '#facc15';
+          ctx.lineWidth = 3;
+          ctx.stroke();
+
+          // Hook Text
+          ctx.fillStyle = '#ffffff';
+          ctx.fillText(textToDraw, targetW / 2, boxY + boxH / 2);
+          ctx.restore();
         }
 
         // Live Mini Preview
@@ -5407,6 +5838,59 @@ function vsDownloadAll() {
       document.body.removeChild(a);
     }, i * 450);
   });
+}
+
+async function vsDownloadAllZip() {
+  if (!_vsGeneratedShorts.length) return;
+  const zipBtn = document.getElementById('vs-btn-zip');
+  const origText = zipBtn ? zipBtn.textContent : '';
+  if (zipBtn) {
+    zipBtn.disabled = true;
+    zipBtn.textContent = '⏳ Packaging ZIP...';
+  }
+  showToast('📦 Creating ZIP archive of all Shorts...');
+
+  try {
+    if (typeof JSZip === 'undefined') {
+      await new Promise((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js';
+        script.onload = resolve;
+        script.onerror = () => reject(new Error('Failed to load JSZip'));
+        document.head.appendChild(script);
+      });
+    }
+
+    const zip = new JSZip();
+    const folder = zip.folder('ToolboxPro_Shorts') || zip;
+    _vsGeneratedShorts.forEach((item) => {
+      folder.file(item.filename, item.blob);
+    });
+
+    const content = await zip.generateAsync({ type: 'blob' }, (metadata) => {
+      if (zipBtn) zipBtn.textContent = `⏳ Packaging ZIP (${Math.round(metadata.percent)}%)...`;
+    });
+
+    const zipUrl = URL.createObjectURL(content);
+    const a = document.createElement('a');
+    a.href = zipUrl;
+    const baseName = _vsFile ? _vsFile.name.replace(/\.[^.]+$/, '') : 'ToolboxPro';
+    a.download = `${baseName}_All_Shorts_9x16.zip`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(zipUrl), 10000);
+    showToast('✓ ZIP downloaded successfully!');
+  } catch (err) {
+    console.warn('ZIP creation error, falling back to sequential download:', err);
+    showToast('⚠️ ZIP packaging unavailable, downloading files individually...');
+    vsDownloadAll();
+  } finally {
+    if (zipBtn) {
+      zipBtn.disabled = false;
+      zipBtn.textContent = origText;
+    }
+  }
 }
 
 function vsReset() {
