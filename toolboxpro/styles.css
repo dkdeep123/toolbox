@@ -3949,3 +3949,255 @@ body.dark .ic-compliance-banner.warn {
   border-color: var(--accent);
   color: var(--accent);
 }
+
+
+/* ─────────────────────────────────────────
+   Video to Shorts Splitter & 9:16 Maker Styling
+───────────────────────────────────────── */
+.vs-info-callout {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  background: var(--accent-tint, rgba(37, 99, 235, 0.08));
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  border-radius: 12px;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  color: var(--text);
+  font-size: 13px;
+  line-height: 1.5;
+}
+body.dark .vs-info-callout {
+  background: rgba(37, 99, 235, 0.12);
+  border-color: rgba(59, 130, 246, 0.35);
+}
+.vs-info-icon {
+  font-size: 20px;
+  line-height: 1;
+}
+.vs-info-callout p {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 12.5px;
+}
+.vs-preview-container {
+  max-width: 480px;
+  margin: 14px auto;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.15);
+}
+.vs-preview-container video {
+  width: 100%;
+  max-height: 270px;
+  display: block;
+}
+.vs-config-section {
+  margin: 18px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.vs-chips-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+  gap: 10px;
+}
+.vs-chip {
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  transition: all 0.18s ease;
+}
+.vs-chip:hover {
+  border-color: var(--accent);
+  background: var(--surface-subtle);
+}
+.vs-chip.active {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+.vs-chip-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text);
+}
+.vs-chip-desc {
+  font-size: 11px;
+  color: var(--muted);
+}
+.vs-estimate-banner {
+  background: var(--surface-subtle);
+  border: 1px dashed var(--accent);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  margin-top: 4px;
+}
+.vs-framing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 10px;
+}
+.vs-frame-card {
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 12px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: all 0.18s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.vs-frame-card:hover {
+  border-color: var(--accent);
+  background: var(--surface-subtle);
+}
+.vs-frame-card.active {
+  border-color: var(--accent);
+  background: var(--accent-tint);
+  box-shadow: 0 0 0 2px var(--accent-glow);
+}
+.vs-frame-icon {
+  font-size: 20px;
+}
+.vs-frame-name {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--text);
+}
+.vs-frame-desc {
+  font-size: 11.5px;
+  color: var(--muted);
+  line-height: 1.4;
+}
+.vs-progress-wrap {
+  background: var(--surface-subtle);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 18px;
+  margin: 16px 0;
+}
+.vs-progress-header {
+  display: flex;
+  justify-content: space-between;
+  font-weight: 700;
+  font-size: 13.5px;
+  color: var(--text);
+  margin-bottom: 8px;
+}
+.vs-progress-track {
+  height: 10px;
+  background: var(--line);
+  border-radius: 9999px;
+  overflow: hidden;
+}
+.vs-progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent), #8b5cf6);
+  transition: width 0.15s ease;
+}
+.vs-live-canvas-wrap {
+  margin-top: 14px;
+  text-align: center;
+}
+.vs-canvas-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 6px;
+}
+.vs-live-canvas-wrap canvas {
+  max-height: 280px;
+  width: auto;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: #000;
+}
+.vs-results-wrap {
+  margin-top: 20px;
+}
+.vs-results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.vs-results-header h3 {
+  margin: 0;
+  font-size: 18px;
+  color: var(--text);
+}
+.vs-results-header p {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  color: var(--muted);
+}
+.vs-shorts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+  gap: 16px;
+}
+.vs-short-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+.vs-short-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12);
+}
+.vs-short-badge {
+  background: var(--navy-surface, #1e293b);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 6px 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.vs-short-player-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 9/16;
+  background: #000;
+  overflow: hidden;
+}
+.vs-short-player-wrap video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.vs-short-info {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.vs-short-info strong {
+  font-size: 13px;
+  color: var(--text);
+}
+.vs-card-dl-btn {
+  padding: 8px 12px;
+  font-size: 12.5px;
+}

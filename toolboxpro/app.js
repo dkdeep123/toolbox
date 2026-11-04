@@ -138,7 +138,7 @@ function escapeHtml(str) {
 const ALLOWED_TOOL_IDS = new Set([
   'age','emi','percentage','gst','unit','bmi','discount',
   'tip','ratio','number','date','salary','imgcompress','imgresize',
-  'photoresize','imgtopdf','pdfmerge','pdfcompress','qrcode'
+  'photoresize','imgtopdf','pdfmerge','pdfcompress','qrcode','videoshorts'
 ]);
 
 /** Max file size accepted by image tools: 25 MB */
@@ -158,6 +158,7 @@ const TOOLS = [
   { id: 'imgcompress', name: 'Image Compressor',           icon: '🗜️', iconName: 'image-compress', cat: 'image',   desc: 'Compress JPG, PNG & WebP images with custom quality & live preview.' },
   { id: 'imgresize',   name: 'Image Resizer',              icon: '🖼️', iconName: 'image-resize',   cat: 'image',   desc: 'Resize images to exact dimensions or percentage with aspect ratio lock.' },
   { id: 'photoresize', name: 'Photo & Signature Resizer',   icon: '✍️', iconName: 'photo-signature',cat: 'image',   desc: 'Resize photos & signatures to exact px dimensions or target KB file size.' },
+  { id: 'videoshorts', name: 'Video to Shorts Splitter', icon: '🎬', iconName: 'video-shorts', cat: 'image',   desc: 'Auto-split videos into 15s/30s/60s viral 9:16 vertical Shorts & Reels with blurred background or crop.' },
   { id: 'imgtopdf',    name: 'Image to PDF Converter',      icon: '📄', iconName: 'image-to-pdf',   cat: 'image',   desc: 'Convert multiple images into a clean PDF with custom page size & margins.' },
 
   // ── PDF Tools ──
@@ -196,6 +197,13 @@ const CATEGORIES = [
 /* Clean SaaS Outline SVG Icons & Tool Logos */
 function getToolSvgIcon(iconName) {
   switch (iconName) {
+    case 'video-shorts':
+      return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-svg">
+        <rect x="5" y="2" width="14" height="20" rx="3" stroke-width="2"/>
+        <polygon points="10 8 16 12 10 16" fill="var(--accent)" stroke="var(--accent)" stroke-width="1.5"/>
+        <line x1="5" y1="6" x2="19" y2="6" stroke-width="1.5" stroke-dasharray="2 2"/>
+        <line x1="5" y1="18" x2="19" y2="18" stroke-width="1.5" stroke-dasharray="2 2"/>
+      </svg>`;
     case 'image-compress':
       return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-svg">
         <rect x="3" y="3" width="18" height="18" rx="3" stroke-width="2"/>
@@ -452,6 +460,7 @@ function applyAmbientMode(on) {
 })();
 
 const TOOL_BADGES = {
+  'videoshorts': { label: '🔥 AI Viral', cls: 'badge-hot' },
   'imgcompress': { label: '🔥 Popular', cls: 'badge-hot' },
   'photoresize': { label: 'Govt Forms', cls: 'badge-gov' },
   'imgtopdf':    { label: 'PDF Export', cls: 'badge-instant' },
@@ -465,6 +474,7 @@ const TOOL_BADGES = {
   'age':         { label: 'Exact Y/M/D', cls: 'badge-util' },
 };
 const TOOL_ID_TO_SLUG = {
+  'videoshorts': 'video-to-shorts',
   'imgcompress': 'image-compressor',
   'imgresize':   'image-resizer',
   'photoresize': 'photo-resizer',
@@ -4929,6 +4939,502 @@ function initMouseSpotlightGlow() {
   });
 }
 
+/* ─────────────────────────────────────────
+   Tool: Video to Shorts Splitter & 9:16 Maker
+───────────────────────────────────────── */
+let _vsFile = null;
+let _vsVideo = null;
+let _vsDuration = 0;
+let _vsChunkDur = 30; // default 30s
+let _vsFraming = 'blur'; // 'blur', 'crop', 'fit', 'original'
+let _vsIsCancelling = false;
+let _vsGeneratedShorts = [];
+let _vsAudioCtx = null;
+let _vsAudioSource = null;
+let _vsAudioDest = null;
+
+function vsHandleDrop(e) {
+  e.preventDefault();
+  const dropZone = document.getElementById('vs-drop');
+  if (dropZone) dropZone.classList.remove('drag-over');
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+  if (!file.type.startsWith('video/') && !/\.(mp4|webm|mov|mkv|m4v|avi)$/i.test(file.name)) {
+    showToast('⚠️ Please upload a valid video file (MP4, WebM, MOV, MKV).');
+    return;
+  }
+  vsLoadFile(file);
+}
+
+function vsLoadFile(file) {
+  if (!file) return;
+  if (!file.type.startsWith('video/') && !/\.(mp4|webm|mov|mkv|m4v|avi)$/i.test(file.name)) {
+    showToast('⚠️ Please upload a valid video file.');
+    return;
+  }
+  _vsFile = file;
+  _vsGeneratedShorts = [];
+
+  const dropZone = document.getElementById('vs-drop');
+  const controls = document.getElementById('vs-controls');
+  const origInfo = document.getElementById('vs-orig-info');
+  const previewVideo = document.getElementById('vs-video-preview');
+  const resultsWrap = document.getElementById('vs-results-wrap');
+  const progressWrap = document.getElementById('vs-progress-wrap');
+
+  if (dropZone) dropZone.classList.add('hidden');
+  if (controls) controls.classList.remove('hidden');
+  if (resultsWrap) resultsWrap.classList.add('hidden');
+  if (progressWrap) progressWrap.classList.add('hidden');
+
+  if (!_vsVideo) {
+    _vsVideo = document.createElement('video');
+    _vsVideo.playsInline = true;
+    _vsVideo.crossOrigin = 'anonymous';
+    _vsVideo.muted = false;
+  }
+
+  const url = URL.createObjectURL(file);
+  _vsVideo.src = url;
+  if (previewVideo) {
+    previewVideo.src = url;
+  }
+
+  _vsVideo.onloadedmetadata = () => {
+    _vsDuration = _vsVideo.duration;
+    const sizeMb = (file.size / (1024 * 1024)).toFixed(1);
+    if (origInfo) {
+      origInfo.innerHTML = `<strong>${escapeHtml(file.name)}</strong>: ${vsFmtDuration(_vsDuration)} • ${_vsVideo.videoWidth} × ${_vsVideo.videoHeight}px (${sizeMb} MB)`;
+    }
+    vsUpdateSplitEstimate();
+  };
+
+  _vsVideo.onerror = () => {
+    showToast('⚠️ Could not decode video format in browser.');
+  };
+}
+
+function vsSetDuration(dur) {
+  document.querySelectorAll('#vs-controls [id^="vs-dur-"]').forEach(btn => btn.classList.remove('active'));
+  const targetBtn = document.getElementById(`vs-dur-${dur}`);
+  if (targetBtn) targetBtn.classList.add('active');
+
+  const customWrap = document.getElementById('vs-custom-dur-wrap');
+  if (dur === 'custom') {
+    if (customWrap) customWrap.classList.remove('hidden');
+    const customInp = document.getElementById('vs-custom-sec');
+    _vsChunkDur = parseFloat(customInp ? customInp.value : 45) || 45;
+  } else {
+    if (customWrap) customWrap.classList.add('hidden');
+    _vsChunkDur = parseInt(dur, 10);
+  }
+  vsUpdateSplitEstimate();
+}
+
+function vsSetFraming(mode) {
+  _vsFraming = mode;
+  document.querySelectorAll('#vs-controls [id^="vs-frame-"]').forEach(card => card.classList.remove('active'));
+  const activeCard = document.getElementById(`vs-frame-${mode}`);
+  if (activeCard) activeCard.classList.add('active');
+}
+
+function vsFmtDuration(sec) {
+  if (isNaN(sec) || sec < 0) return '00:00';
+  const m = Math.floor(sec / 60);
+  const s = Math.floor(sec % 60);
+  return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+}
+
+function vsUpdateSplitEstimate() {
+  if (!_vsDuration || _vsDuration <= 0) return;
+
+  const customWrap = document.getElementById('vs-custom-dur-wrap');
+  let chunk = _vsChunkDur;
+  if (customWrap && !customWrap.classList.contains('hidden')) {
+    const customInp = document.getElementById('vs-custom-sec');
+    chunk = parseFloat(customInp ? customInp.value : 45) || 45;
+    _vsChunkDur = chunk;
+  }
+
+  const maxSelect = document.getElementById('vs-max-parts');
+  const maxChoice = maxSelect ? maxSelect.value : 'all';
+
+  const totalPossible = Math.ceil(_vsDuration / chunk);
+  const willCreate = maxChoice === 'all' ? totalPossible : Math.min(totalPossible, parseInt(maxChoice, 10));
+
+  const estimateBox = document.getElementById('vs-estimate-box');
+  if (estimateBox) {
+    estimateBox.innerHTML = `🎬 This <strong>${vsFmtDuration(_vsDuration)}</strong> video will produce <strong>${willCreate} Shorts</strong> (~${Math.round(chunk)}s each) in vertical 9:16 format.`;
+  }
+}
+
+function vsCancelSplitting() {
+  _vsIsCancelling = true;
+  if (_vsVideo) _vsVideo.pause();
+  const progressWrap = document.getElementById('vs-progress-wrap');
+  const startBtn = document.getElementById('vs-start-btn');
+  if (progressWrap) progressWrap.classList.add('hidden');
+  if (startBtn) {
+    startBtn.disabled = false;
+    startBtn.style.display = 'block';
+  }
+  showToast('Splitting cancelled.');
+}
+
+async function vsSeekTo(video, targetTime) {
+  return new Promise(resolve => {
+    let resolved = false;
+    const onSeek = () => {
+      if (!resolved) {
+        resolved = true;
+        video.removeEventListener('seeked', onSeek);
+        resolve();
+      }
+    };
+    video.addEventListener('seeked', onSeek);
+    video.currentTime = targetTime;
+    setTimeout(() => {
+      if (!resolved) {
+        resolved = true;
+        video.removeEventListener('seeked', onSeek);
+        resolve();
+      }
+    }, 1500);
+  });
+}
+
+async function vsStartSplitting() {
+  if (!_vsFile || !_vsVideo || !_vsDuration) {
+    showToast('⚠️ Please upload a video first.');
+    return;
+  }
+
+  _vsIsCancelling = false;
+  _vsGeneratedShorts = [];
+
+  const startBtn = document.getElementById('vs-start-btn');
+  const progressWrap = document.getElementById('vs-progress-wrap');
+  const resultsWrap = document.getElementById('vs-results-wrap');
+  const statusEl = document.getElementById('vs-progress-status');
+  const pctEl = document.getElementById('vs-progress-pct');
+  const barEl = document.getElementById('vs-progress-bar');
+  const liveCanvas = document.getElementById('vs-canvas');
+
+  if (startBtn) {
+    startBtn.disabled = true;
+    startBtn.style.display = 'none';
+  }
+  if (progressWrap) progressWrap.classList.remove('hidden');
+  if (resultsWrap) resultsWrap.classList.add('hidden');
+
+  const chunkDur = _vsChunkDur || 30;
+  const maxChoice = document.getElementById('vs-max-parts') ? document.getElementById('vs-max-parts').value : 'all';
+  const totalPossible = Math.ceil(_vsDuration / chunkDur);
+  const countToMake = maxChoice === 'all' ? totalPossible : Math.min(totalPossible, parseInt(maxChoice, 10));
+
+  const parts = [];
+  for (let i = 0; i < countToMake; i++) {
+    const s = i * chunkDur;
+    const e = Math.min((i + 1) * chunkDur, _vsDuration);
+    if ((e - s) >= 1.5) {
+      parts.push({ index: i + 1, start: s, end: e });
+    }
+  }
+
+  if (parts.length === 0) {
+    showToast('⚠️ Video duration too short for selected chunk duration.');
+    if (startBtn) { startBtn.disabled = false; startBtn.style.display = 'block'; }
+    if (progressWrap) progressWrap.classList.add('hidden');
+    return;
+  }
+
+  // Target Resolution
+  const resChoice = document.getElementById('vs-resolution') ? document.getElementById('vs-resolution').value : '1080';
+  let targetW = resChoice === '720' ? 720 : 1080;
+  let targetH = resChoice === '720' ? 1280 : 1920;
+  if (_vsFraming === 'original') {
+    targetW = _vsVideo.videoWidth || 1280;
+    targetH = _vsVideo.videoHeight || 720;
+  }
+
+  const renderCanvas = document.createElement('canvas');
+  renderCanvas.width = targetW;
+  renderCanvas.height = targetH;
+  const ctx = renderCanvas.getContext('2d');
+
+  if (liveCanvas) {
+    liveCanvas.width = 360;
+    liveCanvas.height = 640;
+  }
+  const liveCtx = liveCanvas ? liveCanvas.getContext('2d') : null;
+
+  // Codec
+  let mimeType = 'video/webm;codecs=vp9,opus';
+  let fileExt = 'webm';
+  if (typeof MediaRecorder !== 'undefined') {
+    if (MediaRecorder.isTypeSupported('video/mp4;codecs=avc1,mp4a.40.2')) {
+      mimeType = 'video/mp4;codecs=avc1,mp4a.40.2';
+      fileExt = 'mp4';
+    } else if (MediaRecorder.isTypeSupported('video/mp4')) {
+      mimeType = 'video/mp4';
+      fileExt = 'mp4';
+    } else if (MediaRecorder.isTypeSupported('video/webm;codecs=vp8,opus')) {
+      mimeType = 'video/webm;codecs=vp8,opus';
+      fileExt = 'webm';
+    } else if (MediaRecorder.isTypeSupported('video/webm')) {
+      mimeType = 'video/webm';
+      fileExt = 'webm';
+    }
+  }
+
+  // Audio setup via AudioContext
+  let audioTracks = [];
+  try {
+    const AC = window.AudioContext || window.webkitAudioContext;
+    if (AC && !_vsAudioCtx) {
+      _vsAudioCtx = new AC();
+      _vsAudioSource = _vsAudioCtx.createMediaElementSource(_vsVideo);
+      _vsAudioDest = _vsAudioCtx.createMediaStreamDestination();
+      _vsAudioSource.connect(_vsAudioDest);
+    }
+    if (_vsAudioDest) {
+      audioTracks = _vsAudioDest.stream.getAudioTracks();
+    }
+  } catch (err) {
+    console.warn('Audio capture note:', err);
+  }
+
+  if (!audioTracks.length) {
+    try {
+      const s = _vsVideo.captureStream ? _vsVideo.captureStream() : (_vsVideo.mozCaptureStream ? _vsVideo.mozCaptureStream() : null);
+      if (s && s.getAudioTracks().length) {
+        audioTracks = s.getAudioTracks();
+      }
+    } catch (_) {}
+  }
+
+  const baseName = _vsFile.name.replace(/\.[^.]+$/, '');
+
+  for (let pIdx = 0; pIdx < parts.length; pIdx++) {
+    if (_vsIsCancelling) break;
+
+    const part = parts[pIdx];
+    if (statusEl) {
+      statusEl.textContent = `Processing Short ${part.index} of ${parts.length} (${vsFmtDuration(part.start)} - ${vsFmtDuration(part.end)})...`;
+    }
+
+    await vsSeekTo(_vsVideo, part.start);
+    if (_vsIsCancelling) break;
+
+    const canvasStream = renderCanvas.captureStream(30);
+    const combinedTracks = [...canvasStream.getVideoTracks(), ...audioTracks];
+    const combinedStream = new MediaStream(combinedTracks);
+
+    const chunks = [];
+    let recorder;
+    try {
+      recorder = new MediaRecorder(combinedStream, { mimeType, videoBitsPerSecond: 4000000 });
+    } catch (e) {
+      recorder = new MediaRecorder(combinedStream);
+    }
+
+    recorder.ondataavailable = (e) => {
+      if (e.data && e.data.size > 0) chunks.push(e.data);
+    };
+
+    const recordPromise = new Promise(resolve => {
+      recorder.onstop = () => resolve();
+    });
+
+    recorder.start(100);
+
+    try {
+      await _vsVideo.play();
+    } catch (_) {}
+
+    // Frame rendering loop
+    const vW = _vsVideo.videoWidth || targetW;
+    const vH = _vsVideo.videoHeight || targetH;
+
+    await new Promise(resolve => {
+      function renderFrame() {
+        if (_vsIsCancelling || _vsVideo.currentTime >= part.end || _vsVideo.paused || _vsVideo.ended) {
+          resolve();
+          return;
+        }
+
+        // 1. Draw to render canvas based on framing mode
+        if (_vsFraming === 'blur') {
+          // Blurred background
+          ctx.save();
+          ctx.filter = 'blur(28px) brightness(0.65)';
+          const scaleBg = Math.max(targetW / vW, targetH / vH);
+          const bgW = vW * scaleBg;
+          const bgH = vH * scaleBg;
+          ctx.drawImage(_vsVideo, (targetW - bgW) / 2, (targetH - bgH) / 2, bgW, bgH);
+          ctx.restore();
+
+          // Foreground center fit
+          const scaleFg = Math.min(targetW / vW, targetH / vH);
+          const fgW = vW * scaleFg;
+          const fgH = vH * scaleFg;
+          ctx.drawImage(_vsVideo, (targetW - fgW) / 2, (targetH - fgH) / 2, fgW, fgH);
+        } else if (_vsFraming === 'crop') {
+          // Fill 9:16 completely
+          const scale = Math.max(targetW / vW, targetH / vH);
+          const w = vW * scale;
+          const h = vH * scale;
+          ctx.drawImage(_vsVideo, (targetW - w) / 2, (targetH - h) / 2, w, h);
+        } else if (_vsFraming === 'fit') {
+          // Letterbox black
+          ctx.fillStyle = '#000000';
+          ctx.fillRect(0, 0, targetW, targetH);
+          const scale = Math.min(targetW / vW, targetH / vH);
+          const w = vW * scale;
+          const h = vH * scale;
+          ctx.drawImage(_vsVideo, (targetW - w) / 2, (targetH - h) / 2, w, h);
+        } else {
+          // Original ratio
+          ctx.drawImage(_vsVideo, 0, 0, targetW, targetH);
+        }
+
+        // Live Mini Preview
+        if (liveCtx && liveCanvas) {
+          liveCtx.drawImage(renderCanvas, 0, 0, liveCanvas.width, liveCanvas.height);
+        }
+
+        // Progress calc
+        const partProgress = Math.min(1, Math.max(0, (_vsVideo.currentTime - part.start) / (part.end - part.start)));
+        const overallPct = Math.round(((pIdx + partProgress) / parts.length) * 100);
+        if (barEl) barEl.style.width = `${overallPct}%`;
+        if (pctEl) pctEl.textContent = `${overallPct}%`;
+
+        requestAnimationFrame(renderFrame);
+      }
+      renderFrame();
+    });
+
+    _vsVideo.pause();
+    if (recorder.state !== 'inactive') {
+      recorder.stop();
+    }
+    await recordPromise;
+
+    if (_vsIsCancelling) break;
+
+    const partBlob = new Blob(chunks, { type: mimeType });
+    const partUrl = URL.createObjectURL(partBlob);
+    const partDurSec = Math.round(part.end - part.start);
+    const shortFilename = `${baseName}_Short_Part${part.index}_${partDurSec}s.${fileExt}`;
+
+    _vsGeneratedShorts.push({
+      index: part.index,
+      startSec: part.start,
+      endSec: part.end,
+      blob: partBlob,
+      url: partUrl,
+      filename: shortFilename
+    });
+  }
+
+  if (progressWrap) progressWrap.classList.add('hidden');
+  if (startBtn) {
+    startBtn.disabled = false;
+    startBtn.style.display = 'block';
+  }
+
+  if (_vsIsCancelling || _vsGeneratedShorts.length === 0) {
+    return;
+  }
+
+  // Render Output Gallery
+  const gridEl = document.getElementById('vs-shorts-grid');
+  const resultsTitle = document.getElementById('vs-results-title');
+  const resultsSub = document.getElementById('vs-results-sub');
+
+  if (resultsTitle) {
+    resultsTitle.textContent = `🎉 Generated ${_vsGeneratedShorts.length} Viral Shorts!`;
+  }
+  if (resultsSub) {
+    resultsSub.textContent = `Each short is sliced to 9:16 vertical format and ready for YouTube Shorts, Reels & TikTok.`;
+  }
+
+  if (gridEl) {
+    gridEl.innerHTML = _vsGeneratedShorts.map((item, idx) => `
+      <div class="vs-short-card">
+        <div class="vs-short-badge">
+          <span>Short #${item.index}</span>
+          <span>${vsFmtDuration(item.startSec)} - ${vsFmtDuration(item.endSec)}</span>
+        </div>
+        <div class="vs-short-player-wrap">
+          <video src="${item.url}" controls playsinline loop preload="metadata"></video>
+        </div>
+        <div class="vs-short-info">
+          <strong>${escapeHtml(item.filename)}</strong>
+          <span style="font-size:11.5px; color:var(--muted);">${(item.blob.size / (1024 * 1024)).toFixed(1)} MB</span>
+          <button class="primary vs-card-dl-btn" type="button" onclick="vsDownloadOne(${idx})">⬇ Download Part #${item.index}</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  if (resultsWrap) resultsWrap.classList.remove('hidden');
+  showToast(`✓ All ${_vsGeneratedShorts.length} Shorts generated successfully!`);
+}
+
+function vsDownloadOne(idx) {
+  const item = _vsGeneratedShorts[idx];
+  if (!item) return;
+  const a = document.createElement('a');
+  a.href = item.url;
+  a.download = item.filename;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  showToast(`✓ Downloading Part #${item.index}`);
+}
+
+function vsDownloadAll() {
+  if (!_vsGeneratedShorts.length) return;
+  showToast(`Downloading ${_vsGeneratedShorts.length} Shorts sequentially...`);
+  _vsGeneratedShorts.forEach((item, i) => {
+    setTimeout(() => {
+      const a = document.createElement('a');
+      a.href = item.url;
+      a.download = item.filename;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+    }, i * 450);
+  });
+}
+
+function vsReset() {
+  _vsIsCancelling = true;
+  if (_vsVideo) {
+    _vsVideo.pause();
+    _vsVideo.src = '';
+  }
+  _vsGeneratedShorts.forEach(s => URL.revokeObjectURL(s.url));
+  _vsGeneratedShorts = [];
+  _vsFile = null;
+  _vsDuration = 0;
+
+  const dropZone = document.getElementById('vs-drop');
+  const controls = document.getElementById('vs-controls');
+  const progressWrap = document.getElementById('vs-progress-wrap');
+  const resultsWrap = document.getElementById('vs-results-wrap');
+  const fileInp = document.getElementById('vs-file');
+  const previewVideo = document.getElementById('vs-video-preview');
+
+  if (dropZone) dropZone.classList.remove('hidden');
+  if (controls) controls.classList.add('hidden');
+  if (progressWrap) progressWrap.classList.add('hidden');
+  if (resultsWrap) resultsWrap.classList.add('hidden');
+  if (fileInp) fileInp.value = '';
+  if (previewVideo) previewVideo.src = '';
+}
+
 /* ── Deep Link / Route Handler ── */
 const SLUG_TO_TOOL = {
   'emi-calculator': 'emi',
@@ -4943,6 +5449,9 @@ const SLUG_TO_TOOL = {
   'date-difference-calculator': 'date',
   'ratio-calculator': 'ratio',
   'number-converter': 'number',
+  'video-to-shorts': 'videoshorts',
+  'video-shorts-splitter': 'videoshorts',
+  'video-shorts': 'videoshorts',
   'image-compressor': 'imgcompress',
   'image-resizer': 'imgresize',
   'photo-resizer': 'photoresize',
