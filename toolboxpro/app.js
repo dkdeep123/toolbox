@@ -1323,20 +1323,30 @@ function buildForm(id) {
             <div class="ic-select-wrap">
               <label for="ic-exam-select">Exam / Organization</label>
               <select id="ic-exam-select" onchange="icApplyGovtPreset()" aria-label="Select Exam Portal">
-                <option value="ssc">SSC (CGL, CHSL, MTS, GD, CPO)</option>
-                <option value="rrb">RRB Railway (NTPC, Group D, ALP, JE)</option>
-                <option value="upsc">UPSC (Civil Services, NDA, CDS)</option>
-                <option value="ibps">IBPS / SBI (Bank PO &amp; Clerk)</option>
+                <option value="ssc" selected>SSC (CGL, CHSL, MTS, GD, Steno)</option>
+                <option value="rrb">RRB Railway (NTPC, ALP, Tech, JE, Group D)</option>
+                <option value="jee">NTA JEE Main &amp; Advanced</option>
+                <option value="neet">NTA NEET UG (Medical)</option>
+                <option value="upsc">UPSC (Civil Services, NDA, CDS, OTR)</option>
+                <option value="ibps">IBPS / SBI (Bank PO, Clerk, SO)</option>
+                <option value="gate">GATE (IIT M.Tech / PSU)</option>
+                <option value="cat">CAT (IIM MBA Entrance)</option>
+                <option value="ctet">CTET / State TET (CBSE)</option>
+                <option value="cuet">CUET (UG / PG Entrance)</option>
                 <option value="police">Police &amp; State PSC Exams</option>
-                <option value="passport">Indian Passport / Visa Form</option>
+                <option value="passport">Indian Passport &amp; Visa Form</option>
               </select>
             </div>
             <div class="ic-select-wrap">
               <label for="ic-type-select">Document Type</label>
               <select id="ic-type-select" onchange="icApplyGovtPreset()" aria-label="Select Document Type">
-                <option value="photo">👤 Photograph</option>
+                <option value="photo" selected>📸 Passport Size Photo</option>
+                <option value="postcard">🖼️ Postcard Size Photo (4"×6" - NEET UG)</option>
                 <option value="sig">✍️ Signature</option>
                 <option value="thumb">🖐️ Left Thumb Impression</option>
+                <option value="neet_thumb">👐 All 10 Fingers &amp; Thumbs (NEET UG)</option>
+                <option value="decl">📝 Hand-Written Declaration (IBPS/SBI)</option>
+                <option value="doc">📄 Certificate / Marksheet Proof</option>
               </select>
             </div>
           </div>
@@ -1462,20 +1472,28 @@ function buildForm(id) {
               <select id="pr-exam-select" class="form-select" onchange="prApplyGovtPreset()" aria-label="Select Exam Portal">
                 <option value="ssc" selected>SSC (CGL, CHSL, MTS, GD, Steno)</option>
                 <option value="rrb">RRB Railway (NTPC, ALP, Tech, JE, Group D)</option>
+                <option value="jee">NTA JEE Main &amp; Advanced</option>
+                <option value="neet">NTA NEET UG (Medical)</option>
                 <option value="upsc">UPSC (Civil Services, NDA, CDS, OTR)</option>
                 <option value="ibps">IBPS / SBI (Bank PO, Clerk, SO)</option>
-                <option value="nta">NTA (NEET UG, JEE Main, CUET)</option>
+                <option value="gate">GATE (IIT M.Tech / PSU)</option>
+                <option value="cat">CAT (IIM MBA Entrance)</option>
+                <option value="ctet">CTET / State TET (CBSE)</option>
+                <option value="cuet">CUET (UG / PG Entrance)</option>
                 <option value="police">Police &amp; State PSC (UP, Bihar, MP, Delhi)</option>
-                <option value="passport">Indian Passport &amp; Visa</option>
+                <option value="passport">Indian Passport &amp; Visa Application</option>
               </select>
             </div>
             <div class="ic-select-wrap">
               <label for="pr-type-select" class="control-label">📋 Document Type</label>
               <select id="pr-type-select" class="form-select" onchange="prApplyGovtPreset()" aria-label="Select Document Type">
-                <option value="photo" selected>📸 Photograph</option>
+                <option value="photo" selected>📸 Passport Size Photo</option>
+                <option value="postcard">🖼️ Postcard Size Photo (4"×6" - NEET UG)</option>
                 <option value="sig">✍️ Signature</option>
                 <option value="thumb">🖐️ Left Thumb Impression</option>
+                <option value="neet_thumb">👐 All 10 Fingers &amp; Thumbs (NEET UG)</option>
                 <option value="decl">📝 Hand-Written Declaration (IBPS/SBI)</option>
+                <option value="doc">📄 Certificate / Marksheet Proof</option>
               </select>
             </div>
           </div>
@@ -1599,9 +1617,12 @@ function buildForm(id) {
           <div class="ic-govt-card" style="padding:12px 14px; margin-bottom:12px;">
             <label class="control-label" style="font-size:11.5px; font-weight:700; color:var(--muted); text-transform:uppercase;">🏛️ Quick Presets for Govt Exams &amp; Applications:</label>
             <div class="ic-quick-chips" style="margin-top:6px;">
-              <button type="button" class="chip-btn" onclick="i2pApplyPreset('ssc')">SSC / RRB Document (A4, 12mm margin)</button>
-              <button type="button" class="chip-btn" onclick="i2pApplyPreset('upsc')">UPSC Certificate (A4 Portrait, 5mm margin)</button>
-              <button type="button" class="chip-btn" onclick="i2pApplyPreset('idcard')">ID / Marksheet (Fit to Page)</button>
+              <button type="button" class="chip-btn" onclick="i2pApplyPreset('neet_jee')">NEET / JEE Marksheet (&lt;300 KB A4)</button>
+              <button type="button" class="chip-btn" onclick="i2pApplyPreset('ssc')">SSC / State PSC Doc (A4, 10mm)</button>
+              <button type="button" class="chip-btn" onclick="i2pApplyPreset('rrb')">RRB Travel Pass (&lt;500 KB A4)</button>
+              <button type="button" class="chip-btn" onclick="i2pApplyPreset('upsc')">UPSC Certificate (A4, 5mm)</button>
+              <button type="button" class="chip-btn" onclick="i2pApplyPreset('gate_cat')">GATE / CAT Degree (A4, 5mm)</button>
+              <button type="button" class="chip-btn" onclick="i2pApplyPreset('idcard')">ID Card / Marksheet (Fit to Page)</button>
               <button type="button" class="chip-btn" onclick="i2pApplyPreset('fullbleed')">Full Bleed (No Margin)</button>
             </div>
           </div>
@@ -1757,10 +1778,16 @@ function buildForm(id) {
             <div class="ic-select-wrap">
               <label for="ir-exam-select" class="control-label">🏛️ Exam / Portal</label>
               <select id="ir-exam-select" class="form-select" onchange="irApplyGovtPreset()" aria-label="Select Exam Portal">
-                <option value="ssc" selected>SSC (CGL, CHSL, MTS, GD)</option>
-                <option value="rrb">RRB Railway (NTPC, Group D, ALP)</option>
-                <option value="upsc">UPSC (Civil Services, NDA, CDS)</option>
-                <option value="ibps">IBPS / SBI (PO, Clerk)</option>
+                <option value="ssc" selected>SSC (CGL, CHSL, MTS, GD, Steno)</option>
+                <option value="rrb">RRB Railway (NTPC, ALP, Tech, JE, Group D)</option>
+                <option value="jee">NTA JEE Main &amp; Advanced</option>
+                <option value="neet">NTA NEET UG (Medical)</option>
+                <option value="upsc">UPSC (Civil Services, NDA, CDS, OTR)</option>
+                <option value="ibps">IBPS / SBI (Bank PO, Clerk, SO)</option>
+                <option value="gate">GATE (IIT M.Tech / PSU)</option>
+                <option value="cat">CAT (IIM MBA Entrance)</option>
+                <option value="ctet">CTET / State TET (CBSE)</option>
+                <option value="cuet">CUET (UG / PG Entrance)</option>
                 <option value="police">Police &amp; State PSC</option>
                 <option value="passport">Passport Seva / Visa</option>
               </select>
@@ -1768,9 +1795,13 @@ function buildForm(id) {
             <div class="ic-select-wrap">
               <label for="ir-type-select" class="control-label">📋 Document Type</label>
               <select id="ir-type-select" class="form-select" onchange="irApplyGovtPreset()" aria-label="Select Document Type">
-                <option value="photo" selected>📸 Photograph</option>
+                <option value="photo" selected>📸 Passport Size Photo</option>
+                <option value="postcard">🖼️ Postcard Size Photo (4"×6" - NEET UG)</option>
                 <option value="sig">✍️ Signature</option>
-                <option value="thumb">🖐️ Thumb Impression</option>
+                <option value="thumb">🖐️ Left Thumb Impression</option>
+                <option value="neet_thumb">👐 All 10 Fingers &amp; Thumbs (NEET UG)</option>
+                <option value="decl">📝 Hand-Written Declaration (IBPS/SBI)</option>
+                <option value="doc">📄 Certificate / Marksheet Proof</option>
               </select>
             </div>
           </div>
@@ -1895,9 +1926,10 @@ function buildForm(id) {
         <div class="ic-govt-card" style="padding:12px 14px; margin-bottom:12px;">
           <label class="control-label" style="font-size:11.5px; font-weight:700; color:var(--muted); text-transform:uppercase;">🏛️ Govt Exam PDF Upload Limits:</label>
           <div class="ic-quick-chips" style="margin-top:6px;">
-            <button type="button" class="chip-btn" onclick="pcSetTarget('300')">SSC &amp; State PSC (&lt;300 KB)</button>
-            <button type="button" class="chip-btn" onclick="pcSetTarget('500')">UPSC &amp; IBPS (&lt;500 KB)</button>
-            <button type="button" class="chip-btn" onclick="pcSetTarget('1024')">General Job Portal (&lt;1 MB)</button>
+            <button type="button" class="chip-btn" onclick="pcSetTarget('300')">NTA NEET &amp; JEE (&lt;300 KB)</button>
+            <button type="button" class="chip-btn" onclick="pcSetTarget('300')">SSC &amp; UPSC OTR (&lt;300 KB)</button>
+            <button type="button" class="chip-btn" onclick="pcSetTarget('500')">RRB Pass / GATE / CAT (&lt;500 KB)</button>
+            <button type="button" class="chip-btn" onclick="pcSetTarget('1024')">College &amp; Job Portal (&lt;1 MB)</button>
           </div>
         </div>
 
@@ -2821,10 +2853,10 @@ function fmtBytes(bytes) {
 
 
 /* ─────────────────────────────────────────
-   Official Govt Exam Presets (SSC, RRB, UPSC, IBPS/SBI, etc.)
+   Official Govt Exam Presets (SSC, RRB, UPSC, IBPS/SBI, JEE, NEET, GATE, CAT, CTET, etc.)
 ───────────────────────────────────────── */
 const GOVT_EXAM_PRESETS = {
-  // ── SSC (Staff Selection Commission: CGL, CHSL, MTS, GD, Steno) ──
+  // ── SSC (Staff Selection Commission: CGL, CHSL, MTS, GD, Steno, CPO) ──
   'ssc_photo': {
     name: 'SSC Photo (Live & Upload)',
     portal: 'SSC',
@@ -2875,6 +2907,18 @@ const GOVT_EXAM_PRESETS = {
     specs: '20 KB – 100 KB • JPG / JPEG',
     defaultFilename: 'SSC_Doc'
   },
+  'ssc_doc': {
+    name: 'SSC Certificate / Document',
+    portal: 'SSC',
+    minKb: 20,
+    maxKb: 100,
+    targetKb: 60,
+    w: 600,
+    h: 400,
+    format: 'image/jpeg',
+    specs: '20 KB – 100 KB • JPG / JPEG',
+    defaultFilename: 'SSC_Doc'
+  },
 
   // ── RRB Railway (NTPC, ALP, Technician, JE, Group D) - Official CEN Verified ──
   'rrb_photo': {
@@ -2888,7 +2932,7 @@ const GOVT_EXAM_PRESETS = {
     format: 'image/jpeg',
     specs: '30 KB – 70 KB • 35mm × 45mm (240×320 px) • JPG / JPEG',
     defaultFilename: 'RRB_Photo',
-    note: 'Official CEN rule: 30 KB to 70 KB. Plain white/light background. Dark clothing recommended.'
+    note: 'Official CEN rule: 30 KB to 70 KB strictly. Plain white/light background. Dark clothing recommended.'
   },
   'rrb_sig': {
     name: 'RRB Railway Signature',
@@ -2901,7 +2945,7 @@ const GOVT_EXAM_PRESETS = {
     format: 'image/jpeg',
     specs: '30 KB – 70 KB • 50mm × 20mm (140×60 px) • JPG / JPEG',
     defaultFilename: 'RRB_Signature',
-    note: 'Official CEN rule: 30 KB to 70 KB. Black/blue ink on white paper. Running cursive hand only (NO block letters).'
+    note: 'Official CEN rule: 30 KB to 70 KB strictly. Black/blue ink on white paper. Running cursive hand only (NO block letters).'
   },
   'rrb_thumb': {
     name: 'RRB Thumb Impression',
@@ -2916,6 +2960,18 @@ const GOVT_EXAM_PRESETS = {
     defaultFilename: 'RRB_Thumb'
   },
   'rrb_decl': {
+    name: 'RRB Document / Travel Pass',
+    portal: 'RRB Railway',
+    minKb: 30,
+    maxKb: 100,
+    targetKb: 65,
+    w: 600,
+    h: 400,
+    format: 'image/jpeg',
+    specs: '30 KB – 100 KB • JPG / JPEG',
+    defaultFilename: 'RRB_Doc'
+  },
+  'rrb_doc': {
     name: 'RRB Document / Travel Pass',
     portal: 'RRB Railway',
     minKb: 30,
@@ -2968,7 +3024,19 @@ const GOVT_EXAM_PRESETS = {
     defaultFilename: 'UPSC_Thumb'
   },
   'upsc_decl': {
-    name: 'UPSC Document',
+    name: 'UPSC Certificate / Document',
+    portal: 'UPSC',
+    minKb: 20,
+    maxKb: 300,
+    targetKb: 120,
+    w: 700,
+    h: 500,
+    format: 'image/jpeg',
+    specs: '20 KB – 300 KB • JPG / JPEG',
+    defaultFilename: 'UPSC_Doc'
+  },
+  'upsc_doc': {
+    name: 'UPSC Certificate / Document',
     portal: 'UPSC',
     minKb: 20,
     maxKb: 300,
@@ -3033,50 +3101,62 @@ const GOVT_EXAM_PRESETS = {
     defaultFilename: 'IBPS_Declaration',
     note: 'Must be written by candidate in English with BLACK INK on white paper. CAPITAL LETTERS not accepted.'
   },
+  'ibps_doc': {
+    name: 'IBPS Hand-Written Declaration / Doc',
+    portal: 'IBPS / SBI Bank',
+    minKb: 50,
+    maxKb: 100,
+    targetKb: 75,
+    w: 800,
+    h: 400,
+    format: 'image/jpeg',
+    specs: '50 KB – 100 KB • 800×400 px • JPG / JPEG',
+    defaultFilename: 'IBPS_Declaration'
+  },
 
-  // ── NTA (NEET UG, JEE Main, CUET, UGC NET) - Official NTA Information Bulletin ──
-  'nta_photo': {
-    name: 'NTA Photo (NEET / JEE / CUET)',
-    portal: 'NTA (NEET, JEE, CUET)',
+  // ── NTA JEE Main & Advanced (National Testing Agency / IIT JEE) ──
+  'jee_photo': {
+    name: 'JEE Main Passport Photo',
+    portal: 'NTA JEE Main & Advanced',
     minKb: 10,
     maxKb: 200,
     targetKb: 80,
     w: 350,
     h: 450,
     format: 'image/jpeg',
-    specs: '10 KB – 200 KB • 3.5cm × 4.5cm • JPG / JPEG',
-    defaultFilename: 'NTA_Photo',
-    note: 'White background. 80% face coverage, ears visible. Name and Date of Taking Photo printed on photo.'
+    specs: '10 KB – 200 KB • 3.5cm × 4.5cm (350×450 px) • JPG / JPEG',
+    defaultFilename: 'JEE_Main_Photo',
+    note: 'White background, 80% face coverage with visible ears. Spectacles allowed only if used regularly.'
   },
-  'nta_sig': {
-    name: 'NTA Signature',
-    portal: 'NTA (NEET, JEE, CUET)',
+  'jee_sig': {
+    name: 'JEE Main Signature',
+    portal: 'NTA JEE Main & Advanced',
     minKb: 4,
     maxKb: 30,
     targetKb: 18,
     w: 140,
     h: 60,
     format: 'image/jpeg',
-    specs: '4 KB – 30 KB • 140×60 px • JPG / JPEG',
-    defaultFilename: 'NTA_Signature',
-    note: 'Signed with black ink on white paper in running handwriting. Do not sign in capital letters.'
+    specs: '4 KB – 30 KB • 3.5cm × 1.5cm (140×60 px) • JPG / JPEG',
+    defaultFilename: 'JEE_Main_Signature',
+    note: 'Must sign with black ballpoint ink on white paper in running hand. DO NOT sign in capital letters.'
   },
-  'nta_thumb': {
-    name: 'NTA Finger & Thumb Impression',
-    portal: 'NTA (NEET / JEE)',
+  'jee_thumb': {
+    name: 'JEE Main Left Thumb Impression',
+    portal: 'NTA JEE Main & Advanced',
     minKb: 10,
     maxKb: 200,
-    targetKb: 70,
+    targetKb: 60,
     w: 400,
     h: 300,
     format: 'image/jpeg',
-    specs: '10 KB – 200 KB • Left & right fingers/thumb • JPG / JPEG',
-    defaultFilename: 'NTA_Thumb_Impression',
-    note: 'Left and right hands fingers and thumb impressions on white paper with blue ink.'
+    specs: '10 KB – 200 KB • 400×300 px • JPG / JPEG',
+    defaultFilename: 'JEE_Main_Thumb',
+    note: 'Blue or black ink pad impression on white paper without smudges.'
   },
-  'nta_decl': {
-    name: 'NTA Category / Marksheet Document',
-    portal: 'NTA (NEET, JEE, CUET)',
+  'jee_decl': {
+    name: 'JEE Main Marksheet / Category Proof',
+    portal: 'NTA JEE Main & Advanced',
     minKb: 50,
     maxKb: 300,
     targetKb: 150,
@@ -3084,7 +3164,365 @@ const GOVT_EXAM_PRESETS = {
     h: 1100,
     format: 'image/jpeg',
     specs: '50 KB – 300 KB • JPG / PDF',
-    defaultFilename: 'NTA_Doc'
+    defaultFilename: 'JEE_Main_Certificate'
+  },
+  'jee_doc': {
+    name: 'JEE Main Marksheet / Category Proof',
+    portal: 'NTA JEE Main & Advanced',
+    minKb: 50,
+    maxKb: 300,
+    targetKb: 150,
+    w: 800,
+    h: 1100,
+    format: 'image/jpeg',
+    specs: '50 KB – 300 KB • JPG / PDF',
+    defaultFilename: 'JEE_Main_Certificate'
+  },
+
+  // ── NTA NEET UG (Medical Entrance) - Official Information Bulletin ──
+  'neet_photo': {
+    name: 'NEET UG Passport Photo',
+    portal: 'NTA NEET UG',
+    minKb: 10,
+    maxKb: 200,
+    targetKb: 80,
+    w: 350,
+    h: 450,
+    format: 'image/jpeg',
+    specs: '10 KB – 200 KB • 3.5cm × 4.5cm (350×450 px) • JPG / JPEG',
+    defaultFilename: 'NEET_Passport_Photo',
+    note: 'White background, 80% face coverage with visible ears. Name of candidate & date of taking photo printed at bottom.'
+  },
+  'neet_postcard': {
+    name: 'NEET UG Postcard Photo (4"×6")',
+    portal: 'NTA NEET UG',
+    minKb: 10,
+    maxKb: 200,
+    targetKb: 120,
+    w: 1200,
+    h: 1800,
+    format: 'image/jpeg',
+    specs: '10 KB – 200 KB • 4" × 6" Postcard Size (1200×1800 px) • JPG / JPEG',
+    defaultFilename: 'NEET_Postcard_4x6_Photo',
+    note: 'Mandatory 4"×6" postcard size for exam day verification. White background with Candidate Name & Date of Photo printed.'
+  },
+  'neet_sig': {
+    name: 'NEET UG Signature',
+    portal: 'NTA NEET UG',
+    minKb: 4,
+    maxKb: 30,
+    targetKb: 18,
+    w: 140,
+    h: 60,
+    format: 'image/jpeg',
+    specs: '4 KB – 30 KB • 140×60 px • JPG / JPEG',
+    defaultFilename: 'NEET_Signature',
+    note: 'Candidate must sign with black ink pen on white paper in running handwriting (NOT CAPITAL LETTERS).'
+  },
+  'neet_thumb': {
+    name: 'NEET UG Left Thumb Impression',
+    portal: 'NTA NEET UG',
+    minKb: 10,
+    maxKb: 200,
+    targetKb: 70,
+    w: 400,
+    h: 300,
+    format: 'image/jpeg',
+    specs: '10 KB – 200 KB • 400×300 px • JPG / JPEG',
+    defaultFilename: 'NEET_Thumb'
+  },
+  'neet_neet_thumb': {
+    name: 'NEET UG All Fingers & Thumbs Impression',
+    portal: 'NTA NEET UG',
+    minKb: 10,
+    maxKb: 200,
+    targetKb: 80,
+    w: 600,
+    h: 400,
+    format: 'image/jpeg',
+    specs: '10 KB – 200 KB • 600×400 px (Horizontal) • JPG / JPEG',
+    defaultFilename: 'NEET_Fingers_Thumbs_Impression',
+    note: 'Both hands all 10 fingers & thumbs impressions on white paper with blue/black ink.'
+  },
+  'neet_decl': {
+    name: 'NEET UG Certificate / 10th Marksheet',
+    portal: 'NTA NEET UG',
+    minKb: 50,
+    maxKb: 300,
+    targetKb: 150,
+    w: 800,
+    h: 1100,
+    format: 'image/jpeg',
+    specs: '50 KB – 300 KB • JPG / PDF',
+    defaultFilename: 'NEET_Certificate'
+  },
+  'neet_doc': {
+    name: 'NEET UG Certificate / 10th Marksheet',
+    portal: 'NTA NEET UG',
+    minKb: 50,
+    maxKb: 300,
+    targetKb: 150,
+    w: 800,
+    h: 1100,
+    format: 'image/jpeg',
+    specs: '50 KB – 300 KB • JPG / PDF',
+    defaultFilename: 'NEET_Certificate'
+  },
+
+  // ── GATE (IIT M.Tech / PSU Recruitment) ──
+  'gate_photo': {
+    name: 'GATE Photo (IIT)',
+    portal: 'GATE (IIT)',
+    minKb: 5,
+    maxKb: 200,
+    targetKb: 75,
+    w: 480,
+    h: 640,
+    format: 'image/jpeg',
+    specs: '5 KB – 200 KB • 480×640 px (3.5cm × 4.5cm) • JPG / JPEG',
+    defaultFilename: 'GATE_Photo',
+    note: 'Plain white background, 60%–70% face area. Clear frontal face with both ears visible.'
+  },
+  'gate_sig': {
+    name: 'GATE Signature (IIT)',
+    portal: 'GATE (IIT)',
+    minKb: 3,
+    maxKb: 200,
+    targetKb: 50,
+    w: 560,
+    h: 160,
+    format: 'image/jpeg',
+    specs: '3 KB – 200 KB • 560×160 px (Ratio ~3.5:1) • JPG / JPEG',
+    defaultFilename: 'GATE_Signature',
+    note: 'Aspect ratio must be between 1:2.75 and 1:3.75. Black or dark blue ink.'
+  },
+  'gate_thumb': {
+    name: 'GATE Thumb Impression',
+    portal: 'GATE (IIT)',
+    minKb: 5,
+    maxKb: 200,
+    targetKb: 50,
+    w: 240,
+    h: 240,
+    format: 'image/jpeg',
+    specs: '5 KB – 200 KB • 240×240 px • JPG / JPEG',
+    defaultFilename: 'GATE_Thumb'
+  },
+  'gate_decl': {
+    name: 'GATE Eligibility / Category Certificate',
+    portal: 'GATE (IIT)',
+    minKb: 10,
+    maxKb: 500,
+    targetKb: 200,
+    w: 800,
+    h: 1100,
+    format: 'image/jpeg',
+    specs: '10 KB – 500 KB • PDF / JPG',
+    defaultFilename: 'GATE_Certificate'
+  },
+  'gate_doc': {
+    name: 'GATE Eligibility / Category Certificate',
+    portal: 'GATE (IIT)',
+    minKb: 10,
+    maxKb: 500,
+    targetKb: 200,
+    w: 800,
+    h: 1100,
+    format: 'image/jpeg',
+    specs: '10 KB – 500 KB • PDF / JPG',
+    defaultFilename: 'GATE_Certificate'
+  },
+
+  // ── CAT (IIM MBA Entrance) ──
+  'cat_photo': {
+    name: 'CAT Photo (IIM)',
+    portal: 'CAT (IIM)',
+    minKb: 10,
+    maxKb: 80,
+    targetKb: 50,
+    w: 413,
+    h: 531,
+    format: 'image/jpeg',
+    specs: '10 KB – 80 KB • 35mm × 45mm (413×531 px at 300 DPI) • JPG / JPEG',
+    defaultFilename: 'CAT_Photo',
+    note: 'White background. Photo must not be more than six months old.'
+  },
+  'cat_sig': {
+    name: 'CAT Signature (IIM)',
+    portal: 'CAT (IIM)',
+    minKb: 10,
+    maxKb: 80,
+    targetKb: 40,
+    w: 280,
+    h: 120,
+    format: 'image/jpeg',
+    specs: '10 KB – 80 KB • 80mm × 35mm (280×120 px) • JPG / JPEG',
+    defaultFilename: 'CAT_Signature',
+    note: 'Signature on white paper with black ink.'
+  },
+  'cat_thumb': {
+    name: 'CAT Thumb Impression',
+    portal: 'CAT (IIM)',
+    minKb: 10,
+    maxKb: 80,
+    targetKb: 40,
+    w: 240,
+    h: 240,
+    format: 'image/jpeg',
+    specs: '10 KB – 80 KB • 240×240 px • JPG / JPEG',
+    defaultFilename: 'CAT_Thumb'
+  },
+  'cat_decl': {
+    name: 'CAT Category / PwD Certificate',
+    portal: 'CAT (IIM)',
+    minKb: 50,
+    maxKb: 300,
+    targetKb: 150,
+    w: 800,
+    h: 1100,
+    format: 'image/jpeg',
+    specs: '50 KB – 300 KB • PDF / JPG',
+    defaultFilename: 'CAT_Certificate'
+  },
+  'cat_doc': {
+    name: 'CAT Category / PwD Certificate',
+    portal: 'CAT (IIM)',
+    minKb: 50,
+    maxKb: 300,
+    targetKb: 150,
+    w: 800,
+    h: 1100,
+    format: 'image/jpeg',
+    specs: '50 KB – 300 KB • PDF / JPG',
+    defaultFilename: 'CAT_Certificate'
+  },
+
+  // ── CTET / State TET (CBSE Teacher Eligibility Test) ──
+  'ctet_photo': {
+    name: 'CTET / State TET Photo',
+    portal: 'CTET (CBSE)',
+    minKb: 10,
+    maxKb: 100,
+    targetKb: 50,
+    w: 200,
+    h: 230,
+    format: 'image/jpeg',
+    specs: '10 KB – 100 KB • 3.5cm × 4.5cm (200×230 px) • JPG / JPEG',
+    defaultFilename: 'CTET_Photo',
+    note: 'Recent color photo with white background. Both ears visible.'
+  },
+  'ctet_sig': {
+    name: 'CTET / State TET Signature',
+    portal: 'CTET (CBSE)',
+    minKb: 3,
+    maxKb: 30,
+    targetKb: 15,
+    w: 140,
+    h: 60,
+    format: 'image/jpeg',
+    specs: '3 KB – 30 KB • 3.5cm × 1.5cm (140×60 px) • JPG / JPEG',
+    defaultFilename: 'CTET_Signature',
+    note: 'Candidate must sign with running handwriting (NOT CAPITAL LETTERS).'
+  },
+  'ctet_thumb': {
+    name: 'CTET Thumb Impression',
+    portal: 'CTET (CBSE)',
+    minKb: 10,
+    maxKb: 50,
+    targetKb: 30,
+    w: 140,
+    h: 140,
+    format: 'image/jpeg',
+    specs: '10 KB – 50 KB • 140×140 px • JPG / JPEG',
+    defaultFilename: 'CTET_Thumb'
+  },
+  'ctet_decl': {
+    name: 'CTET Marksheet / B.Ed Certificate',
+    portal: 'CTET (CBSE)',
+    minKb: 50,
+    maxKb: 300,
+    targetKb: 150,
+    w: 800,
+    h: 1100,
+    format: 'image/jpeg',
+    specs: '50 KB – 300 KB • PDF / JPG',
+    defaultFilename: 'CTET_Certificate'
+  },
+  'ctet_doc': {
+    name: 'CTET Marksheet / B.Ed Certificate',
+    portal: 'CTET (CBSE)',
+    minKb: 50,
+    maxKb: 300,
+    targetKb: 150,
+    w: 800,
+    h: 1100,
+    format: 'image/jpeg',
+    specs: '50 KB – 300 KB • PDF / JPG',
+    defaultFilename: 'CTET_Certificate'
+  },
+
+  // ── CUET (UG / PG University Entrance) ──
+  'cuet_photo': {
+    name: 'CUET Photo',
+    portal: 'CUET (NTA)',
+    minKb: 10,
+    maxKb: 200,
+    targetKb: 80,
+    w: 350,
+    h: 450,
+    format: 'image/jpeg',
+    specs: '10 KB – 200 KB • 3.5cm × 4.5cm • JPG / JPEG',
+    defaultFilename: 'CUET_Photo',
+    note: 'White background, 80% face coverage with visible ears.'
+  },
+  'cuet_sig': {
+    name: 'CUET Signature',
+    portal: 'CUET (NTA)',
+    minKb: 4,
+    maxKb: 30,
+    targetKb: 18,
+    w: 140,
+    h: 60,
+    format: 'image/jpeg',
+    specs: '4 KB – 30 KB • 140×60 px • JPG / JPEG',
+    defaultFilename: 'CUET_Signature',
+    note: 'Signed with black ink on white paper in running handwriting.'
+  },
+  'cuet_thumb': {
+    name: 'CUET Thumb Impression',
+    portal: 'CUET (NTA)',
+    minKb: 10,
+    maxKb: 200,
+    targetKb: 70,
+    w: 400,
+    h: 300,
+    format: 'image/jpeg',
+    specs: '10 KB – 200 KB • 400×300 px • JPG / JPEG',
+    defaultFilename: 'CUET_Thumb'
+  },
+  'cuet_decl': {
+    name: 'CUET Category / Marksheet Document',
+    portal: 'CUET (NTA)',
+    minKb: 50,
+    maxKb: 300,
+    targetKb: 150,
+    w: 800,
+    h: 1100,
+    format: 'image/jpeg',
+    specs: '50 KB – 300 KB • JPG / PDF',
+    defaultFilename: 'CUET_Doc'
+  },
+  'cuet_doc': {
+    name: 'CUET Category / Marksheet Document',
+    portal: 'CUET (NTA)',
+    minKb: 50,
+    maxKb: 300,
+    targetKb: 150,
+    w: 800,
+    h: 1100,
+    format: 'image/jpeg',
+    specs: '50 KB – 300 KB • JPG / PDF',
+    defaultFilename: 'CUET_Doc'
   },
 
   // ── Police & State PSC (UP Police, Bihar BPSC/Police, MP, Rajasthan, Delhi) ──
@@ -3127,6 +3565,18 @@ const GOVT_EXAM_PRESETS = {
     defaultFilename: 'Govt_Thumb'
   },
   'police_decl': {
+    name: 'State PSC Document',
+    portal: 'State Govt / Police',
+    minKb: 20,
+    maxKb: 100,
+    targetKb: 60,
+    w: 600,
+    h: 400,
+    format: 'image/jpeg',
+    specs: '20 KB – 100 KB • JPG / JPEG',
+    defaultFilename: 'State_Doc'
+  },
+  'police_doc': {
     name: 'State PSC Document',
     portal: 'State Govt / Police',
     minKb: 20,
@@ -3188,8 +3638,97 @@ const GOVT_EXAM_PRESETS = {
     format: 'image/jpeg',
     specs: '50 KB – 300 KB • JPG / PDF',
     defaultFilename: 'Passport_Doc'
+  },
+  'passport_doc': {
+    name: 'Passport Supporting Document',
+    portal: 'Passport Seva',
+    minKb: 50,
+    maxKb: 300,
+    targetKb: 150,
+    w: 800,
+    h: 1000,
+    format: 'image/jpeg',
+    specs: '50 KB – 300 KB • JPG / PDF',
+    defaultFilename: 'Passport_Doc'
+  },
+
+  // ── Backward compatibility aliases ──
+  'nta_photo': {
+    name: 'NTA Photo (NEET / JEE / CUET)',
+    portal: 'NTA (NEET, JEE, CUET)',
+    minKb: 10,
+    maxKb: 200,
+    targetKb: 80,
+    w: 350,
+    h: 450,
+    format: 'image/jpeg',
+    specs: '10 KB – 200 KB • 3.5cm × 4.5cm • JPG / JPEG',
+    defaultFilename: 'NTA_Photo',
+    note: 'White background. 80% face coverage, ears visible.'
+  },
+  'nta_sig': {
+    name: 'NTA Signature',
+    portal: 'NTA (NEET, JEE, CUET)',
+    minKb: 4,
+    maxKb: 30,
+    targetKb: 18,
+    w: 140,
+    h: 60,
+    format: 'image/jpeg',
+    specs: '4 KB – 30 KB • 140×60 px • JPG / JPEG',
+    defaultFilename: 'NTA_Signature'
+  },
+  'nta_thumb': {
+    name: 'NTA Finger & Thumb Impression',
+    portal: 'NTA (NEET / JEE)',
+    minKb: 10,
+    maxKb: 200,
+    targetKb: 70,
+    w: 400,
+    h: 300,
+    format: 'image/jpeg',
+    specs: '10 KB – 200 KB • Left & right fingers/thumb • JPG / JPEG',
+    defaultFilename: 'NTA_Thumb_Impression'
+  },
+  'nta_decl': {
+    name: 'NTA Category / Marksheet Document',
+    portal: 'NTA (NEET, JEE, CUET)',
+    minKb: 50,
+    maxKb: 300,
+    targetKb: 150,
+    w: 800,
+    h: 1100,
+    format: 'image/jpeg',
+    specs: '50 KB – 300 KB • JPG / PDF',
+    defaultFilename: 'NTA_Doc'
+  },
+  'nta_doc': {
+    name: 'NTA Category / Marksheet Document',
+    portal: 'NTA (NEET, JEE, CUET)',
+    minKb: 50,
+    maxKb: 300,
+    targetKb: 150,
+    w: 800,
+    h: 1100,
+    format: 'image/jpeg',
+    specs: '50 KB – 300 KB • JPG / PDF',
+    defaultFilename: 'NTA_Doc'
   }
 };
+
+/** Helper to retrieve the most accurate preset with intelligent fallbacks */
+function getGovtPreset(exam, type) {
+  const key = `${exam}_${type}`;
+  if (GOVT_EXAM_PRESETS[key]) return GOVT_EXAM_PRESETS[key];
+  if (type === 'neet_thumb' && GOVT_EXAM_PRESETS[`${exam}_thumb`]) return GOVT_EXAM_PRESETS[`${exam}_thumb`];
+  if (type === 'postcard' && GOVT_EXAM_PRESETS[`${exam}_photo`]) return GOVT_EXAM_PRESETS[`${exam}_photo`];
+  if (GOVT_EXAM_PRESETS[`${exam}_${type}`]) return GOVT_EXAM_PRESETS[`${exam}_${type}`];
+  if (GOVT_EXAM_PRESETS[`${exam}_doc`]) return GOVT_EXAM_PRESETS[`${exam}_doc`];
+  if (GOVT_EXAM_PRESETS[`${exam}_decl`]) return GOVT_EXAM_PRESETS[`${exam}_decl`];
+  if (GOVT_EXAM_PRESETS[`${exam}_photo`]) return GOVT_EXAM_PRESETS[`${exam}_photo`];
+  if (GOVT_EXAM_PRESETS[`ssc_${type}`]) return GOVT_EXAM_PRESETS[`ssc_${type}`];
+  return GOVT_EXAM_PRESETS['ssc_photo'];
+}
 
 let _icImg = null;
 let _icOrigFile = null;
@@ -3230,8 +3769,7 @@ function icApplyGovtPreset() {
   const typeEl = document.getElementById('ic-type-select');
   if (!examEl || !typeEl) return;
 
-  const key = `${examEl.value}_${typeEl.value}`;
-  const preset = GOVT_EXAM_PRESETS[key] || GOVT_EXAM_PRESETS['ssc_photo'];
+  const preset = getGovtPreset(examEl.value, typeEl.value);
   _icCurrentPreset = preset;
 
   const badge = document.getElementById('ic-guide-badge');
@@ -3240,7 +3778,11 @@ function icApplyGovtPreset() {
 
   if (badge) badge.textContent = `${preset.portal} • ${preset.name}`;
   if (specs) {
-    specs.innerHTML = `<span>Allowed File Size: <strong>${preset.minKb} KB – ${preset.maxKb} KB</strong></span> • <span>Dimensions: <strong>${preset.w} × ${preset.h} px</strong></span> • <span>Format: <strong>JPG / JPEG</strong></span>`;
+    let specsHtml = `<span>Allowed File Size: <strong>${preset.minKb} KB – ${preset.maxKb} KB</strong></span> • <span>Dimensions: <strong>${preset.w} × ${preset.h} px</strong></span> • <span>Format: <strong>JPG / JPEG</strong></span>`;
+    if (preset.note) {
+      specsHtml += `<div style="margin-top:8px; font-size:12px; color:var(--text); background:var(--surface); padding:6px 10px; border-radius:6px; border:1px solid var(--line); line-height:1.4;">📌 <strong>Official Guideline:</strong> ${preset.note}</div>`;
+    }
+    specs.innerHTML = specsHtml;
   }
   if (dimLabel) dimLabel.textContent = `${preset.w} × ${preset.h} px`;
 
@@ -3326,8 +3868,7 @@ async function icCompress() {
     if (!_icCurrentPreset) {
       const examEl = document.getElementById('ic-exam-select');
       const typeEl = document.getElementById('ic-type-select');
-      const key = `${examEl ? examEl.value : 'ssc'}_${typeEl ? typeEl.value : 'photo'}`;
-      _icCurrentPreset = GOVT_EXAM_PRESETS[key] || GOVT_EXAM_PRESETS['ssc_photo'];
+      _icCurrentPreset = getGovtPreset(examEl ? examEl.value : 'ssc', typeEl ? typeEl.value : 'photo');
     }
     const autoDim = document.getElementById('ic-auto-dim');
     if (!autoDim || autoDim.checked) {
@@ -3678,8 +4219,7 @@ function prApplyGovtPreset() {
   const typeEl = document.getElementById('pr-type-select');
   if (!examEl || !typeEl) return;
 
-  const key = `${examEl.value}_${typeEl.value}`;
-  const preset = GOVT_EXAM_PRESETS[key] || GOVT_EXAM_PRESETS['ssc_photo'];
+  const preset = getGovtPreset(examEl.value, typeEl.value);
   _prCurrentPreset = preset;
 
   const badge = document.getElementById('pr-guide-badge');
@@ -3968,8 +4508,7 @@ function irApplyGovtPreset() {
   const typeEl = document.getElementById('ir-type-select');
   if (!examEl || !typeEl) return;
 
-  const key = `${examEl.value}_${typeEl.value}`;
-  const preset = GOVT_EXAM_PRESETS[key] || GOVT_EXAM_PRESETS['ssc_photo'];
+  const preset = getGovtPreset(examEl.value, typeEl.value);
   _irCurrentPreset = preset;
 
   const badge = document.getElementById('ir-guide-badge');
@@ -4239,18 +4778,36 @@ function i2pApplyPreset(type) {
   const orientSelect = document.getElementById('i2p-orientation');
   const marginSelect = document.getElementById('i2p-margin');
 
-  if (type === 'ssc') {
+  if (type === 'neet_jee') {
+    if (sizeSelect) sizeSelect.value = 'a4';
+    if (orientSelect) orientSelect.value = 'p';
+    if (marginSelect) marginSelect.value = '5';
+    _i2pCustomFilename = 'NEET_JEE_Document.pdf';
+    showToast('Applied NTA NEET & JEE Marksheet Preset (A4 Portrait, 5mm margins, target <300 KB)');
+  } else if (type === 'ssc') {
     if (sizeSelect) sizeSelect.value = 'a4';
     if (orientSelect) orientSelect.value = 'p';
     if (marginSelect) marginSelect.value = '12';
     _i2pCustomFilename = 'SSC_Document.pdf';
-    showToast('Applied SSC / RRB Document Preset (A4 Portrait, 12mm margins)');
+    showToast('Applied SSC / State PSC Document Preset (A4 Portrait, 12mm margins)');
+  } else if (type === 'rrb') {
+    if (sizeSelect) sizeSelect.value = 'a4';
+    if (orientSelect) orientSelect.value = 'p';
+    if (marginSelect) marginSelect.value = '5';
+    _i2pCustomFilename = 'RRB_Travel_Pass.pdf';
+    showToast('Applied RRB Railway Travel Pass Preset (A4 Portrait, target <500 KB)');
   } else if (type === 'upsc') {
     if (sizeSelect) sizeSelect.value = 'a4';
     if (orientSelect) orientSelect.value = 'p';
     if (marginSelect) marginSelect.value = '5';
     _i2pCustomFilename = 'UPSC_Certificate.pdf';
-    showToast('Applied UPSC Certificate Preset (A4 Portrait, 5mm margins)');
+    showToast('Applied UPSC Certificate Preset (A4 Portrait, 5mm margins, target <300 KB)');
+  } else if (type === 'gate_cat') {
+    if (sizeSelect) sizeSelect.value = 'a4';
+    if (orientSelect) orientSelect.value = 'p';
+    if (marginSelect) marginSelect.value = '5';
+    _i2pCustomFilename = 'GATE_CAT_Certificate.pdf';
+    showToast('Applied GATE & CAT Certificate Preset (A4 Portrait, 5mm margins)');
   } else if (type === 'idcard') {
     if (sizeSelect) sizeSelect.value = 'fit';
     if (orientSelect) orientSelect.value = 'auto';
@@ -4679,10 +5236,22 @@ async function pcCompress() {
     let savedPct = ((1 - (pcCompressedBlob.size / pcCurrentFile.size)) * 100).toFixed(1);
     if (savedPct < 0) savedPct = 0; 
     
+    const compKb = (pcCompressedBlob.size / 1024).toFixed(1);
+    let targetNotice = '';
+    if (typeof _pcTargetKb === 'number' && _pcTargetKb > 0) {
+      const kbVal = parseFloat(compKb);
+      if (kbVal <= _pcTargetKb) {
+        targetNotice = `<div style="margin-top:8px; padding:6px 10px; border-radius:6px; background:rgba(34,197,94,0.12); border:1px solid rgba(34,197,94,0.3); font-size:12.5px; font-weight:700; color:#16a34a;">✅ Exam Ready: ${compKb} KB is under your <${_pcTargetKb} KB limit!</div>`;
+      } else {
+        targetNotice = `<div style="margin-top:8px; padding:6px 10px; border-radius:6px; background:rgba(234,179,8,0.12); border:1px solid rgba(234,179,8,0.3); font-size:12.5px; color:#ca8a04;">⚠️ Size is ${compKb} KB (Target: <${_pcTargetKb} KB). For scanned documents, use Image Compressor or Image to PDF for deeper re-compression.</div>`;
+      }
+    }
+
     document.getElementById('pc-info').innerHTML = `
       <strong>${escapeHtml(pcCurrentFile.name)}</strong><br>
       Original Size: ${origMb} MB<br>
-      Compressed Size: ${compMb} MB <span style="color:var(--primary)">(Saved ${savedPct}%)</span>
+      Compressed Size: ${compMb} MB (${compKb} KB) <span style="color:var(--primary); font-weight:700;">(Saved ${savedPct}%)</span>
+      ${targetNotice}
     `;
     
     btn.style.display = 'none';
