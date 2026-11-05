@@ -8,15 +8,15 @@
    ─ Falls back to offline page on error
 ───────────────────────────────────────── */
 
-const CACHE_NAME = 'toolboxpro-v36';
+const CACHE_NAME = 'toolboxpro-v37';
 
 /** Trusted, explicitly-listed assets to pre-cache on install. */
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
   '/404.html',
-  '/styles.css?v=33',
-  '/app.js?v=33',
+  '/styles.css?v=34',
+  '/app.js?v=34',
   '/logo.svg',
   '/og-image.png',
   '/manifest.json',
@@ -31,6 +31,7 @@ const PRECACHE_ASSETS = [
   '/bmi-calculator',
   '/date-difference-calculator',
   '/discount-calculator',
+  '/sip-calculator',
   '/emi-calculator',
   '/gst-calculator',
   '/image-compressor',

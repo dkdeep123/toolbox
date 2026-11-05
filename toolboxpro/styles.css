@@ -4326,3 +4326,191 @@ body.dark .vs-info-callout {
     margin-bottom: 20px !important;
   }
 }
+
+
+/* ─────────────────────────────────────────
+   SIP Calculator Styling
+───────────────────────────────────────── */
+.sip-calc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+.sip-input-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.sip-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.sip-label-row label {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 13.5px;
+  margin: 0;
+}
+.sip-val-display {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--accent);
+  background: rgba(37, 99, 235, 0.08);
+  padding: 3px 10px;
+  border-radius: 6px;
+}
+body.dark .sip-val-display {
+  background: rgba(56, 189, 248, 0.12);
+  color: #38bdf8;
+}
+.form input[type="range"] {
+  width: 100%;
+  height: 6px;
+  background: var(--line);
+  border: none !important;
+  border-radius: 4px;
+  outline: none !important;
+  accent-color: var(--accent);
+  cursor: pointer;
+  margin: 4px 0 6px 0;
+  padding: 0 !important;
+}
+.sip-result-card {
+  margin-top: 10px;
+  width: 100%;
+  text-align: left;
+}
+.sip-maturity-hero {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.08), rgba(16, 185, 129, 0.08));
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 14px 16px;
+  text-align: center;
+  margin-bottom: 12px;
+}
+body.dark .sip-maturity-hero {
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.15), rgba(16, 185, 129, 0.15));
+  border-color: rgba(255, 255, 255, 0.1);
+}
+.sip-maturity-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+.sip-maturity-amount {
+  font-size: 28px;
+  font-weight: 800;
+  color: var(--accent);
+  letter-spacing: -0.5px;
+  margin-top: 2px;
+}
+.sip-stats-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.sip-stat-box {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+}
+.sip-stat-label {
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 500;
+}
+.sip-stat-val {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text);
+  margin-top: 2px;
+}
+.sip-stat-val.text-green {
+  color: #16a34a;
+}
+body.dark .sip-stat-val.text-green {
+  color: #4ade80;
+}
+.sip-stat-pct {
+  font-size: 11px;
+  color: var(--muted);
+  margin-top: 1px;
+}
+.sip-bar-wrap {
+  display: flex;
+  width: 100%;
+  height: 10px;
+  border-radius: 6px;
+  overflow: hidden;
+  background: var(--line);
+  margin-bottom: 8px;
+}
+.sip-bar-invested {
+  background: var(--accent);
+  transition: width 0.3s ease;
+}
+.sip-bar-gain {
+  background: #10b981;
+  transition: width 0.3s ease;
+}
+.sip-bar-legend {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11.5px;
+  color: var(--muted);
+  margin-bottom: 14px;
+}
+.sip-bar-legend .dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+.dot-invested { background: var(--accent); }
+.dot-gain { background: #10b981; }
+.sip-milestones {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+}
+.sip-milestones-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.sip-milestones-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.sip-m-card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 6px 8px;
+  text-align: center;
+}
+.sip-m-card strong {
+  display: block;
+  font-size: 11px;
+  color: var(--muted);
+}
+.sip-m-card span {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text);
+}
+@media (max-width: 480px) {
+  .sip-milestones-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

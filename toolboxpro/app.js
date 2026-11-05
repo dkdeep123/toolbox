@@ -138,7 +138,7 @@ function escapeHtml(str) {
 const ALLOWED_TOOL_IDS = new Set([
   'age','emi','percentage','gst','unit','bmi','discount',
   'tip','ratio','number','date','salary','imgcompress','imgresize',
-  'photoresize','imgtopdf','pdfmerge','pdfcompress','qrcode','videoshorts'
+  'photoresize','imgtopdf','pdfmerge','pdfcompress','qrcode','videoshorts','sip'
 ]);
 
 /** Max file size accepted by image tools: 25 MB */
@@ -166,6 +166,7 @@ const TOOLS = [
   { id: 'pdfcompress', name: 'PDF Compressor',             icon: '🗜️', iconName: 'pdf-compress',   cat: 'pdf',     desc: 'Compress and optimize PDF file sizes directly in your browser.' },
 
   // ── Finance Tools ──
+  { id: 'sip',         name: 'SIP Calculator',              icon: '📈', iconName: 'sip',            cat: 'finance', desc: 'Calculate mutual fund SIP maturity wealth, interest gain, and investment growth.' },
   { id: 'emi',         name: 'EMI Calculator',              icon: '💰', iconName: 'emi',            cat: 'finance', desc: 'Calculate monthly loan EMI, total interest, and amortisation breakdown.' },
   { id: 'gst',         name: 'GST Calculator',              icon: '🧾', iconName: 'gst',            cat: 'finance', desc: 'Add or subtract GST from any amount with standard tax slabs.' },
   { id: 'salary',      name: 'Salary Calculator',           icon: '💵', iconName: 'salary',         cat: 'finance', desc: 'Calculate in-hand monthly salary and annual take-home deductions.' },
@@ -246,6 +247,13 @@ function getToolSvgIcon(iconName) {
         <polyline points="14 2 14 8 20 8"/>
         <path d="M12 11v6m-2.5-2.5L12 17l2.5-2.5" stroke="var(--accent)" stroke-width="2.2"/>
         <path d="M9 11h6" stroke-width="1.5"/>
+      </svg>`;
+    case 'sip':
+      return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-svg">
+        <path d="M3 3v18h18"/>
+        <path d="M18.5 8.5L12.5 14.5L9 11L3.5 16.5" stroke="var(--accent)" stroke-width="2.2"/>
+        <polyline points="14 8.5 18.5 8.5 18.5 13" stroke="var(--accent)" stroke-width="2.2"/>
+        <circle cx="18.5" cy="8.5" r="1.5" fill="var(--accent)"/>
       </svg>`;
     case 'emi':
       return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-svg">
@@ -395,12 +403,12 @@ function applyTheme(dark) {
   try { localStorage.setItem('tbp-theme', dark ? 'dark' : 'light'); } catch (_) {}
 }
 
-// Restore saved theme or respect system preference
+// Restore saved theme: Default to Light mode on open ("default me lite mode or ambient me rhne do jb khulta h")
 (function initTheme() {
   let saved;
   try { saved = localStorage.getItem('tbp-theme'); } catch (_) {}
-  const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-  applyTheme(saved === 'dark' || (!saved && prefersDark));
+  // Default to light mode (dark is only applied if explicitly saved as 'dark' by user)
+  applyTheme(saved === 'dark');
 })();
 
 themeBtn.addEventListener('click', () => {
@@ -460,6 +468,7 @@ function applyAmbientMode(on) {
 })();
 
 const TOOL_BADGES = {
+  'sip': { label: '⭐ Popular', cls: 'badge-hot' },
   'videoshorts': { label: '🔥 AI Viral', cls: 'badge-hot' },
   'imgcompress': { label: '🔥 Popular', cls: 'badge-hot' },
   'photoresize': { label: 'Govt Forms', cls: 'badge-gov' },
@@ -951,6 +960,9 @@ function openTool(id) {
   if (id === 'imgresize') {
     if (typeof irApplyGovtPreset === 'function') irApplyGovtPreset();
   }
+  if (id === 'sip') {
+    if (typeof calcSip === 'function') calcSip();
+  }
 }
 
 function closeModal() {
@@ -1106,6 +1118,63 @@ function buildForm(id) {
       <div class="form">
         <div><label for="dob">Date of birth</label><input id="dob" type="date" max="${new Date().toISOString().split('T')[0]}" aria-required="true"/></div>
         <button class="primary" type="button" onclick="calcAge()">Calculate Age</button>
+        <div id="res" class="result hidden"></div>
+      </div>`,
+
+    sip: `
+      <h2>📈 SIP Calculator</h2>
+      <p>Calculate future maturity value of monthly mutual fund investments and estimated wealth gained.</p>
+      <div class="form sip-calc-form">
+        <!-- Monthly Investment -->
+        <div class="sip-input-group">
+          <div class="sip-label-row">
+            <label for="sip_amount">Monthly Investment (₹)</label>
+            <span class="sip-val-display" id="sip_amount_val">₹5,000</span>
+          </div>
+          <input id="sip_amount" type="number" min="500" max="10000000" step="500" value="5000" placeholder="5000" oninput="sipSyncInput('amount')" aria-required="true"/>
+          <input id="sip_amount_range" type="range" min="500" max="100000" step="500" value="5000" oninput="sipSyncRange('amount')" aria-label="Monthly investment slider"/>
+          <div class="ic-quick-chips">
+            <button type="button" class="preset-chip" onclick="sipSetAmount(1000)">₹1,000</button>
+            <button type="button" class="preset-chip" onclick="sipSetAmount(2500)">₹2,500</button>
+            <button type="button" class="preset-chip" onclick="sipSetAmount(5000)">₹5,000</button>
+            <button type="button" class="preset-chip" onclick="sipSetAmount(10000)">₹10,000</button>
+            <button type="button" class="preset-chip" onclick="sipSetAmount(25000)">₹25,000</button>
+          </div>
+        </div>
+
+        <!-- Expected Return Rate (%) -->
+        <div class="sip-input-group">
+          <div class="sip-label-row">
+            <label for="sip_rate">Expected Annual Return Rate (p.a. %)</label>
+            <span class="sip-val-display" id="sip_rate_val">12%</span>
+          </div>
+          <input id="sip_rate" type="number" min="1" max="50" step="0.5" value="12" placeholder="12" oninput="sipSyncInput('rate')" aria-required="true"/>
+          <input id="sip_rate_range" type="range" min="1" max="30" step="0.5" value="12" oninput="sipSyncRange('rate')" aria-label="Expected return rate slider"/>
+          <div class="ic-quick-chips">
+            <button type="button" class="preset-chip" onclick="sipSetRate(8)">8% (Conservative)</button>
+            <button type="button" class="preset-chip" onclick="sipSetRate(12)">12% (Equity Fund)</button>
+            <button type="button" class="preset-chip" onclick="sipSetRate(15)">15% (High Growth)</button>
+          </div>
+        </div>
+
+        <!-- Time Period (Years) -->
+        <div class="sip-input-group">
+          <div class="sip-label-row">
+            <label for="sip_years">Investment Time Period (Years)</label>
+            <span class="sip-val-display" id="sip_years_val">10 Yrs</span>
+          </div>
+          <input id="sip_years" type="number" min="1" max="40" step="1" value="10" placeholder="10" oninput="sipSyncInput('years')" aria-required="true"/>
+          <input id="sip_years_range" type="range" min="1" max="35" step="1" value="10" oninput="sipSyncRange('years')" aria-label="Tenure slider"/>
+          <div class="ic-quick-chips">
+            <button type="button" class="preset-chip" onclick="sipSetYears(3)">3 Yrs</button>
+            <button type="button" class="preset-chip" onclick="sipSetYears(5)">5 Yrs</button>
+            <button type="button" class="preset-chip" onclick="sipSetYears(10)">10 Yrs</button>
+            <button type="button" class="preset-chip" onclick="sipSetYears(15)">15 Yrs</button>
+            <button type="button" class="preset-chip" onclick="sipSetYears(20)">20 Yrs</button>
+          </div>
+        </div>
+
+        <button class="primary" type="button" onclick="calcSip()">📊 Calculate SIP Wealth</button>
         <div id="res" class="result hidden"></div>
       </div>`,
 
@@ -2216,6 +2285,139 @@ function calcAge() {
     const text = `${y} years, ${m} months, ${d} days`;
     showResult(`${text}`, text);
   });
+}
+
+function calcSip() {
+  safeCalc(() => {
+    const p = getPositive('sip_amount', 'Monthly Investment');
+    const r = getPositive('sip_rate', 'Expected Return Rate');
+    const y = getPositive('sip_years', 'Investment Period');
+
+    const i = r / (12 * 100);
+    const n = y * 12;
+
+    // Formula: M = P * [((1 + i)^n - 1) / i] * (1 + i)
+    const maturity = p * ((Math.pow(1 + i, n) - 1) / i) * (1 + i);
+    const invested = p * n;
+    const gain = maturity - invested;
+
+    const investedPct = ((invested / maturity) * 100).toFixed(1);
+    const gainPct = (100 - parseFloat(investedPct)).toFixed(1);
+
+    function getM(years) {
+      const mn = years * 12;
+      return p * ((Math.pow(1 + i, mn) - 1) / i) * (1 + i);
+    }
+    const m5 = getM(5);
+    const m10 = getM(10);
+    const m15 = getM(15);
+    const m20 = getM(20);
+
+    const html = `
+      <div class="sip-result-card">
+        <div class="sip-maturity-hero">
+          <div class="sip-maturity-label">Expected Maturity Value (Total Wealth)</div>
+          <div class="sip-maturity-amount">₹${fmt(maturity.toFixed(0))}</div>
+        </div>
+
+        <div class="sip-stats-grid">
+          <div class="sip-stat-box">
+            <span class="sip-stat-label">💰 Total Invested</span>
+            <span class="sip-stat-val">₹${fmt(invested.toFixed(0))}</span>
+            <span class="sip-stat-pct">(${investedPct}% of total)</span>
+          </div>
+          <div class="sip-stat-box highlight">
+            <span class="sip-stat-label">📈 Wealth Gain (Returns)</span>
+            <span class="sip-stat-val text-green">+₹${fmt(gain.toFixed(0))}</span>
+            <span class="sip-stat-pct">(${gainPct}% of total)</span>
+          </div>
+        </div>
+
+        <div class="sip-bar-wrap" title="Invested ${investedPct}% | Returns ${gainPct}%">
+          <div class="sip-bar-invested" style="width: ${investedPct}%"></div>
+          <div class="sip-bar-gain" style="width: ${gainPct}%"></div>
+        </div>
+        <div class="sip-bar-legend">
+          <span><span class="dot dot-invested"></span> Invested: ₹${fmt(invested.toFixed(0))}</span>
+          <span><span class="dot dot-gain"></span> Wealth Gain: ₹${fmt(gain.toFixed(0))}</span>
+        </div>
+
+        <div class="sip-milestones">
+          <div class="sip-milestones-title">Milestone Projections at ${r}% Annual Return:</div>
+          <div class="sip-milestones-grid">
+            <div class="sip-m-card"><strong>5 Yrs</strong><span>₹${fmt(m5.toFixed(0))}</span></div>
+            <div class="sip-m-card"><strong>10 Yrs</strong><span>₹${fmt(m10.toFixed(0))}</span></div>
+            <div class="sip-m-card"><strong>15 Yrs</strong><span>₹${fmt(m15.toFixed(0))}</span></div>
+            <div class="sip-m-card"><strong>20 Yrs</strong><span>₹${fmt(m20.toFixed(0))}</span></div>
+          </div>
+        </div>
+      </div>
+    `;
+
+    const plain = `SIP Maturity: ₹${fmt(maturity.toFixed(0))} (Invested: ₹${fmt(invested.toFixed(0))}, Wealth Gain: ₹${fmt(gain.toFixed(0))}) for ₹${fmt(p)}/month over ${y} years at ${r}% p.a.`;
+
+    showResult(html, plain);
+  });
+}
+
+function sipSyncInput(field) {
+  const inp = document.getElementById(`sip_${field}`);
+  const rng = document.getElementById(`sip_${field}_range`);
+  const lbl = document.getElementById(`sip_${field}_val`);
+  if (!inp) return;
+  const val = parseFloat(inp.value) || 0;
+  if (rng) rng.value = val;
+  if (lbl) {
+    if (field === 'amount') lbl.textContent = `₹${fmt(val)}`;
+    else if (field === 'rate') lbl.textContent = `${val}%`;
+    else if (field === 'years') lbl.textContent = `${val} Yrs`;
+  }
+  calcSip();
+}
+
+function sipSyncRange(field) {
+  const inp = document.getElementById(`sip_${field}`);
+  const rng = document.getElementById(`sip_${field}_range`);
+  const lbl = document.getElementById(`sip_${field}_val`);
+  if (!rng) return;
+  const val = parseFloat(rng.value) || 0;
+  if (inp) inp.value = val;
+  if (lbl) {
+    if (field === 'amount') lbl.textContent = `₹${fmt(val)}`;
+    else if (field === 'rate') lbl.textContent = `${val}%`;
+    else if (field === 'years') lbl.textContent = `${val} Yrs`;
+  }
+  calcSip();
+}
+
+function sipSetAmount(amount) {
+  const inp = document.getElementById('sip_amount');
+  const rng = document.getElementById('sip_amount_range');
+  const lbl = document.getElementById('sip_amount_val');
+  if (inp) inp.value = amount;
+  if (rng) rng.value = amount;
+  if (lbl) lbl.textContent = `₹${fmt(amount)}`;
+  calcSip();
+}
+
+function sipSetRate(rate) {
+  const inp = document.getElementById('sip_rate');
+  const rng = document.getElementById('sip_rate_range');
+  const lbl = document.getElementById('sip_rate_val');
+  if (inp) inp.value = rate;
+  if (rng) rng.value = rate;
+  if (lbl) lbl.textContent = `${rate}%`;
+  calcSip();
+}
+
+function sipSetYears(years) {
+  const inp = document.getElementById('sip_years');
+  const rng = document.getElementById('sip_years_range');
+  const lbl = document.getElementById('sip_years_val');
+  if (inp) inp.value = years;
+  if (rng) rng.value = years;
+  if (lbl) lbl.textContent = `${years} Yrs`;
+  calcSip();
 }
 
 function calcEmi() {
@@ -6691,6 +6893,9 @@ function vsReset() {
 
 /* ── Deep Link / Route Handler ── */
 const SLUG_TO_TOOL = {
+  'sip-calculator': 'sip',
+  'sip': 'sip',
+  'mutual-fund-sip-calculator': 'sip',
   'emi-calculator': 'emi',
   'gst-calculator': 'gst',
   'age-calculator': 'age',
