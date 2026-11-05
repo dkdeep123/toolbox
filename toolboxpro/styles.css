@@ -3949,6 +3949,11 @@ body.dark .ic-compliance-banner.warn {
   border-color: var(--accent);
   color: var(--accent);
 }
+.chip-btn.active {
+  background: var(--accent, #6366f1);
+  border-color: var(--accent, #6366f1);
+  color: #ffffff;
+}
 
 
 /* ─────────────────────────────────────────
