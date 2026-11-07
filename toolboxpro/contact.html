@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Contact Us — ToolBoxPro</title>
-  <meta name="description" content="Get in touch with the ToolBoxPro team. Suggestions, feedback, bug reports, and tool requests are welcome."/>
+  <title>Contact Us — ToolBoxPro Support &amp; Editorial Team</title>
+  <meta name="description" content="Get in touch with the ToolBoxPro engineering and editorial team. Report calculation bugs, request new online tools, propose partnerships, or get technical support."/>
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"/>
   <link rel="canonical" href="https://toolboxpro.in/contact"/>
   <link rel="icon" type="image/svg+xml" href="logo.svg"/>
@@ -14,12 +14,12 @@
   <link rel="stylesheet" href="styles.css?v=35"/>
   <meta property="og:type" content="website"/>
   <meta property="og:title" content="Contact Us — ToolBoxPro"/>
-  <meta property="og:description" content="Get in touch with the ToolBoxPro team. Suggestions, feedback, bug reports, and tool requests are welcome."/>
+  <meta property="og:description" content="Reach out to the ToolBoxPro team for tool inquiries, feedback, bug reports, and partnership opportunities."/>
   <meta property="og:url" content="https://toolboxpro.in/contact"/>
   <meta property="og:image" content="https://toolboxpro.in/og-image.png"/>
   <meta name="twitter:card" content="summary_large_image"/>
   <meta name="twitter:title" content="Contact Us — ToolBoxPro"/>
-  <meta name="twitter:description" content="Get in touch with the ToolBoxPro team for suggestions, bug reports, and feedback."/>
+  <meta name="twitter:description" content="Reach out to the ToolBoxPro team for tool inquiries, feedback, bug reports, and partnership opportunities."/>
   <meta name="twitter:image" content="https://toolboxpro.in/og-image.png"/>
   <script type="application/ld+json">
   {
@@ -27,46 +27,77 @@
     "@type": "ContactPage",
     "name": "Contact ToolBoxPro",
     "url": "https://toolboxpro.in/contact",
-    "description": "Contact the ToolBoxPro support and development team."
+    "description": "Official contact page for ToolBoxPro user inquiries, bug reporting, and editorial suggestions.",
+    "mainEntity": {
+      "@type": "Organization",
+      "name": "ToolBoxPro",
+      "url": "https://toolboxpro.in",
+      "email": "support@toolboxpro.in",
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "contactType": "Customer Support",
+        "email": "support@toolboxpro.in",
+        "availableLanguage": ["English", "Hindi"]
+      }
+    }
   }
   </script>
   <style>
     .contact-container {
-      max-width: 680px;
-      margin: 50px auto 90px;
+      max-width: 820px;
+      margin: 48px auto 90px;
       padding: 0 24px;
     }
     .contact-card {
       background: var(--surface);
       border: 1px solid var(--line);
       border-radius: var(--radius);
-      padding: 36px;
+      padding: 36px 40px;
       box-shadow: var(--shadow-sm);
     }
     .contact-card h1 {
       font-size: 32px;
       margin-bottom: 8px;
     }
-    .contact-card p {
+    .contact-card .lead {
       color: var(--muted);
       margin-bottom: 24px;
       font-size: 15px;
+      line-height: 1.6;
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 16px;
+      margin-bottom: 30px;
     }
     .contact-info-box {
       background: var(--bg);
       border: 1px solid var(--line);
       border-radius: var(--radius-sm);
       padding: 20px;
-      margin-bottom: 24px;
     }
     .contact-info-box h3 {
-      font-size: 16px;
+      font-size: 15.5px;
       margin-bottom: 6px;
       color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .contact-info-box p {
+      margin: 0;
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.5;
     }
     .contact-info-box a {
       color: var(--accent);
       font-weight: 600;
+      text-decoration: none;
+    }
+    .contact-info-box a:hover {
+      text-decoration: underline;
     }
     .form-group {
       margin-bottom: 18px;
@@ -74,36 +105,65 @@
     .form-group label {
       display: block;
       font-weight: 600;
-      font-size: 14px;
+      font-size: 13.5px;
       margin-bottom: 6px;
       color: var(--text);
     }
-    .form-group input, .form-group textarea {
+    .form-group input, .form-group textarea, .form-group select {
       width: 100%;
       padding: 12px 14px;
       border: 1px solid var(--line);
       border-radius: var(--radius-sm);
       background: var(--surface);
       color: var(--text);
-      font-size: 15px;
+      font-size: 14.5px;
+      font-family: inherit;
     }
-    .form-group input:focus, .form-group textarea:focus {
+    .form-group input:focus, .form-group textarea:focus, .form-group select:focus {
       outline: 2px solid var(--accent);
       border-color: transparent;
     }
     .btn-send {
-      background: var(--accent);
+      background: var(--accent, #6366f1);
       color: #fff;
       border: none;
-      padding: 12px 24px;
+      padding: 12px 28px;
       font-size: 15px;
       font-weight: 600;
       border-radius: var(--radius-sm);
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
     }
     .btn-send:hover {
-      background: var(--accent2);
+      background: var(--accent2, #4f46e5);
+      transform: translateY(-1px);
+    }
+    .contact-faq-section {
+      margin-top: 36px;
+      border-top: 1px solid var(--line);
+      padding-top: 24px;
+    }
+    .contact-faq-section h2 {
+      font-size: 20px;
+      margin-bottom: 14px;
+    }
+    .c-faq-item {
+      margin-bottom: 14px;
+    }
+    .c-faq-item strong {
+      display: block;
+      color: var(--text);
+      font-size: 14.5px;
+      margin-bottom: 4px;
+    }
+    .c-faq-item p {
+      margin: 0;
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.6;
     }
   </style>
 </head>
@@ -117,36 +177,85 @@
   <nav aria-label="Primary navigation">
     <a href="/#tools">Tools</a>
     <a href="/#popular">Popular</a>
+    <a href="/guides">Guides</a>
     <a href="/about">About</a>
     <a href="/contact">Contact</a>
   </nav>
+  <button id="theme" class="icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button>
 </header>
 
 <main class="contact-container">
   <div class="contact-card">
-    <h1>Contact Us</h1>
-    <p>Have a question, feedback, or need a new calculator added? We'd love to hear from you!</p>
+    <h1>Contact Our Team</h1>
+    <p class="lead">Have a question regarding our calculations, want to report a technical bug, or wish to request a new tool? We actively review all community feedback and respond promptly.</p>
 
-    <div class="contact-info-box">
-      <h3>📧 Email Support</h3>
-      <p style="margin:0;">Write to us directly at: <a href="mailto:support@toolboxpro.in">support@toolboxpro.in</a></p>
+    <div class="contact-grid">
+      <div class="contact-info-box">
+        <h3>📧 Direct Email</h3>
+        <p>Email our technical team directly at:<br><a href="mailto:support@toolboxpro.in">support@toolboxpro.in</a></p>
+      </div>
+      <div class="contact-info-box">
+        <h3>⏱️ Response Time</h3>
+        <p>We review inquiries continuously. Typical response time is within <strong>24 to 48 business hours</strong>.</p>
+      </div>
+      <div class="contact-info-box">
+        <h3>📍 Operational Base</h3>
+        <p>Engineering &amp; Editorial Operations:<br>Bengaluru, Karnataka, India (560001)</p>
+      </div>
     </div>
 
-    <form onsubmit="event.preventDefault(); alert('Thank you for contacting ToolBoxPro! We will respond shortly.'); this.reset();">
+    <form id="contact-form" onsubmit="handleContactSubmit(event)">
       <div class="form-group">
-        <label for="name">Your Name</label>
-        <input type="text" id="name" required placeholder="John Doe"/>
+        <label for="c-name">Your Full Name</label>
+        <input type="text" id="c-name" required placeholder="e.g. Rahul Sharma" autocomplete="name"/>
       </div>
+
       <div class="form-group">
-        <label for="email">Email Address</label>
-        <input type="email" id="email" required placeholder="john@example.com"/>
+        <label for="c-email">Your Email Address</label>
+        <input type="email" id="c-email" required placeholder="e.g. rahul@example.com" autocomplete="email"/>
       </div>
+
       <div class="form-group">
-        <label for="message">Message</label>
-        <textarea id="message" rows="5" required placeholder="Tell us how we can help or which tool you'd like to see..."></textarea>
+        <label for="c-category">Subject Category</label>
+        <select id="c-category" required>
+          <option value="Bug Report">🐛 Report a Bug / Calculation Discrepancy</option>
+          <option value="Tool Request">💡 Request a New Calculator or Tool</option>
+          <option value="Feature Suggestion">⚡ Suggest an Improvement to an Existing Tool</option>
+          <option value="Business / Editorial Inquiry">🤝 Editorial, Press or Partnership Inquiry</option>
+          <option value="General Inquiry">💬 General Feedback or Question</option>
+        </select>
       </div>
-      <button type="submit" class="btn-send">Send Message</button>
+
+      <div class="form-group">
+        <label for="c-message">Your Message</label>
+        <textarea id="c-message" rows="5" required placeholder="Please describe your question, the tool you were using, or details of the issue..."></textarea>
+      </div>
+
+      <button type="submit" class="btn-send">
+        <span>Send Message via Email Client</span>
+        <span aria-hidden="true">✉️</span>
+      </button>
     </form>
+
+    <div id="contact-success" style="display:none; margin-top:20px; padding:16px 20px; border-radius:8px; background:rgba(34,197,94,0.12); border:1px solid rgba(34,197,94,0.3); color:#16a34a; font-size:14.5px;">
+      ✅ <strong>Thank you!</strong> Your email client has been prepared with your message. If it did not open automatically, please send your email directly to <a href="mailto:support@toolboxpro.in" style="font-weight:700; color:#16a34a; text-decoration:underline;">support@toolboxpro.in</a>.
+    </div>
+
+    <div class="contact-faq-section">
+      <h2>Frequently Asked Questions</h2>
+      <div class="c-faq-item">
+        <strong>How can I request a new tool or calculator?</strong>
+        <p>Select "Request a New Calculator or Tool" in the form above and provide details on the mathematical formulas, typical inputs, and use cases you'd like to see. Our engineering team prioritizes high-demand utilities.</p>
+      </div>
+      <div class="c-faq-item">
+        <strong>How do I report a mathematical error or formula bug?</strong>
+        <p>Please specify the tool name, the exact input numbers you entered, the expected result according to official standards (e.g. RBI/GST Council), and the result displayed by ToolBoxPro. We audit and patch mathematical algorithms within 48 hours.</p>
+      </div>
+      <div class="c-faq-item">
+        <strong>Are my communications kept private?</strong>
+        <p>Yes. Your email address and inquiry details are used solely to resolve your question and are never sold or shared with third-party advertisers. See our <a href="/privacy">Privacy Policy</a>.</p>
+      </div>
+    </div>
   </div>
 </main>
 
@@ -156,17 +265,36 @@
       <img class="logo-icon" src="logo.svg" alt="" width="36" height="36" aria-hidden="true"/>
       <span class="logo-text">ToolBox<span class="logo-pro-badge">PRO</span></span>
     </a>
-    <p>Simple tools for everyday problems. Always free.</p>
+    <p>Simple tools for everyday problems. 100% free, private &amp; client-side.</p>
   </div>
   <div class="footer-bottom">
     <span>© 2026 ToolBoxPro</span>
     <nav aria-label="Footer navigation">
-      <a href="/privacy" rel="noopener">Privacy</a>
-      <a href="/terms" rel="noopener">Terms</a>
+      <a href="/about">About Us</a>
+      <a href="/guides">Educational Guides</a>
+      <a href="/privacy" rel="noopener">Privacy Policy</a>
+      <a href="/terms" rel="noopener">Terms of Service</a>
+      <a href="/disclaimer" rel="noopener">Disclaimer</a>
       <a href="/contact" rel="noopener">Contact</a>
     </nav>
   </div>
 </footer>
 
+<script>
+function handleContactSubmit(e) {
+  e.preventDefault();
+  const name = document.getElementById('c-name').value.trim();
+  const email = document.getElementById('c-email').value.trim();
+  const cat = document.getElementById('c-category').value;
+  const msg = document.getElementById('c-message').value.trim();
+
+  const subject = encodeURIComponent(`[ToolBoxPro ${cat}] from ${name}`);
+  const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\nCategory: ${cat}\n\nMessage:\n${msg}\n\n--\nSent from ToolBoxPro Contact Form`);
+  
+  window.location.href = `mailto:support@toolboxpro.in?subject=${subject}&body=${body}`;
+  document.getElementById('contact-success').style.display = 'block';
+}
+</script>
+<script src="app.js?v=35" defer></script>
 </body>
 </html>

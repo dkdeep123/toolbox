@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>About Us — ToolBoxPro | Free Online Calculators & Daily Utilities</title>
-  <meta name="description" content="Learn about ToolBoxPro, our mission to build fast, private, 100% free online calculators, converters, and browser-based productivity utilities with zero sign-up."/>
+  <title>About Us — ToolBoxPro | Mission, Engineering &amp; Editorial Standards</title>
+  <meta name="description" content="Learn about ToolBoxPro, our client-side zero-knowledge engineering philosophy, our editorial verification standards, and our mission to provide 100% free, private web utilities."/>
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"/>
   <link rel="canonical" href="https://toolboxpro.in/about"/>
   <link rel="icon" type="image/svg+xml" href="logo.svg"/>
@@ -14,9 +14,37 @@
   <link rel="stylesheet" href="styles.css?v=35"/>
   <meta property="og:type" content="website"/>
   <meta property="og:title" content="About Us — ToolBoxPro"/>
-  <meta property="og:description" content="Learn about ToolBoxPro's mission to make web utilities fast, private, and accessible to everyone."/>
+  <meta property="og:description" content="Learn about ToolBoxPro's mission, privacy architecture, and rigorous mathematical calculation standards."/>
   <meta property="og:url" content="https://toolboxpro.in/about"/>
   <meta property="og:image" content="https://toolboxpro.in/og-image.png"/>
+  <meta name="twitter:card" content="summary_large_image"/>
+  <meta name="twitter:title" content="About Us — ToolBoxPro"/>
+  <meta name="twitter:description" content="Learn about ToolBoxPro's mission, privacy architecture, and rigorous mathematical calculation standards."/>
+  <meta name="twitter:image" content="https://toolboxpro.in/og-image.png"/>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "AboutPage",
+    "name": "About ToolBoxPro",
+    "url": "https://toolboxpro.in/about",
+    "description": "Learn about ToolBoxPro's mission, zero-knowledge privacy architecture, and mathematical verification standards.",
+    "mainEntity": {
+      "@type": "Organization",
+      "name": "ToolBoxPro",
+      "url": "https://toolboxpro.in",
+      "logo": "https://toolboxpro.in/logo.svg",
+      "foundingDate": "2024",
+      "sameAs": [
+        "https://github.com/dkdeep123/toolbox"
+      ],
+      "contactPoint": {
+        "@type": "ContactPoint",
+        "email": "support@toolboxpro.in",
+        "contactType": "Customer Support"
+      }
+    }
+  }
+  </script>
   <style>
     .about-container {
       max-width: 860px;
@@ -38,21 +66,28 @@
       -webkit-text-fill-color: transparent;
     }
     .about-card .lead {
-      font-size: 18px;
+      font-size: 17px;
       color: var(--muted);
-      line-height: 1.6;
+      line-height: 1.65;
       margin-bottom: 32px;
     }
     .about-card h2 {
-      font-size: 24px;
-      margin: 32px 0 14px;
+      font-size: 22px;
+      margin: 34px 0 14px;
+      color: var(--text);
+      border-bottom: 1px solid var(--line);
+      padding-bottom: 8px;
+    }
+    .about-card h3 {
+      font-size: 17px;
+      margin: 20px 0 8px;
       color: var(--text);
     }
     .about-card p, .about-card li {
       color: var(--text);
       line-height: 1.7;
       margin-bottom: 14px;
-      font-size: 15px;
+      font-size: 14.5px;
     }
     .about-card ul {
       padding-left: 24px;
@@ -71,7 +106,7 @@
       padding: 20px;
     }
     .value-box h3 {
-      font-size: 17px;
+      font-size: 16px;
       margin-bottom: 8px;
       color: var(--text);
       display: flex;
@@ -80,19 +115,51 @@
     }
     .value-box p {
       margin: 0;
-      font-size: 14px;
+      font-size: 13.5px;
       color: var(--muted);
+      line-height: 1.55;
+    }
+    .author-bio-card {
+      display: flex;
+      gap: 20px;
+      align-items: flex-start;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 24px;
+      margin-top: 20px;
+    }
+    .author-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: var(--accent);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+      font-weight: 700;
+    }
+    .author-info h4 {
+      margin: 0 0 4px 0;
+      font-size: 17px;
+      color: var(--text);
+    }
+    .author-info .title {
+      font-size: 13px;
+      color: var(--accent);
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    .author-info p {
+      margin: 0;
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.55;
     }
   </style>
-  <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "AboutPage",
-    "name": "About ToolBoxPro",
-    "url": "https://toolboxpro.in/about",
-    "description": "Learn about ToolBoxPro's mission to provide fast, private, and 100% free online productivity tools and calculators."
-  }
-  </script>
 </head>
 <body>
 
@@ -104,54 +171,70 @@
   <nav aria-label="Primary navigation">
     <a href="/#tools">Tools</a>
     <a href="/#popular">Popular</a>
+    <a href="/guides">Guides</a>
     <a href="/about">About</a>
     <a href="/contact">Contact</a>
   </nav>
+  <button id="theme" class="icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button>
 </header>
 
 <main class="about-container">
   <div class="about-card">
     <h1>About ToolBoxPro</h1>
-    <p class="lead">We believe everyday online utilities should be lightning-fast, private by default, beautifully designed, and 100% free — without mandatory signups or invasive tracking.</p>
+    <p class="lead">We believe everyday online utilities should be lightning-fast, zero-knowledge private by default, beautifully crafted, and 100% free — without mandatory accounts, intrusive telemetry, or cloud upload traps.</p>
 
-    <h2>Our Mission</h2>
-    <p>ToolBoxPro was created to solve a common frustration: why should calculating loan EMI, converting image files, resizing documents, or generating QR codes require installing heavy software, creating user accounts, or uploading sensitive documents to unknown third-party servers?</p>
-    <p>We built ToolBoxPro as a clean, single-stop toolkit for students, developers, freelancers, accountants, and everyday internet users worldwide.</p>
+    <h2>Our Origin &amp; Mission</h2>
+    <p>ToolBoxPro was created in 2024 to address a persistent and dangerous problem on the modern web: why should calculating loan EMI, resizing a passport photo for a government exam, or compressing a PDF document require uploading your private files, financial numbers, or identity cards to unknown overseas cloud servers?</p>
+    <p>Millions of job applicants, students, and professionals daily hand over confidential 10th marksheets, caste certificates, tax invoices, and medical data to shady third-party converter portals that monetize user data. We set out to build an uncompromising alternative: <strong>a high-performance, browser-native suite of tools where 100% of data processing executes locally inside the user's browser memory.</strong></p>
 
     <div class="values-grid">
       <div class="value-box">
-        <h3>🔒 100% Client-Side Privacy</h3>
-        <p>Your photos, PDF documents, and financial data are processed directly inside your browser. Nothing is ever uploaded to our servers.</p>
+        <h3>🔒 Zero-Knowledge Privacy</h3>
+        <p>Your photos, PDF documents, and financial data are processed directly inside your browser using HTML5 Canvas &amp; WebAssembly. No bytes leave your machine.</p>
       </div>
       <div class="value-box">
-        <h3>⚡ Blazing Speed</h3>
-        <p>Built with lean, vanilla web standards for instant execution, zero bloat, and full offline Progressive Web App (PWA) readiness.</p>
+        <h3>⚡ Sub-Second Performance</h3>
+        <p>Built with lightweight, vanilla web standards for instant execution, zero network round-trip delays, and complete offline Progressive Web App (PWA) capability.</p>
       </div>
       <div class="value-box">
-        <h3>✨ No Paywalls or Signups</h3>
-        <p>Every single calculator, converter, and PDF utility is completely free to use with unlimited operations.</p>
+        <h3>✨ 100% Free &amp; Uncapped</h3>
+        <p>Every single calculator, converter, and PDF utility is completely free to use with unlimited file operations and zero watermarks.</p>
       </div>
       <div class="value-box">
-        <h3>📱 Mobile-First Design</h3>
-        <p>Engineered for flawless responsiveness across mobile smartphones, tablets, laptops, and ultra-wide desktops.</p>
+        <h3>📱 Cross-Platform Responsive</h3>
+        <p>Engineered with modern CSS responsive design for flawless usability across budget Android smartphones, iPhones, tablets, laptops, and 4K desktop screens.</p>
       </div>
     </div>
 
-    <h2>What We Offer</h2>
-    <p>Our growing suite of free tools covers several everyday categories:</p>
+    <h2>Engineering &amp; Architectural Standards</h2>
+    <p>Every tool in the ToolBoxPro suite is engineered with strict technical discipline:</p>
     <ul>
-      <li><strong>Financial Calculators:</strong> Standard reducing-balance EMI calculators, GST calculators (inclusive & exclusive), salary breakdown estimators, and discount counters.</li>
-      <li><strong>Math & Measurement:</strong> Percentage increase/decrease, ratios, comprehensive scientific unit conversions, and number system converters.</li>
-      <li><strong>Document & PDF Tools:</strong> Client-side PDF merger, image to PDF multi-page creator, and browser-based file compression.</li>
-      <li><strong>Image Processing:</strong> Lossless and lossy image compression, exact photo & signature resizing for official government applications, and format converters.</li>
-      <li><strong>Everyday Utilities:</strong> Exact age calculators, BMI index health assessments, date differences, and customizable QR code generators.</li>
+      <li><strong>Client-Side Document Processing:</strong> We utilize modern browser APIs including the HTML5 Canvas API, Mozilla PDF.js, and PDF-Lib compiled to WebAssembly. When you resize a photograph or merge multi-page PDFs, your CPU performs the work locally without external dependencies.</li>
+      <li><strong>Mathematical Precision:</strong> All calculation engines are programmed with floating-point guards, boundary checks, and strict adherence to official mathematical specifications.</li>
+      <li><strong>Offline Readiness:</strong> With an integrated Service Worker architecture, ToolBoxPro can be installed as a PWA and functions reliably even during internet dropouts.</li>
     </ul>
 
-    <h2>Commitment to Quality & Accuracy</h2>
-    <p>All calculations are rigorously benchmarked against established mathematical algorithms, official standard banking formulas (such as RBI / SBI amortization schedules), and international SI measurement standards. We continually audit our code to ensure reliable, mathematically sound outputs.</p>
+    <h2>Editorial Standards &amp; Calculation Audits</h2>
+    <p>We hold our content, calculators, and educational guides to high editorial integrity:</p>
+    <ul>
+      <li><strong>Financial Calculators (EMI, SIP, GST, Salary):</strong> Audited against Reserve Bank of India (RBI) master directions on reducing-balance amortization schedules, standard compound interest compounding equations, and official Indian GST Council tax legislation.</li>
+      <li><strong>Health &amp; Wellness (BMI):</strong> Strictly based on the World Health Organization (WHO) international classification tables for adult body mass index.</li>
+      <li><strong>Government Exam Specifications:</strong> Presets for NTA (NEET, JEE), SSC (CGL, CHSL, MTS), UPSC OTR, and RRB Railway pass uploads are reviewed against published official examination bulletins and updated proactively prior to major application cycles.</li>
+      <li><strong>Educational Articles &amp; Guides:</strong> Our editorial team authors in-depth, original reference articles complete with worked formulas, practical examples, and step-by-step methodologies to empower users with foundational understanding.</li>
+    </ul>
 
-    <h2>Get in Touch</h2>
-    <p>ToolBoxPro is continuously evolving based on community feedback. If you have tool requests, encounter a bug, or want to suggest improvements, please visit our <a href="/contact">Contact Us</a> page or email us directly at <a href="mailto:support@toolboxpro.in">support@toolboxpro.in</a>.</p>
+    <h2>The Team Behind ToolBoxPro</h2>
+    <div class="author-bio-card">
+      <div class="author-avatar" aria-hidden="true">TP</div>
+      <div class="author-info">
+        <h4>ToolBoxPro Engineering &amp; Editorial Group</h4>
+        <div class="title">Lead Developers &amp; Technical Curators</div>
+        <p>A passionate collective of software engineers, open-source contributors, and UI/UX designers based in Bengaluru, India. Dedicated to advancing browser-native technology, digital privacy, and accessible educational mathematics. We actively curate, maintain, and update ToolBoxPro on an ongoing weekly basis.</p>
+      </div>
+    </div>
+
+    <h2>Continuous Curation &amp; Community Feedback</h2>
+    <p>ToolBoxPro is continuously improved based on feedback from students, accountants, developers, and everyday users across the globe. If you spot a calculation discrepancy, wish to suggest a new tool, or have editorial feedback, our team is directly accessible via our <a href="/contact">Contact Page</a> or by email at <a href="mailto:support@toolboxpro.in" style="color:var(--accent); font-weight:600;">support@toolboxpro.in</a>.</p>
   </div>
 </main>
 
@@ -161,18 +244,21 @@
       <img class="logo-icon" src="logo.svg" alt="" width="36" height="36" aria-hidden="true"/>
       <span class="logo-text">ToolBox<span class="logo-pro-badge">PRO</span></span>
     </a>
-    <p>Simple tools for everyday problems. 100% free & private.</p>
+    <p>Simple tools for everyday problems. 100% free, private &amp; client-side.</p>
   </div>
   <div class="footer-bottom">
     <span>© 2026 ToolBoxPro</span>
     <nav aria-label="Footer navigation">
-      <a href="/about">About</a>
-      <a href="/privacy" rel="noopener">Privacy</a>
-      <a href="/terms" rel="noopener">Terms</a>
+      <a href="/about">About Us</a>
+      <a href="/guides">Educational Guides</a>
+      <a href="/privacy" rel="noopener">Privacy Policy</a>
+      <a href="/terms" rel="noopener">Terms of Service</a>
+      <a href="/disclaimer" rel="noopener">Disclaimer</a>
       <a href="/contact" rel="noopener">Contact</a>
     </nav>
   </div>
 </footer>
 
+<script src="app.js?v=35" defer></script>
 </body>
 </html>

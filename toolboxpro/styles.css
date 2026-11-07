@@ -4519,3 +4519,83 @@ body.dark .sip-stat-val.text-green {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* ─────────────────────────────────────────
+   Cookie Consent Banner Styling (AdSense & GDPR)
+───────────────────────────────────────── */
+.tb-cookie-banner {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 40px);
+  max-width: 820px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  box-shadow: 0 16px 36px -4px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  padding: 16px 20px;
+  z-index: 9999;
+  animation: slideUpCookie 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes slideUpCookie {
+  from { opacity: 0; transform: translate(-50%, 20px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+.tb-cookie-content {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+.tb-cookie-icon {
+  font-size: 26px;
+  flex-shrink: 0;
+}
+.tb-cookie-text {
+  font-size: 13.5px;
+  color: var(--text);
+  line-height: 1.5;
+  flex-grow: 1;
+  min-width: 260px;
+}
+.tb-cookie-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+.tb-cookie-btn {
+  padding: 8px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  border: none;
+}
+.tb-cookie-accept {
+  background: var(--accent, #6366f1);
+  color: #fff;
+}
+.tb-cookie-accept:hover {
+  background: var(--accent2, #4f46e5);
+}
+.tb-cookie-decline {
+  background: var(--bg);
+  border: 1px solid var(--line);
+  color: var(--text);
+}
+.tb-cookie-decline:hover {
+  background: var(--line);
+}
+@media (max-width: 600px) {
+  .tb-cookie-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .tb-cookie-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

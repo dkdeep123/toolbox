@@ -6456,6 +6456,7 @@ initHeroInteractiveDemo();
 initDynamicRotatingText();
 initDynamicSearchPlaceholder();
 initMouseSpotlightGlow();
+initCookieConsent();
 
 /* ─────────────────────────────────────────
    Interactive Delight & Visual Engagement
@@ -7384,4 +7385,41 @@ function initWebsiteOpenAnimation() {
       document.body.classList.add('page-leaving');
     });
   });
+}
+
+/* ─────────────────────────────────────────
+   Cookie Consent Banner (AdSense & GDPR Compliance)
+───────────────────────────────────────── */
+function initCookieConsent() {
+  if (typeof localStorage === 'undefined' || localStorage.getItem('tb_cookie_consent')) return;
+  const banner = document.createElement('div');
+  banner.id = 'tb-cookie-banner';
+  banner.className = 'tb-cookie-banner';
+  banner.setAttribute('role', 'region');
+  banner.setAttribute('aria-label', 'Cookie and Privacy Notice');
+  banner.innerHTML = `
+    <div class="tb-cookie-content">
+      <div class="tb-cookie-icon" aria-hidden="true">🍪</div>
+      <div class="tb-cookie-text">
+        <strong>Privacy &amp; Cookie Choices:</strong> We use essential local storage to remember your visual preferences. Our advertising partners (including Google AdSense) may use cookies to serve relevant ads to keep our tools free. See our <a href="/privacy" style="color:var(--accent); text-decoration:underline;">Privacy Policy</a>.
+      </div>
+      <div class="tb-cookie-actions">
+        <button type="button" class="tb-cookie-btn tb-cookie-accept" onclick="tbAcceptCookies()">Accept All</button>
+        <button type="button" class="tb-cookie-btn tb-cookie-decline" onclick="tbDeclineCookies()">Necessary Only</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(banner);
+}
+
+function tbAcceptCookies() {
+  try { localStorage.setItem('tb_cookie_consent', 'accepted'); } catch (_) {}
+  const b = document.getElementById('tb-cookie-banner');
+  if (b) b.remove();
+}
+
+function tbDeclineCookies() {
+  try { localStorage.setItem('tb_cookie_consent', 'declined'); } catch (_) {}
+  const b = document.getElementById('tb-cookie-banner');
+  if (b) b.remove();
 }
