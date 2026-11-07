@@ -952,7 +952,7 @@ function openTool(id) {
     }
   }
   if (id === 'imgcompress') {
-    if (typeof icApplyGovtPreset === 'function') icApplyGovtPreset();
+    if (typeof icInit === 'function') icInit();
   }
   if (id === 'photoresize') {
     if (typeof prApplyGovtPreset === 'function') prApplyGovtPreset();
@@ -1368,30 +1368,49 @@ function buildForm(id) {
         <p class="info-note">🔒 <strong>Privacy note:</strong> All PDF merging is executed client-side inside your browser via WebAssembly/JS. No files are uploaded to any server.</p>
       </div>`,
 
-        /* Tool 2: Image Compressor & Govt Exam Portal Optimizer */
+        /* Tool 2: Image Compressor */
     imgcompress: `
-      <h2>🗜️ Image Compressor &amp; Exam Portal Optimizer</h2>
-      <p>Compress standard images or auto-format strictly for <strong>SSC, RRB Railway, UPSC, IBPS/SBI &amp; Govt Portals</strong>.</p>
+      <h2>🗜️ Image Compressor</h2>
+      <p>Compress JPG, PNG &amp; WebP images with live before-and-after preview. Fast, free &amp; 100% private in-browser.</p>
       <div class="form">
         <!-- Mode Tabs -->
         <div class="ic-mode-nav" role="tablist" aria-label="Compression modes">
-          <button type="button" class="ic-mode-tab is-active" id="ic-tab-govt" onclick="icSetMode('govt')" role="tab" aria-selected="true">
-            🏛️ Govt Exam Mode (SSC, RRB...)
-          </button>
-          <button type="button" class="ic-mode-tab" id="ic-tab-manual" onclick="icSetMode('manual')" role="tab" aria-selected="false">
-            ⚡ Custom Slider
+          <button type="button" class="ic-mode-tab is-active" id="ic-tab-manual" onclick="icSetMode('manual')" role="tab" aria-selected="true">
+            ⚡ Quick Compress
           </button>
           <button type="button" class="ic-mode-tab" id="ic-tab-target" onclick="icSetMode('target')" role="tab" aria-selected="false">
             🎯 Target Size (KB)
           </button>
+          <button type="button" class="ic-mode-tab" id="ic-tab-govt" onclick="icSetMode('govt')" role="tab" aria-selected="false">
+            🏛️ Govt Exam Presets
+          </button>
         </div>
 
-        <!-- Govt Exam Selector (Active by default) -->
-        <div id="ic-govt-panel" class="ic-govt-card">
+        <!-- Custom Target KB Box (Shown when Target tab is active) -->
+        <div id="ic-target-panel" class="ic-target-panel hidden">
+          <div class="ic-target-input-wrap">
+            <label for="ic-target-kb" style="font-weight:600; font-size:13px; color:var(--text);">Target Maximum File Size:</label>
+            <div class="ic-input-with-unit" style="margin-top:6px;">
+              <input type="number" id="ic-target-kb" min="5" max="10000" value="50" placeholder="50" oninput="icCompress()"/>
+              <span class="ic-unit-badge">KB</span>
+            </div>
+          </div>
+          <div class="ic-quick-chips">
+            <span>Quick Sizes:</span>
+            <button type="button" class="chip-btn" onclick="icSetTargetKb(20)">&lt;20 KB (Signature)</button>
+            <button type="button" class="chip-btn active" id="ic-chip-50" onclick="icSetTargetKb(50)">&lt;50 KB (Photo)</button>
+            <button type="button" class="chip-btn" onclick="icSetTargetKb(100)">&lt;100 KB</button>
+            <button type="button" class="chip-btn" onclick="icSetTargetKb(200)">&lt;200 KB</button>
+            <button type="button" class="chip-btn" onclick="icSetTargetKb(500)">&lt;500 KB</button>
+          </div>
+        </div>
+
+        <!-- Govt Exam Selector (Shown when Govt tab is active) -->
+        <div id="ic-govt-panel" class="ic-govt-card hidden">
           <div class="ic-govt-row">
             <div class="ic-select-wrap">
-              <label for="ic-exam-select">Exam / Organization</label>
-              <select id="ic-exam-select" onchange="icApplyGovtPreset()" aria-label="Select Exam Portal">
+              <label for="ic-exam-select" class="control-label">Exam / Portal</label>
+              <select id="ic-exam-select" class="form-select" onchange="icApplyGovtPreset()" aria-label="Select Exam Portal">
                 <option value="ssc" selected>SSC (CGL, CHSL, MTS, GD, Steno)</option>
                 <option value="rrb">RRB Railway (NTPC, ALP, Tech, JE, Group D)</option>
                 <option value="jee">NTA JEE Main &amp; Advanced</option>
@@ -1407,8 +1426,8 @@ function buildForm(id) {
               </select>
             </div>
             <div class="ic-select-wrap">
-              <label for="ic-type-select">Document Type</label>
-              <select id="ic-type-select" onchange="icApplyGovtPreset()" aria-label="Select Document Type">
+              <label for="ic-type-select" class="control-label">Document Type</label>
+              <select id="ic-type-select" class="form-select" onchange="icApplyGovtPreset()" aria-label="Select Document Type">
                 <option value="photo" selected>📸 Passport Size Photo</option>
                 <option value="postcard">🖼️ Postcard Size Photo (4"×6" - NEET UG)</option>
                 <option value="sig">✍️ Signature</option>
@@ -1439,24 +1458,7 @@ function buildForm(id) {
           </div>
         </div>
 
-        <!-- Custom Target KB Box (Hidden by default) -->
-        <div id="ic-target-panel" class="ic-target-panel hidden">
-          <div class="ic-target-input-wrap">
-            <label for="ic-target-kb">Enter Desired Maximum File Size (KB):</label>
-            <div class="ic-input-with-unit">
-              <input type="number" id="ic-target-kb" min="5" max="10000" value="50" placeholder="50" oninput="icCompress()"/>
-              <span class="unit-tag">KB</span>
-            </div>
-          </div>
-          <div class="ic-quick-chips">
-            <button type="button" class="preset-chip" onclick="icSetTargetKb(20)">Under 20 KB (Signature)</button>
-            <button type="button" class="preset-chip" onclick="icSetTargetKb(50)">Under 50 KB (Photo)</button>
-            <button type="button" class="preset-chip" onclick="icSetTargetKb(100)">Under 100 KB</button>
-            <button type="button" class="preset-chip" onclick="icSetTargetKb(200)">Under 200 KB</button>
-          </div>
-        </div>
-
-        <!-- Drop Zone -->
+        <!-- Drop Zone (Hero element - Clean & Prominent) -->
         <div
           id="ic-drop"
           class="img-drop-zone"
@@ -1470,16 +1472,16 @@ function buildForm(id) {
           ondrop="icHandleDrop(event)"
         >
           <div class="drop-icon" aria-hidden="true">📂</div>
-          <p>Drag &amp; drop an image here<br><small>or click to browse</small></p>
-          <p class="drop-formats">Supports JPG, JPEG, PNG, WebP</p>
+          <p style="font-size:16px; font-weight:600; margin:4px 0 2px 0;">Drag &amp; drop your image here<br><small style="font-size:13px; font-weight:400; color:var(--muted);">or click to browse from device</small></p>
+          <p class="drop-formats" style="margin-top:8px;">Supports JPG, JPEG, PNG, WebP &bull; Max 25 MB &bull; 100% In-Browser Privacy</p>
         </div>
-        <input id="ic-file" type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" aria-hidden="true" onchange="icLoadFile(this.files[0])"/>
+        <input id="ic-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif,image/bmp" class="sr-only" aria-hidden="true" onchange="icLoadFile(this.files[0])"/>
 
         <!-- Preview and Output Area -->
         <div id="ic-preview-wrap" class="img-preview-wrap hidden">
           <div class="img-preview-pair">
             <div class="img-preview-panel">
-              <div class="img-preview-label">Original</div>
+              <div class="img-preview-label">Original Image</div>
               <img id="ic-orig-img" alt="Original image preview" />
               <div id="ic-orig-info" class="img-info"></div>
             </div>
@@ -1493,32 +1495,47 @@ function buildForm(id) {
           <!-- Official Portal Compliance Status Banner -->
           <div id="ic-compliance-banner" class="ic-compliance-banner hidden"></div>
 
-          <!-- Manual Controls (Only in Manual Mode) -->
-          <div id="ic-manual-controls" class="ic-manual-controls hidden">
-            <div class="img-slider-wrap">
-              <label for="ic-quality" class="img-slider-label">
-                Quality: <span id="ic-quality-val">80</span>%
-              </label>
-              <input id="ic-quality" type="range" min="5" max="100" value="80" class="img-slider" oninput="icUpdateQuality(this.value)" aria-label="Compression quality"/>
-              <div class="img-slider-ticks"><span>Maximum Compression</span><span>Balanced</span><span>Highest Quality</span></div>
+          <!-- Quick Controls (Visible in Quick Compress / Manual mode) -->
+          <div id="ic-manual-controls" class="ic-manual-controls" style="background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:16px; display:flex; flex-direction:column; gap:14px;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                <span class="control-label" style="font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em;">Compression Level:</span>
+              </div>
+              <div class="ic-quick-chips">
+                <button type="button" class="chip-btn ic-preset-chip active" data-quality="70" onclick="icSetQualityPreset(70)">⚡ Balanced (70%)</button>
+                <button type="button" class="chip-btn ic-preset-chip" data-quality="85" onclick="icSetQualityPreset(85)">🌟 High Quality (85%)</button>
+                <button type="button" class="chip-btn ic-preset-chip" data-quality="40" onclick="icSetQualityPreset(40)">🗜️ Max Compression (40%)</button>
+              </div>
             </div>
-            <div class="img-format-row">
-              <label for="ic-format">Output format</label>
-              <select id="ic-format" onchange="icCompress()" aria-label="Output image format">
-                <option value="image/jpeg">JPEG / JPG</option>
-                <option value="image/webp">WebP</option>
+
+            <div class="img-slider-wrap">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <label for="ic-quality" class="img-slider-label" style="margin:0;">
+                  Quality: <strong id="ic-quality-val" style="color:var(--accent); font-size:15px;">70</strong>%
+                </label>
+                <span style="font-size:12px; color:var(--muted);">Adjust for exact size</span>
+              </div>
+              <input id="ic-quality" type="range" min="5" max="100" value="70" class="img-slider" oninput="icUpdateQuality(this.value)" aria-label="Compression quality"/>
+              <div class="img-slider-ticks"><span>Smallest Size (10%)</span><span>Balanced (70%)</span><span>Crisp Quality (95%)</span></div>
+            </div>
+
+            <div class="img-format-row" style="display:flex; align-items:center; justify-content:space-between; gap:12px; border-top:1px solid var(--line); padding-top:12px;">
+              <label for="ic-format" style="font-size:13px; font-weight:600; margin:0;">Output Format:</label>
+              <select id="ic-format" class="form-select" onchange="icCompress()" aria-label="Output image format" style="width:auto; min-width:140px; padding:6px 12px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--text); font-weight:600;">
+                <option value="image/jpeg" selected>JPEG / JPG</option>
+                <option value="image/webp">WebP (Modern)</option>
                 <option value="image/png">PNG</option>
               </select>
             </div>
           </div>
 
-          <button class="primary" type="button" id="ic-download-btn" onclick="icDownload()">⬇ Download Compressed Image</button>
+          <button class="primary" type="button" id="ic-download-btn" onclick="icDownload()" style="font-size:15px; font-weight:700; padding:12px 20px;">⬇ Download Compressed Image</button>
           <button class="secondary-btn" type="button" onclick="icReset()">↩ Choose Another Image</button>
-          <p class="info-note" id="ic-note-text">🔒 <strong>100% In-Browser:</strong> Your photos &amp; signatures are processed locally and never uploaded to any server.</p>
+          <p class="info-note" id="ic-note-text">🔒 <strong>100% In-Browser Privacy:</strong> Your photos are compressed directly on your device. Zero images are ever uploaded to any cloud or server.</p>
         </div>
       </div>`,
 
-    /* Tool 3: Photo & Signature Resizer */
+        /* Tool 3: Photo & Signature Resizer */
     photoresize: `
       <h2>✍️ Photo &amp; Signature Resizer</h2>
       <p>Resize, crop, and compress passport photos and signatures to official Government Exam portal specifications (SSC, RRB, UPSC, IBPS, State PSC, Police).</p>
@@ -3952,9 +3969,18 @@ function getGovtPreset(exam, type) {
 let _icImg = null;
 let _icOrigFile = null;
 let _icCompBlob = null;
-let _icMode = 'govt'; // default mode: 'govt', 'manual', or 'target'
+let _icMode = 'manual'; // default mode: 'manual' (Quick Compress), 'target', or 'govt'
 let _icCurrentPreset = null;
 let _icCompFilename = 'compressed-image.jpg';
+
+function icInit() {
+  _icMode = 'manual';
+  _icImg = null;
+  _icOrigFile = null;
+  _icCompBlob = null;
+  _icCurrentPreset = null;
+  icSetMode('manual');
+}
 
 function icSetMode(mode) {
   _icMode = mode;
@@ -3978,7 +4004,7 @@ function icSetMode(mode) {
 
   if (mode === 'govt') {
     icApplyGovtPreset();
-  } else {
+  } else if (_icImg) {
     icCompress();
   }
 }
@@ -4005,20 +4031,62 @@ function icApplyGovtPreset() {
   }
   if (dimLabel) dimLabel.textContent = `${preset.w} × ${preset.h} px`;
 
-  icCompress();
+  if (_icImg) icCompress();
 }
 
 function icSetTargetKb(kb) {
   const inp = document.getElementById('ic-target-kb');
-  if (inp) {
-    inp.value = kb;
+  if (inp) inp.value = kb;
+
+  document.querySelectorAll('#ic-target-panel .chip-btn').forEach(b => {
+    b.classList.toggle('active', b.textContent.includes(String(kb)));
+  });
+
+  if (_icMode !== 'target') {
+    icSetMode('target');
+  } else if (_icImg) {
+    icCompress();
+  }
+}
+
+function icSetQualityPreset(q) {
+  const slider = document.getElementById('ic-quality');
+  if (slider) slider.value = q;
+  const qVal = document.getElementById('ic-quality-val');
+  if (qVal) qVal.textContent = q;
+
+  document.querySelectorAll('.ic-preset-chip').forEach(c => {
+    const chipQ = c.getAttribute('data-quality');
+    c.classList.toggle('active', chipQ === String(q));
+  });
+
+  if (_icMode !== 'manual') {
+    icSetMode('manual');
+  } else if (_icImg) {
+    icCompress();
+  }
+}
+
+function icUpdateQuality(val) {
+  const qVal = document.getElementById('ic-quality-val');
+  if (qVal) qVal.textContent = val;
+
+  document.querySelectorAll('.ic-preset-chip').forEach(c => {
+    const chipQ = c.getAttribute('data-quality');
+    c.classList.toggle('active', chipQ === String(val));
+  });
+
+  if (_icMode !== 'manual') {
+    icSetMode('manual');
+  } else if (_icImg) {
     icCompress();
   }
 }
 
 function icHandleDrop(e) {
   e.preventDefault();
-  document.getElementById('ic-drop').classList.remove('drag-over');
+  const dropZone = document.getElementById('ic-drop');
+  if (dropZone) dropZone.classList.remove('drag-over');
   const file = e.dataTransfer.files[0];
   if (!file) return;
   const isImg = file.type.startsWith('image/') || (file.name && /\.(jpg|jpeg|png|webp|gif|bmp|svg)$/i.test(file.name));
@@ -4053,8 +4121,8 @@ function icLoadFile(file) {
       document.getElementById('ic-drop').classList.add('hidden');
       document.getElementById('ic-preview-wrap').classList.remove('hidden');
       document.getElementById('ic-orig-img').src = e.target.result;
-      document.getElementById('ic-orig-info').textContent =
-        `${img.naturalWidth} × ${img.naturalHeight}px — ${fmtBytes(file.size)}`;
+      document.getElementById('ic-orig-info').innerHTML =
+        `<strong>${img.naturalWidth} × ${img.naturalHeight}px</strong> — <span>${fmtBytes(file.size)}</span>`;
 
       if (_icMode === 'govt') {
         icApplyGovtPreset();
@@ -4067,11 +4135,6 @@ function icLoadFile(file) {
     img.src = e.target.result;
   };
   reader.readAsDataURL(file);
-}
-
-function icUpdateQuality(val) {
-  document.getElementById('ic-quality-val').textContent = val;
-  icCompress();
 }
 
 async function icCompress() {
@@ -4153,7 +4216,7 @@ async function icCompress() {
     finalBlob = bestBlob;
   } else {
     const qualityEl = document.getElementById('ic-quality');
-    const quality = parseInt(qualityEl ? qualityEl.value : 80, 10) / 100;
+    const quality = parseInt(qualityEl ? qualityEl.value : 70, 10) / 100;
     finalBlob = await getBlob(quality);
   }
 
@@ -4214,7 +4277,7 @@ async function icCompress() {
   const downloadBtn = document.getElementById('ic-download-btn');
   if (downloadBtn) {
     downloadBtn.style.display = 'block';
-    downloadBtn.textContent = `⬇ Download ${_icCompFilename}`;
+    downloadBtn.textContent = `⬇ Download Compressed Image (${finalKb} KB)`;
   }
 }
 
@@ -4235,11 +4298,16 @@ function icReset() {
   if (_icCompBlob) _icCompBlob = null;
   const compImg = document.getElementById('ic-comp-img');
   if (compImg && compImg._prevUrl) URL.revokeObjectURL(compImg._prevUrl);
-  _icImg = null; _icOrigFile = null;
-  document.getElementById('ic-drop').classList.remove('hidden');
-  document.getElementById('ic-preview-wrap').classList.add('hidden');
-  document.getElementById('ic-file').value = '';
+  _icImg = null;
+  _icOrigFile = null;
+  const dropZone = document.getElementById('ic-drop');
+  if (dropZone) dropZone.classList.remove('hidden');
+  const prevWrap = document.getElementById('ic-preview-wrap');
+  if (prevWrap) prevWrap.classList.add('hidden');
+  const fileInp = document.getElementById('ic-file');
+  if (fileInp) fileInp.value = '';
 }
+
 
 /* ─────────────────────────────────────────
    Tool 1: PDF Merger Functions
