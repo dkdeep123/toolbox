@@ -1066,9 +1066,16 @@ function showResult(html, plainText) {
   const currentUrl = window.location.href.split('#')[0];
   const shareMsg = encodeURIComponent((plainText ? plainText + '\n\n' : '') + 'Calculated using ToolBoxPro: ' + currentUrl);
   res.innerHTML = `
-    ${html}
-    <a href="https://api.whatsapp.com/send?text=${shareMsg}" target="_blank" rel="noopener noreferrer" class="res-share-btn" aria-label="Share on WhatsApp" title="Share result on WhatsApp">💬 Share</a>
-    <button class="copy-btn" aria-label="Copy result" title="Copy result">Copy</button>
+    <div class="res-top-bar">
+      <span class="res-badge">Result</span>
+      <div class="res-actions">
+        <a href="https://api.whatsapp.com/send?text=${shareMsg}" target="_blank" rel="noopener noreferrer" class="res-share-btn" aria-label="Share on WhatsApp" title="Share result on WhatsApp">💬 Share</a>
+        <button type="button" class="copy-btn" aria-label="Copy result" title="Copy result">Copy</button>
+      </div>
+    </div>
+    <div class="res-body">
+      ${html}
+    </div>
   `;
   res.classList.remove('hidden');
   const copyBtn = res.querySelector('.copy-btn');
@@ -1079,7 +1086,9 @@ function showResult(html, plainText) {
       copyBtn.classList.remove('copied');
       copyBtn.textContent = 'Copy';
     }, 1500);
-    copyResult(plainText || res.innerText.replace('✓ Copied!', '').replace('Copy', '').replace('💬 Share', '').trim());
+    const bodyEl = res.querySelector('.res-body');
+    const fallbackText = bodyEl ? bodyEl.innerText.trim() : res.innerText.replace('✓ Copied!', '').replace('Copy', '').replace('💬 Share', '').replace('Result', '').trim();
+    copyResult(plainText || fallbackText);
   });
 }
 
@@ -1204,10 +1213,12 @@ function buildForm(id) {
         <!-- Mode Tabs: Flat Rate vs Reducing Balance -->
         <div class="ic-mode-nav" role="tablist" aria-label="EMI calculation method">
           <button type="button" class="ic-mode-tab is-active" id="emi-tab-flat" onclick="emiSetMode('flat')" role="tab" aria-selected="true">
-            📊 Flat Rate (Car / NBFC / Personal)
+            <span class="tab-label">📊 Flat Rate</span>
+            <span class="tab-desc">Car / NBFC</span>
           </button>
           <button type="button" class="ic-mode-tab" id="emi-tab-reducing" onclick="emiSetMode('reducing')" role="tab" aria-selected="false">
-            📉 Reducing Balance (Bank Standard)
+            <span class="tab-label">📉 Reducing Balance</span>
+            <span class="tab-desc">Bank Standard</span>
           </button>
         </div>
 
@@ -2807,6 +2818,7 @@ function calcEmi() {
 
         <details class="fin-toggle-details">
           <summary>📑 View Year-by-Year Amortization Schedule (${y} Years)</summary>
+          <div class="fin-table-hint">← Swipe sideways to view all columns →</div>
           <div class="fin-table-wrap">
             <table class="fin-table">
               <thead>
@@ -2984,6 +2996,7 @@ function calcCompound() {
 
         <details class="fin-toggle-details">
           <summary>📑 View Year-by-Year Growth Table (${Math.min(y, 30)} Years)</summary>
+          <div class="fin-table-hint">← Swipe sideways to view all columns →</div>
           <div class="fin-table-wrap">
             <table class="fin-table">
               <thead>
