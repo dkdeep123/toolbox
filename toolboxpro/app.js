@@ -1063,8 +1063,11 @@ function copyResult(text) {
 ───────────────────────────────────────── */
 function showResult(html, plainText) {
   const res = document.getElementById('res');
+  const currentUrl = window.location.href.split('#')[0];
+  const shareMsg = encodeURIComponent((plainText ? plainText + '\n\n' : '') + 'Calculated using ToolBoxPro: ' + currentUrl);
   res.innerHTML = `
     ${html}
+    <a href="https://api.whatsapp.com/send?text=${shareMsg}" target="_blank" rel="noopener noreferrer" class="res-share-btn" aria-label="Share on WhatsApp" title="Share result on WhatsApp">💬 Share</a>
     <button class="copy-btn" aria-label="Copy result" title="Copy result">Copy</button>
   `;
   res.classList.remove('hidden');
@@ -1076,7 +1079,7 @@ function showResult(html, plainText) {
       copyBtn.classList.remove('copied');
       copyBtn.textContent = 'Copy';
     }, 1500);
-    copyResult(plainText || res.innerText.replace('✓ Copied!', '').replace('Copy', '').trim());
+    copyResult(plainText || res.innerText.replace('✓ Copied!', '').replace('Copy', '').replace('💬 Share', '').trim());
   });
 }
 
