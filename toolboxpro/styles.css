@@ -4599,3 +4599,87 @@ body.dark .sip-stat-val.text-green {
     justify-content: flex-end;
   }
 }
+
+
+/* ─────────────────────────────────────────
+   Financial Calculators — Amortization & Growth Tables
+───────────────────────────────────────── */
+.fin-table-wrap {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  margin-top: 10px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+}
+.fin-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  text-align: right;
+}
+.fin-table th, .fin-table td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+.fin-table th {
+  background: var(--surface-subtle);
+  font-weight: 700;
+  color: var(--muted);
+  text-transform: uppercase;
+  font-size: 10.5px;
+  letter-spacing: 0.03em;
+}
+.fin-table th:first-child, .fin-table td:first-child {
+  text-align: left;
+}
+.fin-table tr:last-child td {
+  border-bottom: none;
+}
+.fin-table tbody tr:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+body.dark .fin-table tbody tr:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+.fin-toggle-details {
+  margin-top: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  background: var(--surface);
+}
+.fin-toggle-details summary {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--accent);
+  cursor: pointer;
+  user-select: none;
+  outline: none;
+}
+.fin-toggle-details summary:hover {
+  text-decoration: underline;
+}
+.fin-alert-card {
+  border-radius: 8px;
+  padding: 10px 14px;
+  margin-top: 12px;
+  font-size: 12.5px;
+  line-height: 1.5;
+  text-align: left;
+}
+.fin-alert-card.info {
+  background: rgba(37, 99, 235, 0.06);
+  border: 1px solid rgba(37, 99, 235, 0.25);
+  color: var(--text);
+}
+.fin-alert-card.warn {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: var(--text);
+}
+.fin-alert-card.success {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  color: var(--text);
+}

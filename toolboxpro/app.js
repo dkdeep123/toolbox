@@ -138,7 +138,7 @@ function escapeHtml(str) {
 const ALLOWED_TOOL_IDS = new Set([
   'age','emi','percentage','gst','unit','bmi','discount',
   'tip','ratio','number','date','salary','imgcompress','imgresize',
-  'photoresize','imgtopdf','pdfmerge','pdfcompress','qrcode','videoshorts','sip'
+  'photoresize','imgtopdf','pdfmerge','pdfcompress','qrcode','videoshorts','sip','compound'
 ]);
 
 /** Max file size accepted by image tools: 25 MB */
@@ -167,7 +167,8 @@ const TOOLS = [
 
   // ── Finance Tools ──
   { id: 'sip',         name: 'SIP Calculator',              icon: '📈', iconName: 'sip',            cat: 'finance', desc: 'Calculate mutual fund SIP maturity wealth, interest gain, and investment growth.' },
-  { id: 'emi',         name: 'EMI Calculator',              icon: '💰', iconName: 'emi',            cat: 'finance', desc: 'Calculate monthly loan EMI, total interest, and amortisation breakdown.' },
+  { id: 'emi',         name: 'EMI Calculator',              icon: '💰', iconName: 'emi',            cat: 'finance', desc: 'Calculate monthly loan EMI with Reducing Balance vs Flat Rate comparison & amortisation schedule.' },
+  { id: 'compound',    name: 'Compound Interest Calculator',icon: '💹', iconName: 'compound',       cat: 'finance', desc: 'Calculate compound interest, future wealth maturity, and annual growth with flexible compounding frequencies.' },
   { id: 'gst',         name: 'GST Calculator',              icon: '🧾', iconName: 'gst',            cat: 'finance', desc: 'Add or subtract GST from any amount with standard tax slabs.' },
   { id: 'salary',      name: 'Salary Calculator',           icon: '💵', iconName: 'salary',         cat: 'finance', desc: 'Calculate in-hand monthly salary and annual take-home deductions.' },
   { id: 'discount',    name: 'Discount Calculator',         icon: '🏷️', iconName: 'discount',       cat: 'finance', desc: 'Find discounted final prices, savings amount, and percentage off.' },
@@ -254,6 +255,13 @@ function getToolSvgIcon(iconName) {
         <path d="M18.5 8.5L12.5 14.5L9 11L3.5 16.5" stroke="var(--accent)" stroke-width="2.2"/>
         <polyline points="14 8.5 18.5 8.5 18.5 13" stroke="var(--accent)" stroke-width="2.2"/>
         <circle cx="18.5" cy="8.5" r="1.5" fill="var(--accent)"/>
+      </svg>`;
+    case 'compound':
+      return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-svg">
+        <path d="M3 3v18h18"/>
+        <path d="M4 17c4-1 8-5 11-10 2-3 4-4 6-4" stroke="var(--accent)" stroke-width="2.2"/>
+        <circle cx="21" cy="3" r="1.5" fill="var(--accent)"/>
+        <path d="M7 14h.01M11 11h.01M15 7h.01" stroke="currentColor" stroke-width="3"/>
       </svg>`;
     case 'emi':
       return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-svg">
@@ -469,6 +477,7 @@ function applyAmbientMode(on) {
 
 const TOOL_BADGES = {
   'sip': { label: '⭐ Popular', cls: 'badge-hot' },
+  'compound': { label: '✨ Growth', cls: 'badge-finance' },
   'videoshorts': { label: '🔥 AI Viral', cls: 'badge-hot' },
   'imgcompress': { label: '🔥 Popular', cls: 'badge-hot' },
   'photoresize': { label: 'Govt Forms', cls: 'badge-gov' },
@@ -963,6 +972,12 @@ function openTool(id) {
   if (id === 'sip') {
     if (typeof calcSip === 'function') calcSip();
   }
+  if (id === 'emi') {
+    if (typeof calcEmi === 'function') calcEmi();
+  }
+  if (id === 'compound') {
+    if (typeof calcCompound === 'function') calcCompound();
+  }
 }
 
 function closeModal() {
@@ -1179,13 +1194,143 @@ function buildForm(id) {
       </div>`,
 
     emi: `
-      <h2>💰 EMI Calculator</h2>
-      <div class="form">
-        <div><label for="loan">Loan amount (₹)</label><input id="loan" type="number" min="1" placeholder="500000" aria-required="true"/></div>
-        <div><label for="rate">Annual interest rate (%)</label><input id="rate" type="number" step="0.1" min="0.1" placeholder="8.5" aria-required="true"/></div>
-        <div><label for="years">Tenure (years)</label><input id="years" type="number" min="1" placeholder="5" aria-required="true"/></div>
+      <h2>💰 Loan EMI Calculator</h2>
+      <p>Calculate monthly EMI with instant comparison between <strong>Reducing Balance</strong> (Banks) and <strong>Flat Rate</strong> (NBFC / Vehicle).</p>
+      <div class="form sip-calc-form">
+        <!-- Mode Tabs: Reducing Balance vs Flat Rate -->
+        <div class="ic-mode-nav" role="tablist" aria-label="EMI calculation method">
+          <button type="button" class="ic-mode-tab is-active" id="emi-tab-reducing" onclick="emiSetMode('reducing')" role="tab" aria-selected="true">
+            📉 Reducing Balance (Bank Standard)
+          </button>
+          <button type="button" class="ic-mode-tab" id="emi-tab-flat" onclick="emiSetMode('flat')" role="tab" aria-selected="false">
+            📊 Flat Rate (Car / NBFC)
+          </button>
+        </div>
+
+        <!-- Loan Amount -->
+        <div class="sip-input-group">
+          <div class="sip-label-row">
+            <label for="loan">Loan Amount (₹)</label>
+            <span class="sip-val-display" id="loan_val">₹5,00,000</span>
+          </div>
+          <input id="loan" type="number" min="10000" max="100000000" step="10000" value="500000" placeholder="500000" oninput="emiSyncInput('loan')" aria-required="true"/>
+          <input id="loan_range" type="range" min="50000" max="10000000" step="25000" value="500000" oninput="emiSyncRange('loan')" aria-label="Loan amount slider"/>
+          <div class="ic-quick-chips">
+            <button type="button" class="preset-chip" onclick="emiSetLoan(100000)">₹1 Lakh</button>
+            <button type="button" class="preset-chip" onclick="emiSetLoan(500000)">₹5 Lakh</button>
+            <button type="button" class="preset-chip" onclick="emiSetLoan(1000000)">₹10 Lakh</button>
+            <button type="button" class="preset-chip" onclick="emiSetLoan(2500000)">₹25 Lakh</button>
+            <button type="button" class="preset-chip" onclick="emiSetLoan(5000000)">₹50 Lakh</button>
+          </div>
+        </div>
+
+        <!-- Interest Rate -->
+        <div class="sip-input-group">
+          <div class="sip-label-row">
+            <label for="rate">Annual Interest Rate (% p.a.)</label>
+            <span class="sip-val-display" id="rate_val">8.5%</span>
+          </div>
+          <input id="rate" type="number" step="0.1" min="1" max="50" value="8.5" placeholder="8.5" oninput="emiSyncInput('rate')" aria-required="true"/>
+          <input id="rate_range" type="range" min="5" max="25" step="0.1" value="8.5" oninput="emiSyncRange('rate')" aria-label="Interest rate slider"/>
+          <div class="ic-quick-chips">
+            <button type="button" class="preset-chip" onclick="emiSetRate(8.0)">8.0%</button>
+            <button type="button" class="preset-chip" onclick="emiSetRate(8.5)">8.5% (Home)</button>
+            <button type="button" class="preset-chip" onclick="emiSetRate(9.5)">9.5% (Car)</button>
+            <button type="button" class="preset-chip" onclick="emiSetRate(11.0)">11.0% (Personal)</button>
+            <button type="button" class="preset-chip" onclick="emiSetRate(14.0)">14.0%</button>
+          </div>
+        </div>
+
+        <!-- Tenure -->
+        <div class="sip-input-group">
+          <div class="sip-label-row">
+            <label for="years">Loan Tenure (Years)</label>
+            <span class="sip-val-display" id="years_val">5 Yrs</span>
+          </div>
+          <input id="years" type="number" min="1" max="40" step="1" value="5" placeholder="5" oninput="emiSyncInput('years')" aria-required="true"/>
+          <input id="years_range" type="range" min="1" max="30" step="1" value="5" oninput="emiSyncRange('years')" aria-label="Tenure slider"/>
+          <div class="ic-quick-chips">
+            <button type="button" class="preset-chip" onclick="emiSetYears(1)">1 Yr</button>
+            <button type="button" class="preset-chip" onclick="emiSetYears(3)">3 Yrs</button>
+            <button type="button" class="preset-chip" onclick="emiSetYears(5)">5 Yrs</button>
+            <button type="button" class="preset-chip" onclick="emiSetYears(10)">10 Yrs</button>
+            <button type="button" class="preset-chip" onclick="emiSetYears(20)">20 Yrs</button>
+          </div>
+        </div>
+
         <button class="primary" type="button" onclick="calcEmi()">Calculate EMI</button>
-        <div id="res" class="result hidden"></div>
+        <div id="res" class="result"></div>
+      </div>`,
+
+    compound: `
+      <h2>💹 Compound Interest Calculator</h2>
+      <p>Calculate future wealth maturity, total compound interest, and growth comparison with simple interest across different compounding frequencies.</p>
+      <div class="form sip-calc-form">
+        <!-- Principal Investment -->
+        <div class="sip-input-group">
+          <div class="sip-label-row">
+            <label for="ci_principal">Initial Principal Amount (₹)</label>
+            <span class="sip-val-display" id="ci_principal_val">₹1,00,000</span>
+          </div>
+          <input id="ci_principal" type="number" min="1000" max="100000000" step="5000" value="100000" placeholder="100000" oninput="ciSyncInput('principal')" aria-required="true"/>
+          <input id="ci_principal_range" type="range" min="5000" max="5000000" step="5000" value="100000" oninput="ciSyncRange('principal')" aria-label="Principal slider"/>
+          <div class="ic-quick-chips">
+            <button type="button" class="preset-chip" onclick="ciSetPrincipal(25000)">₹25,000</button>
+            <button type="button" class="preset-chip" onclick="ciSetPrincipal(50000)">₹50,000</button>
+            <button type="button" class="preset-chip" onclick="ciSetPrincipal(100000)">₹1 Lakh</button>
+            <button type="button" class="preset-chip" onclick="ciSetPrincipal(500000)">₹5 Lakh</button>
+            <button type="button" class="preset-chip" onclick="ciSetPrincipal(1000000)">₹10 Lakh</button>
+          </div>
+        </div>
+
+        <!-- Interest Rate -->
+        <div class="sip-input-group">
+          <div class="sip-label-row">
+            <label for="ci_rate">Annual Interest Rate (% p.a.)</label>
+            <span class="sip-val-display" id="ci_rate_val">8.5%</span>
+          </div>
+          <input id="ci_rate" type="number" step="0.1" min="0.5" max="50" value="8.5" placeholder="8.5" oninput="ciSyncInput('rate')" aria-required="true"/>
+          <input id="ci_rate_range" type="range" min="1" max="30" step="0.1" value="8.5" oninput="ciSyncRange('rate')" aria-label="Interest rate slider"/>
+          <div class="ic-quick-chips">
+            <button type="button" class="preset-chip" onclick="ciSetRate(6.5)">6.5% (Bank FD)</button>
+            <button type="button" class="preset-chip" onclick="ciSetRate(7.1)">7.1% (PPF)</button>
+            <button type="button" class="preset-chip" onclick="ciSetRate(8.5)">8.5% (Bonds)</button>
+            <button type="button" class="preset-chip" onclick="ciSetRate(12.0)">12% (Mutual Fund)</button>
+            <button type="button" class="preset-chip" onclick="ciSetRate(15.0)">15%</button>
+          </div>
+        </div>
+
+        <!-- Tenure -->
+        <div class="sip-input-group">
+          <div class="sip-label-row">
+            <label for="ci_years">Time Period (Years)</label>
+            <span class="sip-val-display" id="ci_years_val">10 Yrs</span>
+          </div>
+          <input id="ci_years" type="number" min="1" max="50" step="1" value="10" placeholder="10" oninput="ciSyncInput('years')" aria-required="true"/>
+          <input id="ci_years_range" type="range" min="1" max="40" step="1" value="10" oninput="ciSyncRange('years')" aria-label="Years slider"/>
+          <div class="ic-quick-chips">
+            <button type="button" class="preset-chip" onclick="ciSetYears(1)">1 Yr</button>
+            <button type="button" class="preset-chip" onclick="ciSetYears(3)">3 Yrs</button>
+            <button type="button" class="preset-chip" onclick="ciSetYears(5)">5 Yrs</button>
+            <button type="button" class="preset-chip" onclick="ciSetYears(10)">10 Yrs</button>
+            <button type="button" class="preset-chip" onclick="ciSetYears(20)">20 Yrs</button>
+          </div>
+        </div>
+
+        <!-- Compounding Frequency -->
+        <div class="sip-input-group">
+          <label for="ci_freq" style="font-weight:600; font-size:13.5px; color:var(--text);">Compounding Frequency</label>
+          <select id="ci_freq" class="form-select" onchange="calcCompound()" aria-label="Compounding Frequency" style="padding:8px 12px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--text); font-weight:600;">
+            <option value="1">Annually / Yearly (1 time/year)</option>
+            <option value="2">Semi-Annually / Half-Yearly (2 times/year)</option>
+            <option value="4" selected>Quarterly (4 times/year - Bank FD &amp; PPF)</option>
+            <option value="12">Monthly (12 times/year)</option>
+            <option value="365">Daily (365 times/year)</option>
+          </select>
+        </div>
+
+        <button class="primary" type="button" onclick="calcCompound()">Calculate Compounding Growth</button>
+        <div id="res" class="result"></div>
       </div>`,
 
     percentage: `
@@ -2454,19 +2599,410 @@ function sipSetYears(years) {
   calcSip();
 }
 
+/* ─────────────────────────────────────────
+   EMI Calculator Functions (Reducing Balance vs Flat Rate)
+───────────────────────────────────────── */
+let _emiMode = 'reducing'; // 'reducing' (default bank) or 'flat' (car/NBFC)
+
+function emiSetMode(mode) {
+  _emiMode = mode;
+  document.querySelectorAll('#modal [id^="emi-tab-"], #toolContent [id^="emi-tab-"]').forEach(t => {
+    t.classList.remove('active', 'is-active');
+    t.setAttribute('aria-selected', 'false');
+  });
+  const tab = document.getElementById(`emi-tab-${mode}`);
+  if (tab) {
+    tab.classList.add('active', 'is-active');
+    tab.setAttribute('aria-selected', 'true');
+  }
+  calcEmi();
+}
+
+function emiSyncInput(field) {
+  const inp = document.getElementById(field);
+  const rng = document.getElementById(`${field}_range`);
+  const lbl = document.getElementById(`${field}_val`);
+  if (!inp) return;
+  const val = parseFloat(inp.value) || 0;
+  if (rng) rng.value = val;
+  if (lbl) {
+    if (field === 'loan') lbl.textContent = `₹${fmt(val)}`;
+    else if (field === 'rate') lbl.textContent = `${val}%`;
+    else if (field === 'years') lbl.textContent = `${val} Yrs`;
+  }
+  calcEmi();
+}
+
+function emiSyncRange(field) {
+  const inp = document.getElementById(field);
+  const rng = document.getElementById(`${field}_range`);
+  const lbl = document.getElementById(`${field}_val`);
+  if (!rng) return;
+  const val = parseFloat(rng.value) || 0;
+  if (inp) inp.value = val;
+  if (lbl) {
+    if (field === 'loan') lbl.textContent = `₹${fmt(val)}`;
+    else if (field === 'rate') lbl.textContent = `${val}%`;
+    else if (field === 'years') lbl.textContent = `${val} Yrs`;
+  }
+  calcEmi();
+}
+
+function emiSetLoan(amount) {
+  const inp = document.getElementById('loan');
+  const rng = document.getElementById('loan_range');
+  const lbl = document.getElementById('loan_val');
+  if (inp) inp.value = amount;
+  if (rng) rng.value = amount;
+  if (lbl) lbl.textContent = `₹${fmt(amount)}`;
+  calcEmi();
+}
+
+function emiSetRate(rate) {
+  const inp = document.getElementById('rate');
+  const rng = document.getElementById('rate_range');
+  const lbl = document.getElementById('rate_val');
+  if (inp) inp.value = rate;
+  if (rng) rng.value = rate;
+  if (lbl) lbl.textContent = `${rate}%`;
+  calcEmi();
+}
+
+function emiSetYears(years) {
+  const inp = document.getElementById('years');
+  const rng = document.getElementById('years_range');
+  const lbl = document.getElementById('years_val');
+  if (inp) inp.value = years;
+  if (rng) rng.value = years;
+  if (lbl) lbl.textContent = `${years} Yrs`;
+  calcEmi();
+}
+
+function findEffectiveReducingRate(principal, monthlyEmi, months) {
+  let low = 0.00001; // monthly rate
+  let high = 0.5;    // 600% annual max
+  for (let iter = 0; iter < 45; iter++) {
+    const mid = (low + high) / 2;
+    const pv = (monthlyEmi * (1 - Math.pow(1 + mid, -months))) / mid;
+    if (pv > principal) low = mid;
+    else high = mid;
+  }
+  return ((low + high) / 2) * 12 * 100;
+}
+
 function calcEmi() {
   safeCalc(() => {
     const p = getPositive('loan', 'loan amount');
-    const r = getPositive('rate', 'interest rate') / 1200;
-    const n = getPositive('years', 'tenure') * 12;
-    const emi = p * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
-    const total = emi * n;
-    const interest = total - p;
-    const plain = `EMI ₹${emi.toFixed(0)}/month — Total ₹${total.toFixed(0)} — Interest ₹${interest.toFixed(0)}`;
-    showResult(
-      `₹${fmt(emi.toFixed(0))} <small>/ month<br>Total: ₹${fmt(total.toFixed(0))} &nbsp;|&nbsp; Interest: ₹${fmt(interest.toFixed(0))}</small>`,
-      plain
-    );
+    const r = getPositive('rate', 'interest rate');
+    const y = getPositive('years', 'tenure');
+    const n = y * 12;
+
+    let emi, total, interest;
+    let eqFlat = 0;
+    let effReducing = 0;
+    let alertHtml = '';
+    let rowsHtml = '';
+
+    if (_emiMode === 'flat') {
+      // Flat Rate: Interest = (P * R * Y) / 100
+      interest = (p * r * y) / 100;
+      total = p + interest;
+      emi = total / n;
+      effReducing = findEffectiveReducingRate(p, emi, n);
+
+      // What standard reducing balance would charge at same R:
+      const r_monthly = (r / 1200);
+      const emi_red = p * r_monthly * Math.pow(1 + r_monthly, n) / (Math.pow(1 + r_monthly, n) - 1);
+      const red_interest = (emi_red * n) - p;
+      const extraInterest = interest - red_interest;
+
+      alertHtml = `
+        <div class="fin-alert-card warn">
+          ⚠️ <strong>Flat Rate Reality Check:</strong> An <strong>${r}% Flat Rate</strong> is actually equivalent to a <strong>${effReducing.toFixed(2)}% Reducing Balance APR</strong>! You are paying approximately <strong>₹${fmt(extraInterest.toFixed(0))} EXTRA interest</strong> compared to a bank reducing balance loan.
+        </div>
+      `;
+
+      // Flat amortization schedule
+      const annualP = p / y;
+      const annualI = interest / y;
+      let bal = p;
+      for (let yr = 1; yr <= y; yr++) {
+        const opening = bal;
+        const closing = Math.max(0, bal - annualP);
+        bal = closing;
+        rowsHtml += `<tr><td>Year ${yr}</td><td>₹${fmt(opening.toFixed(0))}</td><td>₹${fmt(annualP.toFixed(0))}</td><td>₹${fmt(annualI.toFixed(0))}</td><td>₹${fmt(closing.toFixed(0))}</td></tr>`;
+      }
+    } else {
+      // Reducing Balance Rate (Standard Bank)
+      const r_monthly = r / 1200;
+      emi = p * r_monthly * Math.pow(1 + r_monthly, n) / (Math.pow(1 + r_monthly, n) - 1);
+      total = emi * n;
+      interest = total - p;
+      eqFlat = (interest * 100) / (p * y);
+
+      alertHtml = `
+        <div class="fin-alert-card info">
+          💡 <strong>Bank Standard Advantage:</strong> Interest reduces every month as principal is repaid. Your <strong>${r}% reducing rate</strong> is equivalent to an ultra-low effective flat rate of <strong>~${eqFlat.toFixed(2)}% flat p.a.</strong>
+        </div>
+      `;
+
+      // Reducing amortization schedule
+      let bal = p;
+      for (let yr = 1; yr <= y; yr++) {
+        const opening = bal;
+        let yrP = 0, yrI = 0;
+        for (let m = 0; m < 12; m++) {
+          const mI = bal * r_monthly;
+          const mP = Math.min(bal, emi - mI);
+          bal = Math.max(0, bal - mP);
+          yrP += mP;
+          yrI += mI;
+        }
+        rowsHtml += `<tr><td>Year ${yr}</td><td>₹${fmt(opening.toFixed(0))}</td><td>₹${fmt(yrP.toFixed(0))}</td><td>₹${fmt(yrI.toFixed(0))}</td><td>₹${fmt(bal.toFixed(0))}</td></tr>`;
+      }
+    }
+
+    const principalPct = ((p / total) * 100).toFixed(1);
+    const interestPct = (100 - parseFloat(principalPct)).toFixed(1);
+
+    const html = `
+      <div class="sip-result-card">
+        <div class="sip-maturity-hero">
+          <div class="sip-maturity-label">${_emiMode === 'flat' ? '📊 Flat Rate Monthly EMI' : '📉 Reducing Balance Monthly EMI'}</div>
+          <div class="sip-maturity-amount">₹${fmt(emi.toFixed(0))} <small style="font-size:16px; font-weight:600; color:var(--muted);">/ month</small></div>
+        </div>
+
+        <div class="sip-stats-grid">
+          <div class="sip-stat-box">
+            <span class="sip-stat-label">💰 Principal Loan Amount</span>
+            <span class="sip-stat-val">₹${fmt(p.toFixed(0))}</span>
+            <span class="sip-stat-pct">(${principalPct}% of total)</span>
+          </div>
+          <div class="sip-stat-box highlight">
+            <span class="sip-stat-label">📈 Total Interest Payable</span>
+            <span class="sip-stat-val" style="color:var(--accent);">₹${fmt(interest.toFixed(0))}</span>
+            <span class="sip-stat-pct">(${interestPct}% of total)</span>
+          </div>
+        </div>
+
+        <div class="sip-stat-box" style="margin-bottom:12px; text-align:center;">
+          <span class="sip-stat-label">💳 Total Amount Payable (Principal + Interest)</span>
+          <span class="sip-stat-val" style="font-size:20px; font-weight:800;">₹${fmt(total.toFixed(0))}</span>
+        </div>
+
+        <div class="sip-bar-wrap" title="Principal ${principalPct}% | Interest ${interestPct}%">
+          <div class="sip-bar-invested" style="width: ${principalPct}%"></div>
+          <div class="sip-bar-gain" style="width: ${interestPct}%; background:#f59e0b;"></div>
+        </div>
+        <div class="sip-bar-legend">
+          <span><span class="dot dot-invested"></span> Principal: ₹${fmt(p.toFixed(0))}</span>
+          <span><span class="dot" style="background:#f59e0b;"></span> Total Interest: ₹${fmt(interest.toFixed(0))}</span>
+        </div>
+
+        ${alertHtml}
+
+        <details class="fin-toggle-details">
+          <summary>📑 View Year-by-Year Amortization Schedule (${y} Years)</summary>
+          <div class="fin-table-wrap">
+            <table class="fin-table">
+              <thead>
+                <tr>
+                  <th>Period</th>
+                  <th>Opening Bal</th>
+                  <th>Principal Paid</th>
+                  <th>Interest Paid</th>
+                  <th>Closing Bal</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${rowsHtml}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      </div>
+    `;
+
+    const plain = `Monthly EMI: ₹${fmt(emi.toFixed(0))}, Total Interest: ₹${fmt(interest.toFixed(0))}, Total Payable: ₹${fmt(total.toFixed(0))} for loan ₹${fmt(p)} at ${r}% over ${y} years (${_emiMode === 'flat' ? 'Flat Rate' : 'Reducing Balance'}).`;
+
+    showResult(html, plain);
+  });
+}
+
+/* ─────────────────────────────────────────
+   Compound Interest Calculator Functions
+───────────────────────────────────────── */
+function ciSyncInput(field) {
+  const inp = document.getElementById(`ci_${field}`);
+  const rng = document.getElementById(`ci_${field}_range`);
+  const lbl = document.getElementById(`ci_${field}_val`);
+  if (!inp) return;
+  const val = parseFloat(inp.value) || 0;
+  if (rng) rng.value = val;
+  if (lbl) {
+    if (field === 'principal') lbl.textContent = `₹${fmt(val)}`;
+    else if (field === 'rate') lbl.textContent = `${val}%`;
+    else if (field === 'years') lbl.textContent = `${val} Yrs`;
+  }
+  calcCompound();
+}
+
+function ciSyncRange(field) {
+  const inp = document.getElementById(`ci_${field}`);
+  const rng = document.getElementById(`ci_${field}_range`);
+  const lbl = document.getElementById(`ci_${field}_val`);
+  if (!rng) return;
+  const val = parseFloat(rng.value) || 0;
+  if (inp) inp.value = val;
+  if (lbl) {
+    if (field === 'principal') lbl.textContent = `₹${fmt(val)}`;
+    else if (field === 'rate') lbl.textContent = `${val}%`;
+    else if (field === 'years') lbl.textContent = `${val} Yrs`;
+  }
+  calcCompound();
+}
+
+function ciSetPrincipal(amount) {
+  const inp = document.getElementById('ci_principal');
+  const rng = document.getElementById('ci_principal_range');
+  const lbl = document.getElementById('ci_principal_val');
+  if (inp) inp.value = amount;
+  if (rng) rng.value = amount;
+  if (lbl) lbl.textContent = `₹${fmt(amount)}`;
+  calcCompound();
+}
+
+function ciSetRate(rate) {
+  const inp = document.getElementById('ci_rate');
+  const rng = document.getElementById('ci_rate_range');
+  const lbl = document.getElementById('ci_rate_val');
+  if (inp) inp.value = rate;
+  if (rng) rng.value = rate;
+  if (lbl) lbl.textContent = `${rate}%`;
+  calcCompound();
+}
+
+function ciSetYears(years) {
+  const inp = document.getElementById('ci_years');
+  const rng = document.getElementById('ci_years_range');
+  const lbl = document.getElementById('ci_years_val');
+  if (inp) inp.value = years;
+  if (rng) rng.value = years;
+  if (lbl) lbl.textContent = `${years} Yrs`;
+  calcCompound();
+}
+
+function calcCompound() {
+  safeCalc(() => {
+    const p = getPositive('ci_principal', 'Principal Amount');
+    const r = getPositive('ci_rate', 'Interest Rate');
+    const y = getPositive('ci_years', 'Time Period');
+    const freqEl = document.getElementById('ci_freq');
+    const n = freqEl ? parseFloat(freqEl.value) || 4 : 4; // default quarterly
+
+    // Formula: A = P * (1 + R / (100 * n))^(n * t)
+    const ratePerPeriod = r / (100 * n);
+    const totalPeriods = n * y;
+    const maturity = p * Math.pow(1 + ratePerPeriod, totalPeriods);
+    const ci = maturity - p;
+
+    // Simple interest comparison
+    const si = (p * r * y) / 100;
+    const ciAdvantage = Math.max(0, ci - si);
+
+    const principalPct = ((p / maturity) * 100).toFixed(1);
+    const gainPct = (100 - parseFloat(principalPct)).toFixed(1);
+
+    function getMaturityForYears(t) {
+      return p * Math.pow(1 + ratePerPeriod, n * t);
+    }
+
+    const m1 = getMaturityForYears(1);
+    const m3 = getMaturityForYears(3);
+    const m5 = getMaturityForYears(5);
+    const m10 = getMaturityForYears(10);
+
+    // Year-by-year table rows
+    let tableRows = '';
+    let prevBal = p;
+    for (let yr = 1; yr <= Math.min(y, 30); yr++) {
+      const curBal = getMaturityForYears(yr);
+      const yrGain = curBal - prevBal;
+      const totalGain = curBal - p;
+      prevBal = curBal;
+      tableRows += `<tr><td>Year ${yr}</td><td>₹${fmt(p.toFixed(0))}</td><td>₹${fmt(yrGain.toFixed(0))}</td><td>+₹${fmt(totalGain.toFixed(0))}</td><td>₹${fmt(curBal.toFixed(0))}</td></tr>`;
+    }
+
+    const freqName = n === 1 ? 'Annually' : n === 2 ? 'Half-Yearly' : n === 4 ? 'Quarterly' : n === 12 ? 'Monthly' : 'Daily';
+
+    const html = `
+      <div class="sip-result-card">
+        <div class="sip-maturity-hero">
+          <div class="sip-maturity-label">Future Maturity Value (Total Wealth)</div>
+          <div class="sip-maturity-amount">₹${fmt(maturity.toFixed(0))}</div>
+        </div>
+
+        <div class="sip-stats-grid">
+          <div class="sip-stat-box">
+            <span class="sip-stat-label">💰 Principal Invested</span>
+            <span class="sip-stat-val">₹${fmt(p.toFixed(0))}</span>
+            <span class="sip-stat-pct">(${principalPct}% of total)</span>
+          </div>
+          <div class="sip-stat-box highlight">
+            <span class="sip-stat-label">📈 Total Compound Interest</span>
+            <span class="sip-stat-val text-green">+₹${fmt(ci.toFixed(0))}</span>
+            <span class="sip-stat-pct">(${gainPct}% of total)</span>
+          </div>
+        </div>
+
+        <div class="sip-bar-wrap" title="Principal ${principalPct}% | Returns ${gainPct}%">
+          <div class="sip-bar-invested" style="width: ${principalPct}%"></div>
+          <div class="sip-bar-gain" style="width: ${gainPct}%"></div>
+        </div>
+        <div class="sip-bar-legend">
+          <span><span class="dot dot-invested"></span> Principal: ₹${fmt(p.toFixed(0))}</span>
+          <span><span class="dot dot-gain"></span> Total Returns: ₹${fmt(ci.toFixed(0))}</span>
+        </div>
+
+        <div class="fin-alert-card success">
+          🚀 <strong>The Power of ${freqName} Compounding:</strong> Compounding earned you <strong>₹${fmt(ciAdvantage.toFixed(0))} MORE</strong> (+₹${((ciAdvantage / (si || 1)) * 100).toFixed(1)}%) than Simple Interest (₹${fmt(si.toFixed(0))}) over ${y} years!
+        </div>
+
+        <div class="sip-milestones">
+          <div class="sip-milestones-title">Growth Milestones at ${r}% (${freqName} Compounding):</div>
+          <div class="sip-milestones-grid">
+            <div class="sip-m-card"><strong>1 Yr</strong><span>₹${fmt(m1.toFixed(0))}</span></div>
+            <div class="sip-m-card"><strong>3 Yrs</strong><span>₹${fmt(m3.toFixed(0))}</span></div>
+            <div class="sip-m-card"><strong>5 Yrs</strong><span>₹${fmt(m5.toFixed(0))}</span></div>
+            <div class="sip-m-card"><strong>10 Yrs</strong><span>₹${fmt(m10.toFixed(0))}</span></div>
+          </div>
+        </div>
+
+        <details class="fin-toggle-details">
+          <summary>📑 View Year-by-Year Growth Table (${Math.min(y, 30)} Years)</summary>
+          <div class="fin-table-wrap">
+            <table class="fin-table">
+              <thead>
+                <tr>
+                  <th>Period</th>
+                  <th>Principal</th>
+                  <th>Annual Gain</th>
+                  <th>Total Gain</th>
+                  <th>Maturity Balance</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${tableRows}
+              </tbody>
+            </table>
+          </div>
+        </details>
+      </div>
+    `;
+
+    const plain = `Compound Interest Maturity: ₹${fmt(maturity.toFixed(0))} (Principal: ₹${fmt(p.toFixed(0))}, Interest: ₹${fmt(ci.toFixed(0))}) at ${r}% compounded ${freqName} over ${y} years. (+${fmt(ciAdvantage.toFixed(0))} more than Simple Interest)`;
+
+    showResult(html, plain);
   });
 }
 
@@ -7342,6 +7878,9 @@ function vsReset() {
 
 /* ── Deep Link / Route Handler ── */
 const SLUG_TO_TOOL = {
+  'compound-interest-calculator': 'compound',
+  'compound-calculator': 'compound',
+  'compound-interest': 'compound',
   'sip-calculator': 'sip',
   'sip': 'sip',
   'mutual-fund-sip-calculator': 'sip',
