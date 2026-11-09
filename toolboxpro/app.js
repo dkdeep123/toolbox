@@ -973,6 +973,7 @@ function openTool(id) {
     if (typeof calcSip === 'function') calcSip();
   }
   if (id === 'emi') {
+    _emiMode = 'flat';
     if (typeof calcEmi === 'function') calcEmi();
   }
   if (id === 'compound') {
@@ -1195,15 +1196,15 @@ function buildForm(id) {
 
     emi: `
       <h2>💰 Loan EMI Calculator</h2>
-      <p>Calculate monthly EMI with instant comparison between <strong>Reducing Balance</strong> (Banks) and <strong>Flat Rate</strong> (NBFC / Vehicle).</p>
+      <p>Calculate monthly EMI with instant comparison between <strong>Flat Rate</strong> (Car / NBFC / Personal) and <strong>Reducing Balance</strong> (Bank Standard).</p>
       <div class="form sip-calc-form">
-        <!-- Mode Tabs: Reducing Balance vs Flat Rate -->
+        <!-- Mode Tabs: Flat Rate vs Reducing Balance -->
         <div class="ic-mode-nav" role="tablist" aria-label="EMI calculation method">
-          <button type="button" class="ic-mode-tab is-active" id="emi-tab-reducing" onclick="emiSetMode('reducing')" role="tab" aria-selected="true">
-            📉 Reducing Balance (Bank Standard)
+          <button type="button" class="ic-mode-tab is-active" id="emi-tab-flat" onclick="emiSetMode('flat')" role="tab" aria-selected="true">
+            📊 Flat Rate (Car / NBFC / Personal)
           </button>
-          <button type="button" class="ic-mode-tab" id="emi-tab-flat" onclick="emiSetMode('flat')" role="tab" aria-selected="false">
-            📊 Flat Rate (Car / NBFC)
+          <button type="button" class="ic-mode-tab" id="emi-tab-reducing" onclick="emiSetMode('reducing')" role="tab" aria-selected="false">
+            📉 Reducing Balance (Bank Standard)
           </button>
         </div>
 
@@ -2602,7 +2603,7 @@ function sipSetYears(years) {
 /* ─────────────────────────────────────────
    EMI Calculator Functions (Reducing Balance vs Flat Rate)
 ───────────────────────────────────────── */
-let _emiMode = 'reducing'; // 'reducing' (default bank) or 'flat' (car/NBFC)
+let _emiMode = 'flat'; // 'flat' (default car/NBFC) or 'reducing' (bank standard)
 
 function emiSetMode(mode) {
   _emiMode = mode;
