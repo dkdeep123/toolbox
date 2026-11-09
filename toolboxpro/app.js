@@ -6482,14 +6482,74 @@ function pcDownload() {
 }
 
 /* ─────────────────────────────────────────
-   PWA Service Worker Registration
+   PWA Service Worker Registration & Native App Install
 ───────────────────────────────────────── */
+let deferredInstallPrompt = null;
+
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
     navigator.serviceWorker.register('sw.js').catch(() => {
       // SW registration failed silently (dev env, non-https, etc.)
     });
   });
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  showPwaInstallButton();
+});
+
+function showPwaInstallButton() {
+  if (document.getElementById('pwa-install-btn')) return;
+  const navActions = document.querySelector('.nav-actions') || document.querySelector('.nav nav');
+  if (!navActions) return;
+  const btn = document.createElement('button');
+  btn.id = 'pwa-install-btn';
+  btn.className = 'pwa-install-btn';
+  btn.setAttribute('type', 'button');
+  btn.setAttribute('aria-label', 'Install ToolBoxPro App');
+  btn.innerHTML = '📲 <span class="pwa-text">Install App</span>';
+  btn.addEventListener('click', async () => {
+    if (!deferredInstallPrompt) return;
+    deferredInstallPrompt.prompt();
+    const { outcome } = await deferredInstallPrompt.userChoice;
+    if (outcome === 'accepted') {
+      btn.remove();
+    }
+    deferredInstallPrompt = null;
+  });
+  navActions.prepend(btn);
+}
+
+window.addEventListener('appinstalled', () => {
+  deferredInstallPrompt = null;
+  const btn = document.getElementById('pwa-install-btn');
+  if (btn) btn.remove();
+});
+
+/* ── Viral Copy & Embed Helpers ── */
+function copyToolLink(url, btn) {
+  const targetUrl = url || window.location.href;
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(targetUrl).then(() => {
+      const orig = btn.innerHTML;
+      btn.innerHTML = '✓ Link Copied!';
+      setTimeout(() => { btn.innerHTML = orig; }, 1800);
+    });
+  }
+}
+
+function copyEmbedCode(btn) {
+  const parent = btn.closest('.embed-code-content') || btn.parentElement;
+  const codeEl = parent ? parent.querySelector('code') : null;
+  if (codeEl && navigator.clipboard) {
+    navigator.clipboard.writeText(codeEl.innerText).then(() => {
+      const orig = btn.innerHTML;
+      btn.innerHTML = '✓ Embed Code Copied!';
+      setTimeout(() => { btn.innerHTML = orig; }, 1800);
+    });
+  }
 }
 
 /* ─────────────────────────────────────────

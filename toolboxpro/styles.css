@@ -4851,3 +4851,168 @@ body.dark .fin-table tbody tr:hover {
   border: 1px solid rgba(16, 185, 129, 0.3);
   color: var(--text);
 }
+
+/* ─────────────────────────────────────────
+   Viral Growth, 1-Click Share & Embed Widgets
+───────────────────────────────────────── */
+.tool-share-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  padding: 12px 16px;
+  margin: -10px 0 24px;
+}
+.share-strip-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.share-strip-btns {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.btn-share-wa, .btn-share-tg, .btn-share-copy {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid var(--line);
+  background: var(--surface-subtle);
+  color: var(--text);
+  transition: all var(--transition);
+}
+.btn-share-wa {
+  background: rgba(37, 211, 102, 0.1);
+  border-color: rgba(37, 211, 102, 0.3);
+  color: #16a34a;
+}
+.btn-share-wa:hover {
+  background: #16a34a;
+  color: #ffffff;
+}
+.btn-share-tg {
+  background: rgba(0, 136, 204, 0.1);
+  border-color: rgba(0, 136, 204, 0.3);
+  color: #0284c7;
+}
+.btn-share-tg:hover {
+  background: #0284c7;
+  color: #ffffff;
+}
+.btn-share-copy:hover {
+  background: var(--line);
+}
+@media (max-width: 600px) {
+  .tool-share-strip {
+    flex-direction: column;
+    align-items: stretch;
+    padding: 10px 12px;
+  }
+  .share-strip-btns {
+    justify-content: stretch;
+  }
+  .btn-share-wa, .btn-share-tg, .btn-share-copy {
+    flex: 1 1 auto;
+    justify-content: center;
+    padding: 7px 8px;
+    font-size: 11.5px;
+  }
+}
+
+/* ── Embed Widget Box (Free Backlink Magnet) ── */
+.tool-embed-code-box {
+  background: var(--surface-subtle);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
+  padding: 10px 14px;
+  margin-bottom: 28px;
+}
+.tool-embed-code-box summary {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--muted);
+  cursor: pointer;
+  user-select: none;
+}
+.tool-embed-code-box summary:hover {
+  color: var(--accent);
+}
+.embed-code-content {
+  margin-top: 10px;
+}
+.embed-code-content p {
+  font-size: 12.5px;
+  color: var(--muted);
+  margin-bottom: 8px;
+}
+.embed-code-content code {
+  display: block;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 11.5px;
+  word-break: break-all;
+  margin-bottom: 8px;
+  color: var(--accent);
+}
+.btn-copy-code {
+  padding: 6px 14px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+}
+.btn-copy-code:hover {
+  background: var(--accent);
+  color: #ffffff;
+}
+
+/* ── PWA Native Install Button ── */
+.pwa-install-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  background: linear-gradient(135deg, #2563eb, #06b6d4);
+  color: #ffffff;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+  transition: transform 0.15s ease, opacity 0.15s ease;
+  line-height: 1.2;
+}
+.pwa-install-btn:hover {
+  transform: translateY(-1px);
+  opacity: 0.95;
+}
+@media (max-width: 480px) {
+  .pwa-text {
+    display: none;
+  }
+  .pwa-install-btn {
+    padding: 6px 8px;
+    font-size: 13px;
+  }
+}
