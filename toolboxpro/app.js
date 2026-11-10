@@ -138,7 +138,9 @@ function escapeHtml(str) {
 const ALLOWED_TOOL_IDS = new Set([
   'age','emi','percentage','gst','unit','bmi','discount',
   'tip','ratio','number','date','salary','imgcompress','imgresize',
-  'photoresize','imgtopdf','pdfmerge','pdfcompress','qrcode','videoshorts','sip','compound'
+  'photoresize','imgtopdf','pdfmerge','pdfcompress','qrcode','videoshorts','sip','compound',
+  'fd','ppf','lumpsum','wordcount','password','caseconverter','base64','jsonformat','colorpicker','markdown',
+  'scientific'
 ]);
 
 /** Max file size accepted by image tools: 25 MB */
@@ -169,6 +171,9 @@ const TOOLS = [
   { id: 'sip',         name: 'SIP Calculator',              icon: '📈', iconName: 'sip',            cat: 'finance', desc: 'Calculate mutual fund SIP maturity wealth, interest gain, and investment growth.' },
   { id: 'emi',         name: 'EMI Calculator',              icon: '💰', iconName: 'emi',            cat: 'finance', desc: 'Calculate monthly loan EMI with Reducing Balance vs Flat Rate comparison & amortisation schedule.' },
   { id: 'compound',    name: 'Compound Interest Calculator',icon: '💹', iconName: 'compound',       cat: 'finance', desc: 'Calculate compound interest, future wealth maturity, and annual growth with flexible compounding frequencies.' },
+  { id: 'fd',          name: 'Fixed Deposit (FD) Calculator', icon: '🏦', iconName: 'fd',           cat: 'finance', desc: 'Calculate bank FD maturity value, quarterly compound interest, and milestone returns.' },
+  { id: 'ppf',         name: 'PPF Calculator',              icon: '🛡️', iconName: 'ppf',           cat: 'finance', desc: 'Calculate 15-year Public Provident Fund maturity wealth, tax-free interest, and Section 80C returns.' },
+  { id: 'lumpsum',     name: 'Lump Sum Calculator',         icon: '💰', iconName: 'lumpsum',       cat: 'finance', desc: 'Calculate mutual fund lump sum investment growth, wealth created, and compounding returns.' },
   { id: 'gst',         name: 'GST Calculator',              icon: '🧾', iconName: 'gst',            cat: 'finance', desc: 'Add or subtract GST from any amount with standard tax slabs.' },
   { id: 'salary',      name: 'Salary Calculator',           icon: '💵', iconName: 'salary',         cat: 'finance', desc: 'Calculate in-hand monthly salary and annual take-home deductions.' },
   { id: 'discount',    name: 'Discount Calculator',         icon: '🏷️', iconName: 'discount',       cat: 'finance', desc: 'Find discounted final prices, savings amount, and percentage off.' },
@@ -178,8 +183,16 @@ const TOOLS = [
   { id: 'percentage',  name: 'Percentage Calculator',       icon: '％', iconName: 'percentage',     cat: 'math',    desc: 'Compute percentage differences, increases, decreases, and fractions.' },
   { id: 'ratio',       name: 'Ratio Calculator',            icon: '🔢', iconName: 'ratio',          cat: 'math',    desc: 'Simplify mathematical ratios and compute proportional values.' },
   { id: 'number',      name: 'Number Converter',            icon: '🔁', iconName: 'number',         cat: 'math',    desc: 'Convert numbers across decimal, binary, hex, and roman numerals.' },
+  { id: 'scientific',  name: 'Scientific Calculator',       icon: '🧮', iconName: 'scientific',     cat: 'math',    desc: 'Advanced scientific calculator with trigonometry, logarithms, powers, roots, factorials, and constants.' },
 
   // ── Utility Tools ──
+  { id: 'wordcount',   name: 'Word & Character Counter',    icon: '📝', iconName: 'wordcount',      cat: 'utility', desc: 'Count words, characters, sentences, paragraphs, reading time, and social media limits.' },
+  { id: 'password',    name: 'Password Generator',         icon: '🔐', iconName: 'password',       cat: 'utility', desc: 'Generate strong, cryptographically secure passwords with custom length & entropy score.' },
+  { id: 'caseconverter',name: 'Text Case Converter',        icon: '🔤', iconName: 'caseconverter',  cat: 'utility', desc: 'Convert text to UPPERCASE, lowercase, Title Case, camelCase, snake_case, and kebab-case.' },
+  { id: 'base64',      name: 'Base64 Encoder & Decoder',   icon: '🔄', iconName: 'base64',         cat: 'utility', desc: 'Encode and decode UTF-8 text and strings to and from standard or URL-safe Base64.' },
+  { id: 'jsonformat',  name: 'JSON Formatter & Validator',  icon: '✨', iconName: 'jsonformat',     cat: 'utility', desc: 'Beautify, indent, minify, and validate JSON data with instant syntax error detection.' },
+  { id: 'colorpicker', name: 'Color Picker & Converter',   icon: '🎨', iconName: 'colorpicker',    cat: 'utility', desc: 'Pick colors, convert between HEX, RGB, HSL, CMYK, and check WCAG contrast accessibility.' },
+  { id: 'markdown',    name: 'Markdown to HTML Previewer',  icon: '📑', iconName: 'markdown',       cat: 'utility', desc: 'Live Markdown text editor with real-time rendered HTML preview and one-click export.' },
   { id: 'age',         name: 'Age Calculator',             icon: '🎂', iconName: 'age',            cat: 'utility', desc: 'Calculate exact chronological age in years, months, and days.' },
   { id: 'unit',        name: 'Unit Converter',              icon: '📏', iconName: 'unit',           cat: 'utility', desc: 'Convert length, mass, temperature, speed, data storage, and lab units.' },
   { id: 'date',        name: 'Date Difference',             icon: '📅', iconName: 'date',           cat: 'utility', desc: 'Compute exact day, week, and month intervals between two dates.' },
@@ -321,6 +334,15 @@ function getToolSvgIcon(iconName) {
         <path d="M21 13v2a4 4 0 0 1-4 4H3"/>
         <text x="9" y="15" font-size="7" font-weight="bold" fill="currentColor" stroke="none">10</text>
       </svg>`;
+    case 'scientific':
+      return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-svg">
+        <rect x="3" y="2" width="18" height="20" rx="3" stroke-width="2"/>
+        <rect x="6" y="5" width="12" height="4" rx="1" fill="none" stroke-width="1.8"/>
+        <path d="M7 13h2M8 12v2" stroke="var(--accent)" stroke-width="1.8"/>
+        <path d="M14 13h3" stroke-width="1.8"/>
+        <path d="M7 17l3 3M10 17l-3 3" stroke-width="1.8"/>
+        <path d="M14 17h3M14 20h3" stroke="var(--accent)" stroke-width="1.8"/>
+      </svg>`;
     case 'age':
       return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-svg">
         <path d="M20 21v-8a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/>
@@ -371,6 +393,81 @@ function getToolSvgIcon(iconName) {
         <rect x="18" y="18" width="3" height="3" fill="currentColor"/>
         <rect x="14" y="18" width="3" height="3"/>
         <rect x="18" y="14" width="3" height="3"/>
+      </svg>`;
+    case 'fd':
+      return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-svg">
+        <path d="M3 21h18"/>
+        <path d="M3 10h18"/>
+        <path d="M12 3l9 4H3l9-4z"/>
+        <path d="M5 10v8"/>
+        <path d="M9 10v8"/>
+        <path d="M15 10v8"/>
+        <path d="M19 10v8"/>
+      </svg>`;
+    case 'ppf':
+      return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-svg">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        <path d="M9 12l2 2 4-4" stroke="var(--accent)" stroke-width="2.2"/>
+      </svg>`;
+    case 'lumpsum':
+      return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-svg">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 7v10"/>
+        <path d="M9 10h6a2 2 0 0 1 0 4H9"/>
+        <path d="M15 14l3 4" stroke="var(--accent)" stroke-width="2.2"/>
+      </svg>`;
+    case 'wordcount':
+      return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-svg">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/>
+        <line x1="16" y1="17" x2="8" y2="17"/>
+        <polyline points="10 9 9 9 8 9"/>
+      </svg>`;
+    case 'password':
+      return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-svg">
+        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+        <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+        <circle cx="12" cy="16" r="1.5" fill="var(--accent)"/>
+        <path d="M12 17.5V19"/>
+      </svg>`;
+    case 'caseconverter':
+      return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-svg">
+        <path d="M3 17l4-9 4 9"/>
+        <path d="M4.5 14h5"/>
+        <path d="M15 11v6a2 2 0 0 0 4 0v-6"/>
+        <path d="M19 14h-4"/>
+        <path d="M14 7l3-3 3 3" stroke="var(--accent)" stroke-width="2"/>
+      </svg>`;
+    case 'base64':
+      return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-svg">
+        <polyline points="16 3 21 3 21 8"/>
+        <line x1="4" y1="20" x2="21" y2="3"/>
+        <polyline points="21 16 21 21 16 21"/>
+        <line x1="15" y1="15" x2="21" y2="21"/>
+        <polyline points="8 21 3 21 3 16"/>
+        <line x1="3" y1="21" x2="9" y2="15"/>
+      </svg>`;
+    case 'jsonformat':
+      return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-svg">
+        <path d="M7 4a3 3 0 0 0-3 3v2a3 3 0 0 1-3 3 3 3 0 0 1 3 3v2a3 3 0 0 0 3 3"/>
+        <path d="M17 4a3 3 0 0 1 3 3v2a3 3 0 0 0 3 3 3 3 0 0 0-3 3v2a3 3 0 0 1-3 3"/>
+        <circle cx="12" cy="12" r="1.5" fill="var(--accent)"/>
+      </svg>`;
+    case 'colorpicker':
+      return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-svg">
+        <circle cx="12" cy="12" r="9"/>
+        <path d="M12 3a9 9 0 0 1 9 9c0 3-2 5-4 5h-2a2 2 0 0 0-2 2c0 1.1-.9 2-2 2a9 9 0 0 1-1-18z"/>
+        <circle cx="7.5" cy="10.5" r="1.5" fill="currentColor"/>
+        <circle cx="12" cy="7.5" r="1.5" fill="currentColor"/>
+        <circle cx="16.5" cy="10.5" r="1.5" fill="currentColor"/>
+      </svg>`;
+    case 'markdown':
+      return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-svg">
+        <rect x="2" y="4" width="20" height="16" rx="2"/>
+        <path d="M6 16V8l3.5 4L13 8v8"/>
+        <path d="M18 10l-2.5 3.5h5L18 10z" fill="var(--accent)"/>
+        <path d="M18 13.5V16"/>
       </svg>`;
     default:
       return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-svg">
@@ -979,6 +1076,30 @@ function openTool(id) {
   if (id === 'compound') {
     if (typeof calcCompound === 'function') calcCompound();
   }
+  if (id === 'fd') {
+    if (typeof calcFd === 'function') calcFd();
+  }
+  if (id === 'ppf') {
+    if (typeof calcPpf === 'function') calcPpf();
+  }
+  if (id === 'lumpsum') {
+    if (typeof calcLumpsum === 'function') calcLumpsum();
+  }
+  if (id === 'wordcount') {
+    if (typeof calcWordCount === 'function') calcWordCount();
+  }
+  if (id === 'password') {
+    if (typeof genPassword === 'function') genPassword();
+  }
+  if (id === 'colorpicker') {
+    if (typeof initColorPicker === 'function') initColorPicker();
+  }
+  if (id === 'markdown') {
+    if (typeof renderMarkdown === 'function') renderMarkdown();
+  }
+  if (id === 'scientific') {
+    if (typeof scInit === 'function') scInit();
+  }
 }
 
 function closeModal() {
@@ -1471,6 +1592,96 @@ function buildForm(id) {
         <div><label for="num_dec">Decimal number</label><input id="num_dec" type="number" placeholder="42" aria-required="true"/></div>
         <button class="primary" type="button" onclick="calcNumber()">Convert</button>
         <div id="res" class="result hidden"></div>
+      </div>`,
+
+    scientific: `
+      <h2>🧮 Scientific Calculator</h2>
+      <p>Advanced in-browser scientific calculator with trigonometry, roots, powers, logarithms, and factorials. 100% private &amp; instant.</p>
+      <div class="sc-calc-wrap">
+        <div class="sc-toolbar">
+          <div class="sc-btn-group">
+            <button type="button" id="sc_angle_btn" class="sc-btn sc-btn-fn" onclick="scToggleAngle()" style="padding: 0 14px; height: 32px; font-weight:700;">DEG</button>
+            <span id="sc_mem_indicator" style="font-size:12px; font-weight:700; color:var(--accent); align-self:center; display:none; padding-left:4px;">[M]</span>
+          </div>
+          <div class="sc-btn-group">
+            <button type="button" class="sc-btn" onclick="scCopyResult()" title="Copy Result" style="padding: 0 12px; height: 32px; gap:4px; font-size:13px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg> Copy
+            </button>
+          </div>
+        </div>
+
+        <div class="sc-screen">
+          <div class="sc-screen-top">
+            <span id="sc_mode_badge">DEG</span>
+            <span id="sc_mem_badge"></span>
+          </div>
+          <div id="sc_history" class="sc-history" aria-live="polite"></div>
+          <input type="text" id="sc_display" class="sc-display" value="0" readonly aria-label="Calculator display"/>
+        </div>
+
+        <div class="sc-keypad">
+          <!-- Row 1: Memory & Clear -->
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scMem('MC')" title="Memory Clear">MC</button>
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scMem('MR')" title="Memory Recall">MR</button>
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scMem('M+')" title="Memory Add">M+</button>
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scMem('M-')" title="Memory Subtract">M−</button>
+          <button type="button" class="sc-btn sc-btn-clear" onclick="scClear()" title="Clear All">C</button>
+
+          <!-- Row 2: Basic Trig & Logs -->
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scFunc('sin(')">sin</button>
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scFunc('cos(')">cos</button>
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scFunc('tan(')">tan</button>
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scFunc('log(')" title="Log base 10">log</button>
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scFunc('ln(')" title="Natural log">ln</button>
+
+          <!-- Row 3: Inverse Trig, Root & Power -->
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scFunc('asin(')" title="Arcsine">sin⁻¹</button>
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scFunc('acos(')" title="Arccosine">cos⁻¹</button>
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scFunc('atan(')" title="Arctangent">tan⁻¹</button>
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scFunc('sqrt(')" title="Square root">√</button>
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scPress('^')" title="Power x^y">xʸ</button>
+
+          <!-- Row 4: Constants, Factorial & Backspace -->
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scPress('^2')" title="Square x²">x²</button>
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scPress('!')" title="Factorial n!">n!</button>
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scPress('π')" title="Pi (3.14159...)">π</button>
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scPress('e')" title="Euler's number (2.71828...)">e</button>
+          <button type="button" class="sc-btn sc-btn-clear" onclick="scBackspace()" title="Backspace">⌫</button>
+
+          <!-- Row 5: Parentheses, Modulo & Divide -->
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scPress('(')">(</button>
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scPress(')')">)</button>
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scPress('%')" title="Percentage / Modulo">%</button>
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scFunc('abs(')" title="Absolute value">|x|</button>
+          <button type="button" class="sc-btn sc-btn-op" onclick="scPress('/')">÷</button>
+
+          <!-- Row 6: 7 8 9 Reciprocal Multiply -->
+          <button type="button" class="sc-btn" onclick="scPress('7')">7</button>
+          <button type="button" class="sc-btn" onclick="scPress('8')">8</button>
+          <button type="button" class="sc-btn" onclick="scPress('9')">9</button>
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scFunc('1/(')" title="Reciprocal">1/x</button>
+          <button type="button" class="sc-btn sc-btn-op" onclick="scPress('*')">×</button>
+
+          <!-- Row 7: 4 5 6 10^x Subtract -->
+          <button type="button" class="sc-btn" onclick="scPress('4')">4</button>
+          <button type="button" class="sc-btn" onclick="scPress('5')">5</button>
+          <button type="button" class="sc-btn" onclick="scPress('6')">6</button>
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scFunc('10^(')" title="10 to power of x">10ˣ</button>
+          <button type="button" class="sc-btn sc-btn-op" onclick="scPress('-')">−</button>
+
+          <!-- Row 8: 1 2 3 +/- Add -->
+          <button type="button" class="sc-btn" onclick="scPress('1')">1</button>
+          <button type="button" class="sc-btn" onclick="scPress('2')">2</button>
+          <button type="button" class="sc-btn" onclick="scPress('3')">3</button>
+          <button type="button" class="sc-btn sc-btn-fn" onclick="scToggleSign()" title="Toggle Sign">±</button>
+          <button type="button" class="sc-btn sc-btn-op" onclick="scPress('+')">+</button>
+
+          <!-- Row 9: 0 00 . = -->
+          <button type="button" class="sc-btn" onclick="scPress('0')">0</button>
+          <button type="button" class="sc-btn" onclick="scPress('00')">00</button>
+          <button type="button" class="sc-btn" onclick="scPress('.')">.</button>
+          <button type="button" class="sc-btn sc-btn-eq" style="grid-column: span 2;" onclick="scEquals()">=</button>
+        </div>
       </div>`,
 
     date: `
@@ -2451,6 +2662,446 @@ function buildForm(id) {
         <p class="info-note" style="margin-top:16px;">
           🔒 <strong>100% Client-Side Privacy:</strong> Your video is sliced and framed directly inside your browser. No files are ever sent to an external server or cloud.
         </p>
+      </div>`,
+
+    fd: `
+      <h2>🏦 Fixed Deposit (FD) Calculator</h2>
+      <p>Calculate total maturity wealth, quarterly compound interest earned, and milestone returns with Indian Bank standard rules.</p>
+      <div class="form sip-calc-form">
+        <div class="sip-input-group">
+          <div class="sip-label-row">
+            <label for="fd_principal">Total Deposit Amount (₹)</label>
+            <span class="sip-val-display" id="fd_principal_val">₹1,00,000</span>
+          </div>
+          <input id="fd_principal" type="number" min="1000" max="50000000" step="5000" value="100000" placeholder="100000" oninput="fdSyncInput('principal')" aria-required="true"/>
+          <input id="fd_principal_range" type="range" min="5000" max="2500000" step="5000" value="100000" oninput="fdSyncRange('principal')" aria-label="Deposit amount slider"/>
+          <div class="ic-quick-chips">
+            <button type="button" class="preset-chip" onclick="fdSetPrincipal(25000)">₹25,000</button>
+            <button type="button" class="preset-chip" onclick="fdSetPrincipal(50000)">₹50,000</button>
+            <button type="button" class="preset-chip" onclick="fdSetPrincipal(100000)">₹1 Lakh</button>
+            <button type="button" class="preset-chip" onclick="fdSetPrincipal(500000)">₹5 Lakh</button>
+            <button type="button" class="preset-chip" onclick="fdSetPrincipal(1000000)">₹10 Lakh</button>
+          </div>
+        </div>
+
+        <div class="sip-input-group">
+          <div class="sip-label-row">
+            <label for="fd_rate">Annual Interest Rate (p.a. %)</label>
+            <span class="sip-val-display" id="fd_rate_val">7.1%</span>
+          </div>
+          <input id="fd_rate" type="number" min="1" max="20" step="0.1" value="7.1" placeholder="7.1" oninput="fdSyncInput('rate')" aria-required="true"/>
+          <input id="fd_rate_range" type="range" min="3" max="12" step="0.1" value="7.1" oninput="fdSyncRange('rate')" aria-label="Interest rate slider"/>
+          <div class="ic-quick-chips">
+            <button type="button" class="preset-chip" onclick="fdSetRate(6.5)">6.5% (Regular)</button>
+            <button type="button" class="preset-chip" onclick="fdSetRate(7.1)">7.1% (SBI/HDFC Standard)</button>
+            <button type="button" class="preset-chip" onclick="fdSetRate(7.6)">7.6% (Senior Citizen)</button>
+            <button type="button" class="preset-chip" onclick="fdSetRate(8.2)">8.2% (Small Finance Bank)</button>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div class="sip-input-group">
+            <label for="fd_years">Tenure (Years)</label>
+            <input id="fd_years" type="number" min="0" max="30" step="1" value="3" placeholder="3" oninput="calcFd()" aria-required="true"/>
+          </div>
+          <div class="sip-input-group">
+            <label for="fd_months">Tenure (Months)</label>
+            <input id="fd_months" type="number" min="0" max="11" step="1" value="0" placeholder="0" oninput="calcFd()"/>
+          </div>
+        </div>
+
+        <div class="sip-input-group">
+          <label for="fd_freq">Compounding Frequency</label>
+          <select id="fd_freq" onchange="calcFd()">
+            <option value="4" selected>Quarterly (Standard Bank Rule)</option>
+            <option value="12">Monthly</option>
+            <option value="2">Half-Yearly</option>
+            <option value="1">Annually</option>
+            <option value="simple">Simple Interest (Payout)</option>
+          </select>
+        </div>
+
+        <button class="primary" type="button" onclick="calcFd()">🏦 Calculate FD Maturity</button>
+        <div id="res" class="result hidden"></div>
+      </div>`,
+
+    ppf: `
+      <h2>🛡️ PPF Calculator (Public Provident Fund)</h2>
+      <p>Calculate 15-year PPF maturity wealth, government-guaranteed tax-free interest, and Section 80C tax savings.</p>
+      <div class="form sip-calc-form">
+        <div class="sip-input-group">
+          <div class="sip-label-row">
+            <label for="ppf_deposit">Annual Yearly Deposit (₹)</label>
+            <span class="sip-val-display" id="ppf_deposit_val">₹1,50,000</span>
+          </div>
+          <input id="ppf_deposit" type="number" min="500" max="150000" step="500" value="150000" placeholder="150000" oninput="ppfSyncInput()" aria-required="true"/>
+          <input id="ppf_deposit_range" type="range" min="500" max="150000" step="500" value="150000" oninput="ppfSyncRange()" aria-label="Yearly deposit slider"/>
+          <div class="ic-quick-chips">
+            <button type="button" class="preset-chip" onclick="ppfSetDeposit(12000)">₹12,000 (₹1k/mo)</button>
+            <button type="button" class="preset-chip" onclick="ppfSetDeposit(30000)">₹30,000</button>
+            <button type="button" class="preset-chip" onclick="ppfSetDeposit(60000)">₹60,000 (₹5k/mo)</button>
+            <button type="button" class="preset-chip" onclick="ppfSetDeposit(100000)">₹1,00,000</button>
+            <button type="button" class="preset-chip" onclick="ppfSetDeposit(150000)">₹1,50,000 (Max 80C)</button>
+          </div>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+          <div class="sip-input-group">
+            <label for="ppf_rate">Govt Interest Rate (p.a. %)</label>
+            <input id="ppf_rate" type="number" min="1" max="15" step="0.1" value="7.1" placeholder="7.1" oninput="calcPpf()" aria-required="true"/>
+          </div>
+          <div class="sip-input-group">
+            <label for="ppf_tenure">Tenure Duration</label>
+            <select id="ppf_tenure" onchange="calcPpf()">
+              <option value="15" selected>15 Years (Standard Lock-in)</option>
+              <option value="20">20 Years (1 Block Extension)</option>
+              <option value="25">25 Years (2 Block Extensions)</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="primary" type="button" onclick="calcPpf()">🛡️ Calculate PPF Returns</button>
+        <div id="res" class="result hidden"></div>
+      </div>`,
+
+    lumpsum: `
+      <h2>💰 Lump Sum Investment Calculator</h2>
+      <p>Estimate the growth of your one-time mutual fund investment with power of compounding and long-term milestones.</p>
+      <div class="form sip-calc-form">
+        <div class="sip-input-group">
+          <div class="sip-label-row">
+            <label for="ls_amount">Total One-Time Investment (₹)</label>
+            <span class="sip-val-display" id="ls_amount_val">₹1,00,000</span>
+          </div>
+          <input id="ls_amount" type="number" min="5000" max="100000000" step="5000" value="100000" placeholder="100000" oninput="lsSyncInput('amount')" aria-required="true"/>
+          <input id="ls_amount_range" type="range" min="5000" max="2500000" step="5000" value="100000" oninput="lsSyncRange('amount')" aria-label="Investment amount slider"/>
+          <div class="ic-quick-chips">
+            <button type="button" class="preset-chip" onclick="lsSetAmount(25000)">₹25,000</button>
+            <button type="button" class="preset-chip" onclick="lsSetAmount(50000)">₹50,000</button>
+            <button type="button" class="preset-chip" onclick="lsSetAmount(100000)">₹1 Lakh</button>
+            <button type="button" class="preset-chip" onclick="lsSetAmount(500000)">₹5 Lakh</button>
+            <button type="button" class="preset-chip" onclick="lsSetAmount(1000000)">₹10 Lakh</button>
+          </div>
+        </div>
+
+        <div class="sip-input-group">
+          <div class="sip-label-row">
+            <label for="ls_rate">Expected Annual Return Rate (p.a. %)</label>
+            <span class="sip-val-display" id="ls_rate_val">12%</span>
+          </div>
+          <input id="ls_rate" type="number" min="1" max="50" step="0.5" value="12" placeholder="12" oninput="lsSyncInput('rate')" aria-required="true"/>
+          <input id="ls_rate_range" type="range" min="1" max="30" step="0.5" value="12" oninput="lsSyncRange('rate')" aria-label="Return rate slider"/>
+          <div class="ic-quick-chips">
+            <button type="button" class="preset-chip" onclick="lsSetRate(8)">8% (Debt / FD)</button>
+            <button type="button" class="preset-chip" onclick="lsSetRate(12)">12% (Nifty Index)</button>
+            <button type="button" class="preset-chip" onclick="lsSetRate(15)">15% (Aggressive Equity)</button>
+          </div>
+        </div>
+
+        <div class="sip-input-group">
+          <div class="sip-label-row">
+            <label for="ls_years">Investment Time Period (Years)</label>
+            <span class="sip-val-display" id="ls_years_val">10 Yrs</span>
+          </div>
+          <input id="ls_years" type="number" min="1" max="40" step="1" value="10" placeholder="10" oninput="lsSyncInput('years')" aria-required="true"/>
+          <input id="ls_years_range" type="range" min="1" max="35" step="1" value="10" oninput="lsSyncRange('years')" aria-label="Tenure slider"/>
+          <div class="ic-quick-chips">
+            <button type="button" class="preset-chip" onclick="lsSetYears(3)">3 Yrs</button>
+            <button type="button" class="preset-chip" onclick="lsSetYears(5)">5 Yrs</button>
+            <button type="button" class="preset-chip" onclick="lsSetYears(10)">10 Yrs</button>
+            <button type="button" class="preset-chip" onclick="lsSetYears(15)">15 Yrs</button>
+            <button type="button" class="preset-chip" onclick="lsSetYears(20)">20 Yrs</button>
+          </div>
+        </div>
+
+        <button class="primary" type="button" onclick="calcLumpsum()">💰 Calculate Lump Sum Wealth</button>
+        <div id="res" class="result hidden"></div>
+      </div>`,
+
+    wordcount: `
+      <h2>📝 Word & Character Counter</h2>
+      <p>Live word counter, character counter, sentence analyzer, reading time, and social media post limits.</p>
+      <div class="form">
+        <div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+            <label for="wc_input">Your Text Content</label>
+            <div style="display:flex; gap:8px;">
+              <button type="button" class="preset-chip" onclick="wcLoadSample()">Sample Text</button>
+              <button type="button" class="preset-chip" onclick="wcClear()">Clear</button>
+            </div>
+          </div>
+          <textarea id="wc_input" rows="8" placeholder="Type or paste your text here..." oninput="calcWordCount()" style="width:100%; box-sizing:border-box;"></textarea>
+        </div>
+
+        <!-- Live Statistics Counter Grid -->
+        <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap:10px; margin-top:12px;">
+          <div class="sip-stat-box" style="padding:10px; text-align:center;">
+            <span class="sip-stat-label">Words</span>
+            <span class="sip-stat-val text-green" id="wc_words">0</span>
+          </div>
+          <div class="sip-stat-box" style="padding:10px; text-align:center;">
+            <span class="sip-stat-label">Characters</span>
+            <span class="sip-stat-val" id="wc_chars">0</span>
+          </div>
+          <div class="sip-stat-box" style="padding:10px; text-align:center;">
+            <span class="sip-stat-label">No Spaces</span>
+            <span class="sip-stat-val" id="wc_chars_nospace">0</span>
+          </div>
+          <div class="sip-stat-box" style="padding:10px; text-align:center;">
+            <span class="sip-stat-label">Sentences</span>
+            <span class="sip-stat-val" id="wc_sentences">0</span>
+          </div>
+          <div class="sip-stat-box" style="padding:10px; text-align:center;">
+            <span class="sip-stat-label">Paragraphs</span>
+            <span class="sip-stat-val" id="wc_paragraphs">0</span>
+          </div>
+        </div>
+
+        <!-- Reading & Speaking Time -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:10px;">
+          <div class="sip-stat-box" style="padding:10px;">
+            <span class="sip-stat-label">📖 Reading Time</span>
+            <span class="sip-stat-val" style="font-size:16px;" id="wc_reading_time">&lt; 1 min</span>
+          </div>
+          <div class="sip-stat-box" style="padding:10px;">
+            <span class="sip-stat-label">🎙️ Speaking Time</span>
+            <span class="sip-stat-val" style="font-size:16px;" id="wc_speaking_time">&lt; 1 min</span>
+          </div>
+        </div>
+
+        <!-- Social Media Limits -->
+        <div class="sip-milestones" style="margin-top:12px;">
+          <div class="sip-milestones-title">Social Media Character Limits:</div>
+          <div class="sip-milestones-grid">
+            <div class="sip-m-card"><strong>X / Twitter (280)</strong><span id="wc_twitter">280 left</span></div>
+            <div class="sip-m-card"><strong>Instagram (2,200)</strong><span id="wc_insta">2200 left</span></div>
+            <div class="sip-m-card"><strong>LinkedIn (3,000)</strong><span id="wc_linkedin">3000 left</span></div>
+          </div>
+        </div>
+
+        <div style="margin-top:14px; display:flex; gap:10px;">
+          <button class="primary" type="button" onclick="wcCopyText()">📋 Copy Text</button>
+        </div>
+      </div>`,
+
+    password: `
+      <h2>🔐 Strong Password Generator</h2>
+      <p>Generate highly secure, randomized passwords using client-side cryptographic randomness (CSPRNG).</p>
+      <div class="form">
+        <!-- Generated Password Display -->
+        <div style="display:flex; gap:8px; align-items:center;">
+          <input id="pw_output" type="text" readonly style="font-family:monospace; font-size:18px; font-weight:700; letter-spacing:1px; flex:1;" aria-label="Generated password"/>
+          <button type="button" class="icon-btn" onclick="genPassword()" title="Generate new password" style="width:44px; height:44px; font-size:20px;">🎲</button>
+          <button type="button" class="primary" onclick="pwCopy()" style="padding:0 18px; height:44px;">📋 Copy</button>
+        </div>
+
+        <!-- Strength Meter Bar -->
+        <div style="margin-top:10px;">
+          <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:4px; font-weight:600;">
+            <span>Password Strength: <strong id="pw_strength_text" style="color:#10b981;">Strong</strong></span>
+            <span id="pw_entropy" style="opacity:0.8;">72 bits</span>
+          </div>
+          <div style="height:6px; background:var(--border, #e2e8f0); border-radius:3px; overflow:hidden;">
+            <div id="pw_strength_bar" style="height:100%; width:80%; background:#10b981; transition:width 0.3s, background 0.3s;"></div>
+          </div>
+        </div>
+
+        <!-- Length Slider -->
+        <div class="sip-input-group" style="margin-top:14px;">
+          <div class="sip-label-row">
+            <label for="pw_length">Password Length: <span id="pw_len_val" style="color:var(--accent); font-weight:700;">16</span> characters</label>
+          </div>
+          <input id="pw_length" type="range" min="6" max="64" step="1" value="16" oninput="document.getElementById('pw_len_val').textContent = this.value; genPassword();" aria-label="Password length slider"/>
+        </div>
+
+        <!-- Options Checkboxes -->
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:8px;">
+          <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
+            <input type="checkbox" id="pw_upper" checked onchange="genPassword()"/> Uppercase (A-Z)
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
+            <input type="checkbox" id="pw_lower" checked onchange="genPassword()"/> Lowercase (a-z)
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
+            <input type="checkbox" id="pw_nums" checked onchange="genPassword()"/> Numbers (0-9)
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer;">
+            <input type="checkbox" id="pw_syms" checked onchange="genPassword()"/> Symbols (!@#$%)
+          </label>
+          <label style="display:flex; align-items:center; gap:8px; font-size:13px; cursor:pointer; grid-column: span 2;">
+            <input type="checkbox" id="pw_exc_ambig" onchange="genPassword()"/> Avoid ambiguous characters (0, O, o, 1, l, I)
+          </label>
+        </div>
+
+        <!-- Quick Presets -->
+        <div class="ic-quick-chips" style="margin-top:14px;">
+          <button type="button" class="preset-chip" onclick="pwPreset(4, false, false, true, false)">4-Digit PIN</button>
+          <button type="button" class="preset-chip" onclick="pwPreset(6, false, false, true, false)">6-Digit PIN</button>
+          <button type="button" class="preset-chip" onclick="pwPreset(12, true, true, true, false)">Memorable (12)</button>
+          <button type="button" class="preset-chip" onclick="pwPreset(16, true, true, true, true)">Standard (16)</button>
+          <button type="button" class="preset-chip" onclick="pwPreset(32, true, true, true, true)">Maximum (32)</button>
+        </div>
+      </div>`,
+
+    caseconverter: `
+      <h2>🔤 Text Case Converter</h2>
+      <p>Transform text casing instantly across sentence case, UPPERCASE, lowercase, Title Case, camelCase, snake_case, and more.</p>
+      <div class="form">
+        <textarea id="cc_input" rows="7" placeholder="Type or paste your text here to convert casing..." style="width:100%; box-sizing:border-box;"></textarea>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; font-size:12px; margin-top:4px; opacity:0.8;">
+          <span>Length: <strong id="cc_chars">0</strong> characters</span>
+          <button type="button" class="preset-chip" onclick="ccClear()">Clear</button>
+        </div>
+
+        <div style="display:flex; flex-wrap:wrap; gap:8px; margin-top:12px;">
+          <button type="button" class="primary" onclick="convertCase('sentence')">Sentence case</button>
+          <button type="button" class="primary" onclick="convertCase('lower')">lower case</button>
+          <button type="button" class="primary" onclick="convertCase('upper')">UPPER CASE</button>
+          <button type="button" class="primary" onclick="convertCase('title')">Title Case</button>
+          <button type="button" class="secondary-btn" onclick="convertCase('camel')">camelCase</button>
+          <button type="button" class="secondary-btn" onclick="convertCase('pascal')">PascalCase</button>
+          <button type="button" class="secondary-btn" onclick="convertCase('snake')">snake_case</button>
+          <button type="button" class="secondary-btn" onclick="convertCase('kebab')">kebab-case</button>
+          <button type="button" class="secondary-btn" onclick="convertCase('inverse')">InVeRsE cAsE</button>
+        </div>
+
+        <div style="display:flex; gap:10px; margin-top:14px;">
+          <button type="button" class="primary" onclick="ccCopy()">📋 Copy Text</button>
+          <button type="button" class="secondary-btn" onclick="ccDownload()">⬇ Download .txt</button>
+        </div>
+      </div>`,
+
+    base64: `
+      <h2>🔄 Base64 Encoder & Decoder</h2>
+      <p>Encode plain text into Base64 or decode Base64 strings back to clean text with full UTF-8 &amp; emoji support.</p>
+      <div class="form">
+        <div style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
+          <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer;">
+            <input type="checkbox" id="b64_urlsafe"/> URL-Safe Base64 (RFC 4648)
+          </label>
+        </div>
+
+        <label for="b64_input">Input Text or Base64 String</label>
+        <textarea id="b64_input" rows="5" placeholder="Enter text to encode or Base64 string to decode..." style="width:100%; box-sizing:border-box;"></textarea>
+
+        <div style="display:flex; gap:10px; margin-top:10px;">
+          <button class="primary" type="button" onclick="convertBase64('encode')">🔒 Encode to Base64</button>
+          <button class="secondary-btn" type="button" onclick="convertBase64('decode')">🔓 Decode from Base64</button>
+          <button class="preset-chip" type="button" onclick="b64Clear()">Clear</button>
+        </div>
+
+        <label for="b64_output" style="margin-top:14px; display:block;">Output Result</label>
+        <textarea id="b64_output" rows="5" readonly placeholder="Result will appear here..." style="width:100%; box-sizing:border-box; font-family:monospace;"></textarea>
+
+        <div style="margin-top:10px;">
+          <button class="primary" type="button" onclick="b64Copy()">📋 Copy Output</button>
+        </div>
+      </div>`,
+
+    jsonformat: `
+      <h2>✨ JSON Formatter & Validator</h2>
+      <p>Beautify, indent, validate syntax, and minify JSON data with instant error line detection.</p>
+      <div class="form">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <label for="json_input">JSON Input</label>
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="preset-chip" onclick="jsonLoadSample()">Load Sample</button>
+            <button type="button" class="preset-chip" onclick="document.getElementById('json_input').value=''; document.getElementById('json_output').value='';">Clear</button>
+          </div>
+        </div>
+        <textarea id="json_input" rows="7" placeholder="Paste unformatted or raw JSON here..." style="width:100%; box-sizing:border-box; font-family:monospace; font-size:13px;"></textarea>
+
+        <div id="json_status" class="json-status-banner" style="margin-top:8px; display:none;"></div>
+
+        <div style="display:flex; gap:10px; align-items:center; margin-top:10px; flex-wrap:wrap;">
+          <label for="json_indent" style="font-size:13px;">Indent:</label>
+          <select id="json_indent" style="width:auto; padding:6px 10px;">
+            <option value="2" selected>2 Spaces</option>
+            <option value="4">4 Spaces</option>
+          </select>
+          <button class="primary" type="button" onclick="formatJson('format')">✨ Beautify JSON</button>
+          <button class="secondary-btn" type="button" onclick="formatJson('minify')">📦 Minify JSON</button>
+          <button class="secondary-btn" type="button" onclick="formatJson('validate')">✓ Validate Syntax</button>
+        </div>
+
+        <label for="json_output" style="margin-top:14px; display:block;">Formatted JSON Output</label>
+        <textarea id="json_output" rows="8" readonly placeholder="Formatted output will appear here..." style="width:100%; box-sizing:border-box; font-family:monospace; font-size:13px;"></textarea>
+
+        <div style="display:flex; gap:10px; margin-top:10px;">
+          <button class="primary" type="button" onclick="jsonCopy()">📋 Copy JSON</button>
+          <button class="secondary-btn" type="button" onclick="jsonDownload()">⬇ Download .json</button>
+        </div>
+      </div>`,
+
+    colorpicker: `
+      <h2>🎨 Color Picker & Converter</h2>
+      <p>Pick colors, convert between HEX, RGB, HSL, and CMYK formats, and check WCAG accessibility contrast ratios.</p>
+      <div class="form">
+        <!-- Interactive Color Wheel & Preview Swatch -->
+        <div style="display:flex; gap:16px; align-items:center; margin-bottom:14px; flex-wrap:wrap;">
+          <input type="color" id="cp_wheel" value="#5b4fff" oninput="updateColorPicker(this.value)" style="width:64px; height:64px; border:none; border-radius:12px; cursor:pointer;" aria-label="Color wheel picker"/>
+          <div id="cp_preview" style="width:64px; height:64px; border-radius:12px; border:2px solid var(--border, #e2e8f0); background-color:#5b4fff; box-shadow:0 4px 12px rgba(0,0,0,0.1);"></div>
+          <div>
+            <label for="cp_hex">HEX Code</label>
+            <input type="text" id="cp_hex" value="#5B4FFF" maxlength="7" oninput="updateColorPicker(this.value)" style="font-family:monospace; font-weight:700; width:130px; text-transform:uppercase;"/>
+          </div>
+        </div>
+
+        <!-- Color Format Conversion Rows -->
+        <div style="display:grid; grid-template-columns: 1fr; gap:10px;">
+          <div style="display:flex; gap:8px; align-items:center;">
+            <span style="width:55px; font-weight:700; font-size:13px;">HEX:</span>
+            <input type="text" id="cp_val_hex" readonly value="#5B4FFF" style="flex:1; font-family:monospace;"/>
+            <button type="button" class="preset-chip" onclick="colorCopy('hex')">Copy</button>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <span style="width:55px; font-weight:700; font-size:13px;">RGB:</span>
+            <input type="text" id="cp_val_rgb" readonly value="rgb(91, 79, 255)" style="flex:1; font-family:monospace;"/>
+            <button type="button" class="preset-chip" onclick="colorCopy('rgb')">Copy</button>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <span style="width:55px; font-weight:700; font-size:13px;">HSL:</span>
+            <input type="text" id="cp_val_hsl" readonly value="hsl(244, 100%, 65%)" style="flex:1; font-family:monospace;"/>
+            <button type="button" class="preset-chip" onclick="colorCopy('hsl')">Copy</button>
+          </div>
+          <div style="display:flex; gap:8px; align-items:center;">
+            <span style="width:55px; font-weight:700; font-size:13px;">CMYK:</span>
+            <input type="text" id="cp_val_cmyk" readonly value="cmyk(64%, 69%, 0%, 0%)" style="flex:1; font-family:monospace;"/>
+            <button type="button" class="preset-chip" onclick="colorCopy('cmyk')">Copy</button>
+          </div>
+        </div>
+
+        <!-- WCAG Contrast Check -->
+        <div class="sip-milestones" style="margin-top:14px;">
+          <div class="sip-milestones-title">WCAG Contrast Accessibility:</div>
+          <div class="sip-milestones-grid">
+            <div class="sip-m-card"><strong>Against White Text</strong><span id="cp_contrast_white">4.82:1 ✓ Pass</span></div>
+            <div class="sip-m-card"><strong>Against Black Text</strong><span id="cp_contrast_black">4.36:1 ✓ Pass</span></div>
+          </div>
+        </div>
+      </div>`,
+
+    markdown: `
+      <h2>📑 Markdown to HTML Previewer</h2>
+      <p>Live Markdown text editor with real-time rendered HTML preview and one-click code copy.</p>
+      <div class="form">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+          <label for="md_input">Markdown Source</label>
+          <div style="display:flex; gap:8px;">
+            <button type="button" class="preset-chip" onclick="mdLoadSample()">Sample Template</button>
+            <button type="button" class="preset-chip" onclick="document.getElementById('md_input').value=''; renderMarkdown();">Clear</button>
+          </div>
+        </div>
+        <textarea id="md_input" rows="8" placeholder="Type Markdown here... (# Heading, **bold**, *italic*, - list)" oninput="renderMarkdown()" style="width:100%; box-sizing:border-box; font-family:monospace;"></textarea>
+
+        <label style="margin-top:14px; display:block;">Live Rendered HTML Preview</label>
+        <div id="md_preview" style="min-height:120px; padding:14px; border:1px solid var(--border, #e2e8f0); border-radius:8px; background:var(--card-bg, #ffffff); margin-top:4px;"></div>
+
+        <input type="hidden" id="md_html_code"/>
+        <div style="display:flex; gap:10px; margin-top:14px;">
+          <button class="primary" type="button" onclick="mdCopyHtml()">📋 Copy HTML Code</button>
+        </div>
       </div>`,
 
   };
@@ -3619,6 +4270,813 @@ function calcSalary() {
       plain
     );
   });
+}
+
+/* ─────────────────────────────────────────
+   Fixed Deposit (FD) Calculator
+───────────────────────────────────────── */
+function calcFd() {
+  safeCalc(() => {
+    const p = getPositive('fd_principal', 'Deposit Amount');
+    const r = getPositive('fd_rate', 'Interest Rate');
+    const y = getNum('fd_years', 'Tenure Years') || 0;
+    const m = getNum('fd_months', 'Tenure Months') || 0;
+    const t = y + (m / 12);
+    if (t <= 0) return showError('Tenure must be greater than 0 months.');
+
+    const freqSelect = document.getElementById('fd_freq');
+    const freqVal = freqSelect ? freqSelect.value : '4';
+    let maturity = 0;
+    let interest = 0;
+
+    if (freqVal === 'simple') {
+      interest = (p * r * t) / 100;
+      maturity = p + interest;
+    } else {
+      const n = parseFloat(freqVal); // 4 = quarterly (bank std), 12 = monthly, 2 = half-yearly, 1 = yearly
+      maturity = p * Math.pow(1 + (r / (100 * n)), n * t);
+      interest = maturity - p;
+    }
+
+    const principalPct = ((p / maturity) * 100).toFixed(1);
+    const interestPct = (100 - parseFloat(principalPct)).toFixed(1);
+
+    function getFdM(yr) {
+      const n = (freqVal === 'simple') ? 1 : parseFloat(freqVal);
+      return (freqVal === 'simple') ? p + (p * r * yr) / 100 : p * Math.pow(1 + (r / (100 * n)), n * yr);
+    }
+    const m1 = getFdM(1);
+    const m3 = getFdM(3);
+    const m5 = getFdM(5);
+
+    const html = `
+      <div class="sip-result-card">
+        <div class="sip-maturity-hero">
+          <div class="sip-maturity-label">Total FD Maturity Amount</div>
+          <div class="sip-maturity-amount">₹${fmt(maturity.toFixed(0))}</div>
+        </div>
+        <div class="sip-stats-grid">
+          <div class="sip-stat-box">
+            <span class="sip-stat-label">💰 Principal Deposit</span>
+            <span class="sip-stat-val">₹${fmt(p.toFixed(0))}</span>
+            <span class="sip-stat-pct">(${principalPct}% of total)</span>
+          </div>
+          <div class="sip-stat-box highlight">
+            <span class="sip-stat-label">📈 Total Interest Earned</span>
+            <span class="sip-stat-val text-green">+₹${fmt(interest.toFixed(0))}</span>
+            <span class="sip-stat-pct">(${interestPct}% of total)</span>
+          </div>
+        </div>
+        <div class="sip-bar-wrap" title="Principal ${principalPct}% | Interest ${interestPct}%">
+          <div class="sip-bar-invested" style="width: ${principalPct}%"></div>
+          <div class="sip-bar-gain" style="width: ${interestPct}%"></div>
+        </div>
+        <div class="sip-bar-legend">
+          <span><span class="dot dot-invested"></span> Principal: ₹${fmt(p.toFixed(0))}</span>
+          <span><span class="dot dot-gain"></span> Interest: ₹${fmt(interest.toFixed(0))}</span>
+        </div>
+        <div class="sip-milestones">
+          <div class="sip-milestones-title">FD Growth Milestones:</div>
+          <div class="sip-milestones-grid">
+            <div class="sip-m-card"><strong>1 Year</strong><span>₹${fmt(m1.toFixed(0))}</span></div>
+            <div class="sip-m-card"><strong>3 Years</strong><span>₹${fmt(m3.toFixed(0))}</span></div>
+            <div class="sip-m-card"><strong>5 Years</strong><span>₹${fmt(m5.toFixed(0))}</span></div>
+          </div>
+        </div>
+      </div>
+    `;
+    const plain = `FD Maturity: ₹${fmt(maturity.toFixed(0))} (Principal: ₹${fmt(p.toFixed(0))}, Interest: ₹${fmt(interest.toFixed(0))}) at ${r}% p.a. for ${t.toFixed(1)} years`;
+    showResult(html, plain);
+  });
+}
+
+function fdSyncInput(field) {
+  const inp = document.getElementById(`fd_${field}`);
+  const rng = document.getElementById(`fd_${field}_range`);
+  const lbl = document.getElementById(`fd_${field}_val`);
+  if (!inp) return;
+  const val = parseFloat(inp.value) || 0;
+  if (rng && rng.max && val <= parseFloat(rng.max)) rng.value = val;
+  if (lbl) {
+    lbl.textContent = field === 'rate' ? `${val}%` : `₹${fmt(val)}`;
+  }
+  calcFd();
+}
+
+function fdSyncRange(field) {
+  const inp = document.getElementById(`fd_${field}`);
+  const rng = document.getElementById(`fd_${field}_range`);
+  const lbl = document.getElementById(`fd_${field}_val`);
+  if (!rng || !inp) return;
+  inp.value = rng.value;
+  if (lbl) {
+    lbl.textContent = field === 'rate' ? `${rng.value}%` : `₹${fmt(rng.value)}`;
+  }
+  calcFd();
+}
+
+function fdSetPrincipal(val) {
+  const inp = document.getElementById('fd_principal');
+  if (inp) { inp.value = val; fdSyncInput('principal'); }
+}
+
+function fdSetRate(val) {
+  const inp = document.getElementById('fd_rate');
+  if (inp) { inp.value = val; fdSyncInput('rate'); }
+}
+
+/* ─────────────────────────────────────────
+   Public Provident Fund (PPF) Calculator
+───────────────────────────────────────── */
+function calcPpf() {
+  safeCalc(() => {
+    const deposit = getPositive('ppf_deposit', 'Yearly Deposit');
+    if (deposit > 150000) return showError('Maximum annual PPF deposit is ₹1,50,000 under Section 80C.');
+    const r = getPositive('ppf_rate', 'PPF Interest Rate');
+    const tenureSelect = document.getElementById('ppf_tenure');
+    const tenure = tenureSelect ? (parseInt(tenureSelect.value, 10) || 15) : 15;
+
+    let balance = 0;
+    let totalInvested = 0;
+
+    for (let yr = 1; yr <= tenure; yr++) {
+      const openBal = balance;
+      totalInvested += deposit;
+      const interest = (openBal + deposit) * (r / 100);
+      balance = openBal + deposit + interest;
+    }
+
+    const totalInterest = balance - totalInvested;
+    const invPct = ((totalInvested / balance) * 100).toFixed(1);
+    const intPct = (100 - parseFloat(invPct)).toFixed(1);
+
+    const html = `
+      <div class="sip-result-card">
+        <div class="sip-maturity-hero">
+          <div class="sip-maturity-label">Tax-Free PPF Maturity Wealth (${tenure} Years)</div>
+          <div class="sip-maturity-amount">₹${fmt(balance.toFixed(0))}</div>
+        </div>
+        <div class="sip-stats-grid">
+          <div class="sip-stat-box">
+            <span class="sip-stat-label">💰 Total Investment</span>
+            <span class="sip-stat-val">₹${fmt(totalInvested.toFixed(0))}</span>
+            <span class="sip-stat-pct">(${invPct}% of total)</span>
+          </div>
+          <div class="sip-stat-box highlight">
+            <span class="sip-stat-label">🛡️ Tax-Free Interest Earned</span>
+            <span class="sip-stat-val text-green">+₹${fmt(totalInterest.toFixed(0))}</span>
+            <span class="sip-stat-pct">(${intPct}% of total)</span>
+          </div>
+        </div>
+        <div class="sip-bar-wrap" title="Invested ${invPct}% | Interest ${intPct}%">
+          <div class="sip-bar-invested" style="width: ${invPct}%"></div>
+          <div class="sip-bar-gain" style="width: ${intPct}%"></div>
+        </div>
+        <div class="sip-bar-legend">
+          <span><span class="dot dot-invested"></span> Principal: ₹${fmt(totalInvested.toFixed(0))}</span>
+          <span><span class="dot dot-gain"></span> Total Interest: ₹${fmt(totalInterest.toFixed(0))}</span>
+        </div>
+        <p style="font-size:12px; margin-top:8px; opacity:0.8; text-align:center;">🔒 <strong>EEE Tax Exemption:</strong> PPF is completely exempt from tax on deposit, interest, and maturity under Section 80C.</p>
+      </div>
+    `;
+    const plain = `PPF Maturity: ₹${fmt(balance.toFixed(0))} (Invested: ₹${fmt(totalInvested.toFixed(0))}, Tax-Free Interest: ₹${fmt(totalInterest.toFixed(0))}) over ${tenure} years at ${r}%`;
+    showResult(html, plain);
+  });
+}
+
+function ppfSyncInput() {
+  const inp = document.getElementById('ppf_deposit');
+  const rng = document.getElementById('ppf_deposit_range');
+  const lbl = document.getElementById('ppf_deposit_val');
+  if (!inp) return;
+  const val = parseFloat(inp.value) || 0;
+  if (rng) rng.value = val;
+  if (lbl) lbl.textContent = `₹${fmt(val)}`;
+  calcPpf();
+}
+
+function ppfSyncRange() {
+  const inp = document.getElementById('ppf_deposit');
+  const rng = document.getElementById('ppf_deposit_range');
+  const lbl = document.getElementById('ppf_deposit_val');
+  if (!rng || !inp) return;
+  inp.value = rng.value;
+  if (lbl) lbl.textContent = `₹${fmt(rng.value)}`;
+  calcPpf();
+}
+
+function ppfSetDeposit(val) {
+  const inp = document.getElementById('ppf_deposit');
+  if (inp) { inp.value = val; ppfSyncInput(); }
+}
+
+/* ─────────────────────────────────────────
+   Lump Sum Investment Calculator
+───────────────────────────────────────── */
+function calcLumpsum() {
+  safeCalc(() => {
+    const p = getPositive('ls_amount', 'One-time Investment');
+    const r = getPositive('ls_rate', 'Expected Return Rate');
+    const y = getPositive('ls_years', 'Investment Period');
+
+    const maturity = p * Math.pow(1 + (r / 100), y);
+    const gain = maturity - p;
+
+    const investedPct = ((p / maturity) * 100).toFixed(1);
+    const gainPct = (100 - parseFloat(investedPct)).toFixed(1);
+
+    function getLsM(yr) {
+      return p * Math.pow(1 + (r / 100), yr);
+    }
+    const m5 = getLsM(5);
+    const m10 = getLsM(10);
+    const m15 = getLsM(15);
+    const m20 = getLsM(20);
+
+    const html = `
+      <div class="sip-result-card">
+        <div class="sip-maturity-hero">
+          <div class="sip-maturity-label">Total Lumpsum Wealth (Maturity Value)</div>
+          <div class="sip-maturity-amount">₹${fmt(maturity.toFixed(0))}</div>
+        </div>
+        <div class="sip-stats-grid">
+          <div class="sip-stat-box">
+            <span class="sip-stat-label">💰 Initial Investment</span>
+            <span class="sip-stat-val">₹${fmt(p.toFixed(0))}</span>
+            <span class="sip-stat-pct">(${investedPct}% of total)</span>
+          </div>
+          <div class="sip-stat-box highlight">
+            <span class="sip-stat-label">📈 Wealth Gain (Returns)</span>
+            <span class="sip-stat-val text-green">+₹${fmt(gain.toFixed(0))}</span>
+            <span class="sip-stat-pct">(${gainPct}% of total)</span>
+          </div>
+        </div>
+        <div class="sip-bar-wrap" title="Invested ${investedPct}% | Returns ${gainPct}%">
+          <div class="sip-bar-invested" style="width: ${investedPct}%"></div>
+          <div class="sip-bar-gain" style="width: ${gainPct}%"></div>
+        </div>
+        <div class="sip-bar-legend">
+          <span><span class="dot dot-invested"></span> Principal: ₹${fmt(p.toFixed(0))}</span>
+          <span><span class="dot dot-gain"></span> Returns: ₹${fmt(gain.toFixed(0))}</span>
+        </div>
+        <div class="sip-milestones">
+          <div class="sip-milestones-title">Lumpsum Growth Milestones at ${r}%:</div>
+          <div class="sip-milestones-grid">
+            <div class="sip-m-card"><strong>5 Yrs</strong><span>₹${fmt(m5.toFixed(0))}</span></div>
+            <div class="sip-m-card"><strong>10 Yrs</strong><span>₹${fmt(m10.toFixed(0))}</span></div>
+            <div class="sip-m-card"><strong>15 Yrs</strong><span>₹${fmt(m15.toFixed(0))}</span></div>
+            <div class="sip-m-card"><strong>20 Yrs</strong><span>₹${fmt(m20.toFixed(0))}</span></div>
+          </div>
+        </div>
+      </div>
+    `;
+    const plain = `Lumpsum Maturity: ₹${fmt(maturity.toFixed(0))} (Invested: ₹${fmt(p.toFixed(0))}, Wealth Gain: ₹${fmt(gain.toFixed(0))}) for ${y} years at ${r}% p.a.`;
+    showResult(html, plain);
+  });
+}
+
+function lsSyncInput(field) {
+  const inp = document.getElementById(`ls_${field}`);
+  const rng = document.getElementById(`ls_${field}_range`);
+  const lbl = document.getElementById(`ls_${field}_val`);
+  if (!inp) return;
+  const val = parseFloat(inp.value) || 0;
+  if (rng && rng.max && val <= parseFloat(rng.max)) rng.value = val;
+  if (lbl) {
+    lbl.textContent = field === 'years' ? `${val} Yrs` : (field === 'rate' ? `${val}%` : `₹${fmt(val)}`);
+  }
+  calcLumpsum();
+}
+
+function lsSyncRange(field) {
+  const inp = document.getElementById(`ls_${field}`);
+  const rng = document.getElementById(`ls_${field}_range`);
+  const lbl = document.getElementById(`ls_${field}_val`);
+  if (!rng || !inp) return;
+  inp.value = rng.value;
+  if (lbl) {
+    lbl.textContent = field === 'years' ? `${rng.value} Yrs` : (field === 'rate' ? `${rng.value}%` : `₹${fmt(rng.value)}`);
+  }
+  calcLumpsum();
+}
+
+function lsSetAmount(val) {
+  const inp = document.getElementById('ls_amount');
+  if (inp) { inp.value = val; lsSyncInput('amount'); }
+}
+
+function lsSetRate(val) {
+  const inp = document.getElementById('ls_rate');
+  if (inp) { inp.value = val; lsSyncInput('rate'); }
+}
+
+function lsSetYears(val) {
+  const inp = document.getElementById('ls_years');
+  if (inp) { inp.value = val; lsSyncInput('years'); }
+}
+
+/* ─────────────────────────────────────────
+   Word & Character Counter
+───────────────────────────────────────── */
+function calcWordCount() {
+  const el = document.getElementById('wc_input');
+  if (!el) return;
+  const text = el.value || '';
+
+  const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+  const charsWithSpaces = text.length;
+  const charsNoSpaces = text.replace(/\s/g, '').length;
+  const sentences = text.trim() ? (text.match(/[^.!?]+[.!?]+/g) || [text]).filter(s => s.trim().length > 0).length : 0;
+  const paragraphs = text.trim() ? text.split(/\n+/).filter(p => p.trim().length > 0).length : 0;
+
+  const readingTimeMin = Math.ceil(words / 200);
+  const speakingTimeMin = Math.ceil(words / 130);
+
+  const twitterLeft = 280 - charsWithSpaces;
+  const instaLeft = 2200 - charsWithSpaces;
+  const linkedInLeft = 3000 - charsWithSpaces;
+
+  const setT = (id, val) => {
+    const node = document.getElementById(id);
+    if (node) node.textContent = val;
+  };
+
+  setT('wc_words', fmt(words));
+  setT('wc_chars', fmt(charsWithSpaces));
+  setT('wc_chars_nospace', fmt(charsNoSpaces));
+  setT('wc_sentences', fmt(sentences));
+  setT('wc_paragraphs', fmt(paragraphs));
+  setT('wc_reading_time', readingTimeMin <= 1 ? '~1 min' : `~${readingTimeMin} mins`);
+  setT('wc_speaking_time', speakingTimeMin <= 1 ? '~1 min' : `~${speakingTimeMin} mins`);
+  setT('wc_twitter', twitterLeft >= 0 ? `${twitterLeft} left` : `${Math.abs(twitterLeft)} over!`);
+  setT('wc_insta', instaLeft >= 0 ? `${instaLeft} left` : `${Math.abs(instaLeft)} over!`);
+  setT('wc_linkedin', linkedInLeft >= 0 ? `${linkedInLeft} left` : `${Math.abs(linkedInLeft)} over!`);
+}
+
+function wcLoadSample() {
+  const el = document.getElementById('wc_input');
+  if (el) {
+    el.value = "ToolBoxPro is an all-in-one suite of privacy-first online tools designed for developers, creators, students, and professionals. All conversions, calculations, and file operations happen 100% locally inside your web browser. No files, passwords, or sensitive documents are ever uploaded to an external cloud server.";
+    calcWordCount();
+  }
+}
+
+function wcClear() {
+  const el = document.getElementById('wc_input');
+  if (el) { el.value = ''; calcWordCount(); }
+}
+
+function wcCopyText() {
+  const el = document.getElementById('wc_input');
+  if (el && el.value) {
+    navigator.clipboard.writeText(el.value).then(() => {
+      showToast('Text copied to clipboard!');
+    }).catch(() => {});
+  }
+}
+
+/* ─────────────────────────────────────────
+   Strong Password Generator
+───────────────────────────────────────── */
+function genPassword() {
+  const lenEl = document.getElementById('pw_length');
+  const len = lenEl ? parseInt(lenEl.value, 10) : 16;
+  const incUpper = document.getElementById('pw_upper')?.checked ?? true;
+  const incLower = document.getElementById('pw_lower')?.checked ?? true;
+  const incNumbers = document.getElementById('pw_nums')?.checked ?? true;
+  const incSymbols = document.getElementById('pw_syms')?.checked ?? true;
+  const excAmbiguous = document.getElementById('pw_exc_ambig')?.checked ?? false;
+
+  let upperChars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  let lowerChars = 'abcdefghijklmnopqrstuvwxyz';
+  let numChars = '0123456789';
+  let symChars = '!@#$%^&*()_+-=[]{}|;:,.<>?';
+
+  if (excAmbiguous) {
+    upperChars = upperChars.replace(/[IO]/g, '');
+    lowerChars = lowerChars.replace(/[lo]/g, '');
+    numChars = numChars.replace(/[01]/g, '');
+  }
+
+  let charset = '';
+  const guaranteed = [];
+
+  if (incUpper) { charset += upperChars; guaranteed.push(upperChars[Math.floor(Math.random() * upperChars.length)]); }
+  if (incLower) { charset += lowerChars; guaranteed.push(lowerChars[Math.floor(Math.random() * lowerChars.length)]); }
+  if (incNumbers) { charset += numChars; guaranteed.push(numChars[Math.floor(Math.random() * numChars.length)]); }
+  if (incSymbols) { charset += symChars; guaranteed.push(symChars[Math.floor(Math.random() * symChars.length)]); }
+
+  if (!charset) {
+    showError('Please select at least one character type.');
+    return;
+  }
+
+  const arr = new Uint32Array(len);
+  if (typeof window !== 'undefined' && window.crypto && window.crypto.getRandomValues) {
+    window.crypto.getRandomValues(arr);
+  } else {
+    for (let i = 0; i < len; i++) arr[i] = Math.floor(Math.random() * 1000000000);
+  }
+
+  let password = [];
+  for (let i = 0; i < guaranteed.length; i++) {
+    password.push(guaranteed[i]);
+  }
+  for (let i = guaranteed.length; i < len; i++) {
+    password.push(charset[arr[i] % charset.length]);
+  }
+
+  for (let i = password.length - 1; i > 0; i--) {
+    const j = arr[i] % (i + 1);
+    [password[i], password[j]] = [password[j], password[i]];
+  }
+  const resultPw = password.join('');
+
+  const poolSize = charset.length;
+  const entropy = Math.round(len * (Math.log(poolSize) / Math.log(2)));
+
+  const out = document.getElementById('pw_output');
+  if (out) out.value = resultPw;
+
+  const entropyLabel = document.getElementById('pw_entropy');
+  const strengthBar = document.getElementById('pw_strength_bar');
+  const strengthText = document.getElementById('pw_strength_text');
+
+  if (entropyLabel) entropyLabel.textContent = `${entropy} bits`;
+  if (strengthBar && strengthText) {
+    if (entropy < 36) {
+      strengthBar.style.width = '25%';
+      strengthBar.style.background = '#ef4444';
+      strengthText.textContent = 'Weak';
+      strengthText.style.color = '#ef4444';
+    } else if (entropy < 60) {
+      strengthBar.style.width = '55%';
+      strengthBar.style.background = '#f59e0b';
+      strengthText.textContent = 'Moderate';
+      strengthText.style.color = '#f59e0b';
+    } else if (entropy < 85) {
+      strengthBar.style.width = '80%';
+      strengthBar.style.background = '#10b981';
+      strengthText.textContent = 'Strong';
+      strengthText.style.color = '#10b981';
+    } else {
+      strengthBar.style.width = '100%';
+      strengthBar.style.background = '#8b5cf6';
+      strengthText.textContent = 'Military-Grade';
+      strengthText.style.color = '#8b5cf6';
+    }
+  }
+}
+
+function pwCopy() {
+  const el = document.getElementById('pw_output');
+  if (el && el.value) {
+    navigator.clipboard.writeText(el.value).then(() => {
+      showToast('Password copied securely!');
+    }).catch(() => {});
+  }
+}
+
+function pwPreset(length, upper, lower, nums, syms) {
+  const lenInput = document.getElementById('pw_length');
+  const lenVal = document.getElementById('pw_len_val');
+  if (lenInput) lenInput.value = length;
+  if (lenVal) lenVal.textContent = length;
+
+  const setC = (id, val) => { const node = document.getElementById(id); if (node) node.checked = val; };
+  setC('pw_upper', upper);
+  setC('pw_lower', lower);
+  setC('pw_nums', nums);
+  setC('pw_syms', syms);
+  genPassword();
+}
+
+/* ─────────────────────────────────────────
+   Text Case Converter
+───────────────────────────────────────── */
+function convertCase(mode) {
+  const inp = document.getElementById('cc_input');
+  if (!inp) return;
+  const str = inp.value;
+  if (!str) return;
+
+  let res = str;
+  if (mode === 'upper') {
+    res = str.toUpperCase();
+  } else if (mode === 'lower') {
+    res = str.toLowerCase();
+  } else if (mode === 'sentence') {
+    res = str.toLowerCase().replace(/(^\s*\w|[.!?]\s*\w)/g, c => c.toUpperCase());
+  } else if (mode === 'title') {
+    res = str.toLowerCase().replace(/\b\w/g, c => c.toUpperCase());
+  } else if (mode === 'camel') {
+    res = str.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
+    res = res.charAt(0).toLowerCase() + res.slice(1);
+  } else if (mode === 'pascal') {
+    res = str.toLowerCase().replace(/[^a-zA-Z0-9]+(.)/g, (m, chr) => chr.toUpperCase());
+    res = res.charAt(0).toUpperCase() + res.slice(1);
+  } else if (mode === 'snake') {
+    res = str.replace(/([a-z0-9])([A-Z])/g, '$1_$2').trim().toLowerCase().replace(/[^a-zA-Z0-9]+/g, '_').replace(/^_+|_+$/g, '');
+  } else if (mode === 'kebab') {
+    res = str.replace(/([a-z0-9])([A-Z])/g, '$1-$2').trim().toLowerCase().replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  } else if (mode === 'inverse') {
+    res = str.split('').map(c => c === c.toUpperCase() ? c.toLowerCase() : c.toUpperCase()).join('');
+  }
+
+  inp.value = res;
+  const charSpan = document.getElementById('cc_chars');
+  if (charSpan) charSpan.textContent = res.length;
+}
+
+function ccCopy() {
+  const inp = document.getElementById('cc_input');
+  if (inp && inp.value) {
+    navigator.clipboard.writeText(inp.value).then(() => {
+      showToast('Converted text copied!');
+    }).catch(() => {});
+  }
+}
+
+function ccDownload() {
+  const inp = document.getElementById('cc_input');
+  if (!inp || !inp.value) return;
+  const blob = new Blob([inp.value], { type: 'text/plain;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'converted-text.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function ccClear() {
+  const inp = document.getElementById('cc_input');
+  if (inp) {
+    inp.value = '';
+    const charSpan = document.getElementById('cc_chars');
+    if (charSpan) charSpan.textContent = '0';
+  }
+}
+
+/* ─────────────────────────────────────────
+   Base64 Encoder & Decoder
+───────────────────────────────────────── */
+function convertBase64(mode) {
+  const inp = document.getElementById('b64_input');
+  const out = document.getElementById('b64_output');
+  if (!inp || !out) return;
+  const str = inp.value;
+  const urlSafe = document.getElementById('b64_urlsafe')?.checked;
+
+  try {
+    if (mode === 'encode') {
+      let encoded = btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => String.fromCharCode('0x' + p1)));
+      if (urlSafe) {
+        encoded = encoded.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+      }
+      out.value = encoded;
+    } else {
+      let cleanStr = str.trim();
+      if (urlSafe) {
+        cleanStr = cleanStr.replace(/-/g, '+').replace(/_/g, '/');
+        while (cleanStr.length % 4) cleanStr += '=';
+      }
+      const decoded = decodeURIComponent(Array.prototype.map.call(atob(cleanStr), c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
+      out.value = decoded;
+    }
+  } catch (e) {
+    showError('Invalid text or Base64 format: ' + e.message);
+  }
+}
+
+function b64Copy() {
+  const out = document.getElementById('b64_output');
+  if (out && out.value) {
+    navigator.clipboard.writeText(out.value).then(() => {
+      showToast('Base64 result copied!');
+    }).catch(() => {});
+  }
+}
+
+function b64Clear() {
+  const inp = document.getElementById('b64_input');
+  const out = document.getElementById('b64_output');
+  if (inp) inp.value = '';
+  if (out) out.value = '';
+}
+
+/* ─────────────────────────────────────────
+   JSON Formatter & Validator
+───────────────────────────────────────── */
+function formatJson(mode) {
+  const inp = document.getElementById('json_input');
+  const out = document.getElementById('json_output');
+  const banner = document.getElementById('json_status');
+  if (!inp) return;
+  const str = inp.value.trim();
+  if (!str) {
+    showError('Please enter JSON text to format.');
+    return;
+  }
+
+  try {
+    const parsed = JSON.parse(str);
+    const space = mode === 'minify' ? 0 : (parseInt(document.getElementById('json_indent')?.value, 10) || 2);
+    const formatted = space === 0 ? JSON.stringify(parsed) : JSON.stringify(parsed, null, space);
+    if (out) out.value = formatted;
+    if (banner) {
+      banner.style.display = 'block';
+      banner.style.padding = '8px 12px';
+      banner.style.borderRadius = '6px';
+      banner.style.background = 'rgba(16, 185, 129, 0.15)';
+      banner.style.border = '1px solid #10b981';
+      banner.style.color = '#10b981';
+      banner.innerHTML = `✓ Valid JSON &nbsp;|&nbsp; Size: ${fmtBytes(new Blob([formatted]).size)} &nbsp;|&nbsp; Keys: ${Object.keys(parsed).length}`;
+    }
+    if (mode === 'validate') {
+      showToast('JSON syntax is valid!');
+    }
+  } catch (err) {
+    if (banner) {
+      banner.style.display = 'block';
+      banner.style.padding = '8px 12px';
+      banner.style.borderRadius = '6px';
+      banner.style.background = 'rgba(239, 68, 68, 0.15)';
+      banner.style.border = '1px solid #ef4444';
+      banner.style.color = '#ef4444';
+      banner.innerHTML = `✕ Invalid JSON: ${err.message}`;
+    }
+    showError(`Invalid JSON: ${err.message}`);
+  }
+}
+
+function jsonCopy() {
+  const out = document.getElementById('json_output');
+  if (out && out.value) {
+    navigator.clipboard.writeText(out.value).then(() => {
+      showToast('JSON copied to clipboard!');
+    }).catch(() => {});
+  }
+}
+
+function jsonDownload() {
+  const out = document.getElementById('json_output');
+  if (!out || !out.value) return;
+  const blob = new Blob([out.value], { type: 'application/json;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'formatted.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function jsonLoadSample() {
+  const inp = document.getElementById('json_input');
+  if (inp) {
+    inp.value = JSON.stringify({
+      appName: "ToolBoxPro",
+      version: "2.0.0",
+      isPrivate: true,
+      features: ["image", "pdf", "finance", "utility"],
+      userStats: { activeTools: 32, totalConversions: 154200 }
+    }, null, 2);
+    formatJson('format');
+  }
+}
+
+/* ─────────────────────────────────────────
+   Color Picker & Converter
+───────────────────────────────────────── */
+function initColorPicker() {
+  updateColorPicker('#5B4FFF');
+}
+
+function updateColorPicker(hex) {
+  if (!hex) return;
+  if (!hex.startsWith('#')) hex = '#' + hex;
+  if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) return;
+
+  const colorInput = document.getElementById('cp_wheel');
+  const hexInput = document.getElementById('cp_hex');
+  if (colorInput) colorInput.value = hex;
+  if (hexInput && hexInput !== document.activeElement) hexInput.value = hex.toUpperCase();
+
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+
+  const rn = r / 255, gn = g / 255, bn = b / 255;
+  const max = Math.max(rn, gn, bn), min = Math.min(rn, gn, bn);
+  let h = 0, s = 0, l = (max + min) / 2;
+
+  if (max !== min) {
+    const d = max - min;
+    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+    switch (max) {
+      case rn: h = (gn - bn) / d + (gn < bn ? 6 : 0); break;
+      case gn: h = (bn - rn) / d + 2; break;
+      case bn: h = (rn - gn) / d + 4; break;
+    }
+    h = Math.round(h * 60);
+  }
+  s = Math.round(s * 100);
+  l = Math.round(l * 100);
+
+  let c = 0, m = 0, y = 0, k = 1 - Math.max(rn, gn, bn);
+  if (k < 1) {
+    c = Math.round(((1 - rn - k) / (1 - k)) * 100);
+    m = Math.round(((1 - gn - k) / (1 - k)) * 100);
+    y = Math.round(((1 - bn - k) / (1 - k)) * 100);
+  }
+  k = Math.round(k * 100);
+
+  const setV = (id, val) => { const el = document.getElementById(id); if (el) el.value = val; };
+  setV('cp_val_hex', hex.toUpperCase());
+  setV('cp_val_rgb', `rgb(${r}, ${g}, ${b})`);
+  setV('cp_val_hsl', `hsl(${h}, ${s}%, ${l}%)`);
+  setV('cp_val_cmyk', `cmyk(${c}%, ${m}%, ${y}%, ${k}%)`);
+
+  const preview = document.getElementById('cp_preview');
+  if (preview) preview.style.backgroundColor = hex;
+
+  const sRGB = [rn, gn, bn].map(v => v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4));
+  const lum = 0.2126 * sRGB[0] + 0.7152 * sRGB[1] + 0.0722 * sRGB[2];
+  const contrastWhite = (1.05 / (lum + 0.05)).toFixed(2);
+  const contrastBlack = ((lum + 0.05) / 0.05).toFixed(2);
+
+  const whiteEl = document.getElementById('cp_contrast_white');
+  const blackEl = document.getElementById('cp_contrast_black');
+  if (whiteEl) whiteEl.textContent = `${contrastWhite}:1 ${contrastWhite >= 4.5 ? '✓ Pass' : '✕ Fail'}`;
+  if (blackEl) blackEl.textContent = `${contrastBlack}:1 ${contrastBlack >= 4.5 ? '✓ Pass' : '✕ Fail'}`;
+}
+
+function colorCopy(type) {
+  const el = document.getElementById(`cp_val_${type}`);
+  if (el && el.value) {
+    navigator.clipboard.writeText(el.value).then(() => {
+      showToast(`${type.toUpperCase()} color copied!`);
+    }).catch(() => {});
+  }
+}
+
+/* ─────────────────────────────────────────
+   Markdown to HTML Previewer
+───────────────────────────────────────── */
+function renderMarkdown() {
+  const inp = document.getElementById('md_input');
+  const out = document.getElementById('md_preview');
+  const codeOut = document.getElementById('md_html_code');
+  if (!inp) return;
+  const src = inp.value;
+
+  let html = src
+    .replace(/```([a-zA-Z0-9]*)\n([\s\S]*?)```/g, (m, lang, code) => `<pre style="background:var(--border,#f1f5f9); padding:10px; border-radius:6px; overflow-x:auto;"><code>${code.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>`)
+    .replace(/`([^`]+)`/g, '<code style="background:var(--border,#f1f5f9); padding:2px 6px; border-radius:4px;">$1</code>')
+    .replace(/^#### (.*$)/gim, '<h4 style="margin:12px 0 6px;">$1</h4>')
+    .replace(/^### (.*$)/gim, '<h3 style="margin:14px 0 6px;">$1</h3>')
+    .replace(/^## (.*$)/gim, '<h2 style="margin:16px 0 8px;">$1</h2>')
+    .replace(/^# (.*$)/gim, '<h1 style="margin:18px 0 10px;">$1</h1>')
+    .replace(/^\> (.*$)/gim, '<blockquote style="border-left:3px solid var(--accent); margin:10px 0; padding-left:12px; color:var(--text-sub);">$1</blockquote>')
+    .replace(/\*\*\*(.*?)\*\*\*/gim, '<strong><em>$1</em></strong>')
+    .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+    .replace(/~~(.*?)~~/gim, '<del>$1</del>')
+    .replace(/\[([^\]]+)\]\(([^)]+)\)/gim, '<a href="$2" target="_blank" rel="noopener" style="color:var(--accent);">$1</a>')
+    .replace(/^\s*[\*\-]\s+(.*$)/gim, '<li style="margin-left:20px;">$1</li>')
+    .replace(/\n\n+/g, '</p><p style="margin:8px 0;">');
+
+  html = `<div class="md-rendered-content"><p style="margin:8px 0;">${html}</p></div>`;
+
+  if (out) out.innerHTML = html;
+  if (codeOut) codeOut.value = html;
+}
+
+function mdLoadSample() {
+  const inp = document.getElementById('md_input');
+  if (inp) {
+    inp.value = `# Welcome to ToolBoxPro Markdown Editor
+This is a **live client-side** previewer with *instant HTML generation*.
+
+### Key Highlights:
+- **Zero latency**: Everything parses right in your browser.
+- **Privacy first**: No cloud upload.
+- Supports \`inline code\` and code blocks.
+
+> "Simplicity is the soul of efficiency."
+
+Check out [ToolBoxPro Home](https://toolboxpro.in/) for 30+ everyday utilities!`;
+    renderMarkdown();
+  }
+}
+
+function mdCopyHtml() {
+  const codeOut = document.getElementById('md_html_code');
+  if (codeOut && codeOut.value) {
+    navigator.clipboard.writeText(codeOut.value).then(() => {
+      showToast('Rendered HTML copied!');
+    }).catch(() => {});
+  }
 }
 
 /* ─────────────────────────────────────────
@@ -7953,6 +9411,342 @@ function vsReset() {
   if (previewVideo) previewVideo.src = '';
 }
 
+/* ─────────────────────────────────────────
+   Scientific Calculator Engine
+───────────────────────────────────────── */
+let _scState = {
+  expr: '',
+  memory: 0,
+  mode: 'DEG',
+  justEvaluated: false
+};
+let _scKeyBound = false;
+
+function scFactorial(n) {
+  if (n < 0 || !Number.isInteger(n)) return NaN;
+  if (n === 0 || n === 1) return 1;
+  if (n > 170) return Infinity;
+  let r = 1;
+  for (let i = 2; i <= n; i++) r *= i;
+  return r;
+}
+
+function scCleanNumber(num) {
+  if (typeof num !== 'number' || isNaN(num)) return 'Error';
+  if (!isFinite(num)) return num > 0 ? 'Infinity' : '-Infinity';
+  const rounded = Math.round(num * 1e12) / 1e12;
+  if (Math.abs(rounded) < 1e-12 && rounded !== 0) {
+    return rounded.toExponential(6);
+  }
+  if (Math.abs(rounded) >= 1e14 || (Math.abs(rounded) < 1e-6 && rounded !== 0)) {
+    return rounded.toExponential(8).replace(/\.?0+e/, 'e');
+  }
+  let str = rounded.toString();
+  if (str.includes('.') && !str.includes('e')) {
+    str = str.replace(/0+$/, '').replace(/\.$/, '');
+  }
+  return str;
+}
+
+function scEvaluate(rawExpr, angleMode = 'DEG') {
+  if (!rawExpr || !rawExpr.trim()) return '0';
+  let expr = rawExpr.trim();
+
+  // Replace visual math symbols
+  expr = expr.replace(/×/g, '*').replace(/÷/g, '/').replace(/−/g, '-');
+  expr = expr.replace(/π/g, '(Math.PI)');
+  expr = expr.replace(/\be\b/g, '(Math.E)');
+  expr = expr.replace(/\^/g, '**');
+
+  // Replace factorial ! -> fact(...)
+  let prev;
+  do {
+    prev = expr;
+    expr = expr.replace(/(\d+(?:\.\d+)?|\([^()]+\))!/g, 'fact($1)');
+  } while (expr !== prev);
+
+  // Percent: if followed by op or end, divide by 100
+  expr = expr.replace(/(\d+(?:\.\d+)?)%(?=[+\-*/)]|$)/g, '($1/100)');
+
+  // Implicit multiplication: 2( -> 2*(, )3 -> )*3, 2sin -> 2*sin, etc.
+  expr = expr.replace(/(\d)(\()/g, '$1*$2');
+  expr = expr.replace(/(\))(\d)/g, '$1*$2');
+  expr = expr.replace(/(\))(\()/g, '$1*$2');
+  expr = expr.replace(/(\d)(sin|cos|tan|asin|acos|atan|log|ln|sqrt|abs|fact)/g, '$1*$2');
+  expr = expr.replace(/(Math\.PI|Math\.E)(\d)/g, '$1*$2');
+  expr = expr.replace(/(\d)(Math\.PI|Math\.E)/g, '$1*$2');
+
+  // Whitelist check
+  const sanitized = expr.replace(/sin|cos|tan|asin|acos|atan|log|ln|sqrt|abs|fact|Math\.PI|Math\.E/g, '');
+  if (!/^[0-9+\-*/%.()*\s]+$/.test(sanitized)) {
+    throw new Error('Invalid mathematical expression');
+  }
+
+  const isDeg = angleMode === 'DEG';
+  const toRad = x => (x * Math.PI) / 180;
+  const toDeg = x => (x * 180) / Math.PI;
+
+  const sinFn = x => {
+    if (isDeg) {
+      const norm = ((x % 360) + 360) % 360;
+      if (norm === 0 || norm === 180) return 0;
+      if (norm === 90) return 1;
+      if (norm === 270) return -1;
+      return Math.sin(toRad(norm));
+    }
+    return Math.sin(x);
+  };
+
+  const cosFn = x => {
+    if (isDeg) {
+      const norm = ((x % 360) + 360) % 360;
+      if (norm === 90 || norm === 270) return 0;
+      if (norm === 0) return 1;
+      if (norm === 180) return -1;
+      return Math.cos(toRad(norm));
+    }
+    return Math.cos(x);
+  };
+
+  const tanFn = x => {
+    if (isDeg) {
+      const norm = ((x % 360) + 360) % 360;
+      if (norm === 90 || norm === 270) return NaN;
+      if (norm === 0 || norm === 180) return 0;
+      if (norm === 45 || norm === 225) return 1;
+      if (norm === 135 || norm === 315) return -1;
+      return Math.tan(toRad(norm));
+    }
+    return Math.tan(x);
+  };
+
+  const asinFn = x => {
+    const v = Math.asin(x);
+    return isDeg ? toDeg(v) : v;
+  };
+  const acosFn = x => {
+    const v = Math.acos(x);
+    return isDeg ? toDeg(v) : v;
+  };
+  const atanFn = x => {
+    const v = Math.atan(x);
+    return isDeg ? toDeg(v) : v;
+  };
+  const logFn = x => Math.log10(x);
+  const lnFn = x => Math.log(x);
+  const sqrtFn = x => Math.sqrt(x);
+  const absFn = x => Math.abs(x);
+  const factFn = x => scFactorial(x);
+
+  const fn = new Function(
+    'sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'log', 'ln', 'sqrt', 'abs', 'fact',
+    `return (${expr});`
+  );
+  const val = fn(sinFn, cosFn, tanFn, asinFn, acosFn, atanFn, logFn, lnFn, sqrtFn, absFn, factFn);
+  return scCleanNumber(val);
+}
+
+function scUpdateDisplay() {
+  const disp = document.getElementById('sc_display');
+  if (disp) {
+    disp.value = _scState.expr || '0';
+  }
+  const modeBadge = document.getElementById('sc_mode_badge');
+  if (modeBadge) modeBadge.textContent = _scState.mode;
+
+  const angleBtn = document.getElementById('sc_angle_btn');
+  if (angleBtn) angleBtn.textContent = _scState.mode;
+
+  const memBadge = document.getElementById('sc_mem_badge');
+  const memInd = document.getElementById('sc_mem_indicator');
+  if (_scState.memory !== 0) {
+    if (memBadge) memBadge.textContent = `M: ${_scState.memory}`;
+    if (memInd) memInd.style.display = 'inline-block';
+  } else {
+    if (memBadge) memBadge.textContent = '';
+    if (memInd) memInd.style.display = 'none';
+  }
+}
+
+function scInit() {
+  _scState.expr = '';
+  _scState.justEvaluated = false;
+  scUpdateDisplay();
+
+  if (!_scKeyBound) {
+    _scKeyBound = true;
+    window.addEventListener('keydown', (e) => {
+      const disp = document.getElementById('sc_display');
+      if (!disp) return;
+
+      if (document.activeElement && (document.activeElement.tagName === 'INPUT' || document.activeElement.tagName === 'TEXTAREA') && document.activeElement !== disp) {
+        return;
+      }
+
+      const key = e.key;
+      if (/^[0-9]$/.test(key)) {
+        e.preventDefault();
+        scPress(key);
+      } else if (key === '+' || key === '-' || key === '*' || key === '/' || key === '%' || key === '^' || key === '(' || key === ')' || key === '.') {
+        e.preventDefault();
+        scPress(key);
+      } else if (key === 'Enter' || key === '=') {
+        e.preventDefault();
+        scEquals();
+      } else if (key === 'Backspace') {
+        e.preventDefault();
+        scBackspace();
+      } else if (key === 'Escape' || key.toLowerCase() === 'c') {
+        e.preventDefault();
+        scClear();
+      }
+    });
+  }
+}
+
+function scPress(val) {
+  if (_scState.justEvaluated) {
+    if (['+', '-', '*', '/', '^', '%'].includes(val)) {
+      // Continue chaining calculation
+    } else {
+      _scState.expr = '';
+    }
+    _scState.justEvaluated = false;
+  }
+  _scState.expr += val;
+  scUpdateDisplay();
+}
+
+function scFunc(fnName) {
+  if (_scState.justEvaluated) {
+    _scState.expr = '';
+    _scState.justEvaluated = false;
+  }
+  _scState.expr += fnName;
+  scUpdateDisplay();
+}
+
+function scClear() {
+  _scState.expr = '';
+  _scState.justEvaluated = false;
+  const hist = document.getElementById('sc_history');
+  if (hist) hist.textContent = '';
+  scUpdateDisplay();
+}
+
+function scBackspace() {
+  if (_scState.justEvaluated) {
+    _scState.justEvaluated = false;
+  }
+  const multiCharTokens = ['asin(', 'acos(', 'atan(', 'sqrt(', 'fact(', 'sin(', 'cos(', 'tan(', 'log(', 'abs(', 'ln(', '10^('];
+  let removed = false;
+  for (const tok of multiCharTokens) {
+    if (_scState.expr.endsWith(tok)) {
+      _scState.expr = _scState.expr.slice(0, -tok.length);
+      removed = true;
+      break;
+    }
+  }
+  if (!removed && _scState.expr.length > 0) {
+    _scState.expr = _scState.expr.slice(0, -1);
+  }
+  scUpdateDisplay();
+}
+
+function scToggleSign() {
+  if (!_scState.expr) return;
+  if (/^-?\d+(\.\d+)?$/.test(_scState.expr)) {
+    if (_scState.expr.startsWith('-')) {
+      _scState.expr = _scState.expr.slice(1);
+    } else {
+      _scState.expr = '-' + _scState.expr;
+    }
+  } else {
+    _scState.expr = `-(${_scState.expr})`;
+  }
+  scUpdateDisplay();
+}
+
+function scToggleAngle() {
+  _scState.mode = _scState.mode === 'DEG' ? 'RAD' : 'DEG';
+  scUpdateDisplay();
+  showToast(`Angle Mode: ${_scState.mode}`);
+}
+
+function scMem(action) {
+  try {
+    let currentVal = 0;
+    if (_scState.expr) {
+      const evalRes = scEvaluate(_scState.expr, _scState.mode);
+      if (evalRes !== 'Error') currentVal = parseFloat(evalRes) || 0;
+    }
+    if (action === 'MC') {
+      _scState.memory = 0;
+      showToast('Memory Cleared (MC)');
+    } else if (action === 'MR') {
+      scPress(_scState.memory.toString());
+      showToast(`Recalled Memory: ${_scState.memory}`);
+    } else if (action === 'M+') {
+      _scState.memory = Math.round((_scState.memory + currentVal) * 1e12) / 1e12;
+      showToast(`Added to Memory: ${_scState.memory}`);
+    } else if (action === 'M-') {
+      _scState.memory = Math.round((_scState.memory - currentVal) * 1e12) / 1e12;
+      showToast(`Subtracted from Memory: ${_scState.memory}`);
+    }
+    scUpdateDisplay();
+  } catch (err) {
+    showToast('Memory operation error');
+  }
+}
+
+function scEquals() {
+  if (!_scState.expr || !_scState.expr.trim()) return;
+
+  // Auto-balance open parentheses
+  let openCount = (_scState.expr.match(/\(/g) || []).length;
+  let closeCount = (_scState.expr.match(/\)/g) || []).length;
+  while (openCount > closeCount) {
+    _scState.expr += ')';
+    closeCount++;
+  }
+
+  const hist = document.getElementById('sc_history');
+  const prevExpr = _scState.expr;
+
+  try {
+    const res = scEvaluate(_scState.expr, _scState.mode);
+    if (hist) hist.textContent = `${prevExpr} =`;
+    const disp = document.getElementById('sc_display');
+    if (disp) disp.value = res;
+    _scState.expr = res === 'Error' ? '' : res;
+    _scState.justEvaluated = true;
+  } catch (err) {
+    if (hist) hist.textContent = `${prevExpr} =`;
+    const disp = document.getElementById('sc_display');
+    if (disp) disp.value = 'Error';
+    _scState.expr = '';
+    _scState.justEvaluated = true;
+  }
+}
+
+function scCopyResult() {
+  const disp = document.getElementById('sc_display');
+  const val = disp ? disp.value : '';
+  if (!val || val === '0' || val === 'Error') {
+    showToast('No result to copy');
+    return;
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(val).then(() => {
+      showToast('✓ Result copied to clipboard!');
+    }).catch(() => {
+      showToast(`Copied: ${val}`);
+    });
+  } else {
+    showToast(`Result: ${val}`);
+  }
+}
+
 /* ── Deep Link / Route Handler ── */
 const SLUG_TO_TOOL = {
   'compound-interest-calculator': 'compound',
@@ -7984,6 +9778,39 @@ const SLUG_TO_TOOL = {
   'pdf-merger': 'pdfmerge',
   'pdf-compressor': 'pdfcompress',
   'qr-code-generator': 'qrcode',
+  'fixed-deposit-calculator': 'fd',
+  'fd-calculator': 'fd',
+  'fd': 'fd',
+  'ppf-calculator': 'ppf',
+  'public-provident-fund-calculator': 'ppf',
+  'ppf': 'ppf',
+  'lumpsum-calculator': 'lumpsum',
+  'lump-sum-calculator': 'lumpsum',
+  'lumpsum': 'lumpsum',
+  'word-counter': 'wordcount',
+  'character-counter': 'wordcount',
+  'word-and-character-counter': 'wordcount',
+  'wordcount': 'wordcount',
+  'password-generator': 'password',
+  'strong-password-generator': 'password',
+  'password': 'password',
+  'case-converter': 'caseconverter',
+  'text-case-converter': 'caseconverter',
+  'caseconverter': 'caseconverter',
+  'base64-encode-decode': 'base64',
+  'base64-converter': 'base64',
+  'base64': 'base64',
+  'json-formatter': 'jsonformat',
+  'json-validator': 'jsonformat',
+  'jsonformat': 'jsonformat',
+  'color-picker': 'colorpicker',
+  'color-converter': 'colorpicker',
+  'colorpicker': 'colorpicker',
+  'markdown-previewer': 'markdown',
+  'markdown-to-html': 'markdown',
+  'markdown': 'markdown',
+  'scientific-calculator': 'scientific',
+  'scientific': 'scientific',
 };
 
 (function checkRoute() {

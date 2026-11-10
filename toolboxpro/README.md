@@ -57,6 +57,6 @@ toolboxpro/
 ├── manifest.json   ← PWA manifest
 ├── sw.js           ← Service Worker (cache-first)
 ├── robots.txt      ← Crawler rules
-├── sitemap.xml     ← 14 URLs for Google indexing
+├── sitemap.xml     ← 33+ Tool URLs for Google indexing
 └── icons/          ← Add icon-192.png, icon-512.png
 ```
