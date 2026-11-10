@@ -503,8 +503,10 @@ let previousFocus = null; // for restoring focus on modal close
 ───────────────────────────────────────── */
 function applyTheme(dark) {
   document.body.classList.toggle('dark', dark);
-  themeBtn.textContent = dark ? '☀' : '☾';
-  themeBtn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+  if (themeBtn) {
+    themeBtn.textContent = dark ? '☀' : '☾';
+    themeBtn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+  }
   try { localStorage.setItem('tbp-theme', dark ? 'dark' : 'light'); } catch (_) {}
 }
 
@@ -516,12 +518,14 @@ function applyTheme(dark) {
   applyTheme(saved === 'dark');
 })();
 
-themeBtn.addEventListener('click', () => {
-  themeBtn.classList.remove('theme-spin');
-  void themeBtn.offsetWidth;
-  themeBtn.classList.add('theme-spin');
-  applyTheme(!document.body.classList.contains('dark'));
-});
+if (themeBtn) {
+  themeBtn.addEventListener('click', () => {
+    themeBtn.classList.remove('theme-spin');
+    void themeBtn.offsetWidth;
+    themeBtn.classList.add('theme-spin');
+    applyTheme(!document.body.classList.contains('dark'));
+  });
+}
 
 /* ─────────────────────────────────────────
    Interactive Background Canvas
@@ -10265,8 +10269,6 @@ function playMateSound(type) {
 }
 
 function initDesktopMate() {
-  if (document.getElementById('desktopmate-root')) return;
-
   // Load preferences
   try {
     const savedId = localStorage.getItem('tbp_mate_id');
@@ -10278,41 +10280,49 @@ function initDesktopMate() {
   } catch (_) {}
 
   // 1. Minimized floating pill
-  const pill = document.createElement('div');
-  pill.id = 'mate-min-pill';
-  pill.className = `mate-minimized-pill ${_mateState.isMinimized ? '' : 'hidden'}`;
-  pill.setAttribute('role', 'button');
-  pill.setAttribute('aria-label', 'Show Companion');
-  pill.innerHTML = `<span id="mate-pill-icon">🐾</span> <span id="mate-pill-name">Companion</span>`;
+  let pill = document.getElementById('mate-min-pill');
+  if (!pill) {
+    pill = document.createElement('div');
+    pill.id = 'mate-min-pill';
+    pill.className = `mate-minimized-pill ${_mateState.isMinimized ? '' : 'hidden'}`;
+    pill.setAttribute('role', 'button');
+    pill.setAttribute('aria-label', 'Show Companion');
+    pill.innerHTML = `<span id="mate-pill-icon">🐾</span> <span id="mate-pill-name">Companion</span>`;
+    document.body.appendChild(pill);
+  } else {
+    pill.classList.toggle('hidden', !_mateState.isMinimized);
+  }
   pill.onclick = () => mateSetMinimized(false);
-  document.body.appendChild(pill);
 
   // 2. Main DesktopMate Container
-  const container = document.createElement('div');
-  container.id = 'desktopmate-root';
-  container.className = `desktopmate-container ${_mateState.isMinimized ? 'hidden' : ''}`;
-  container.setAttribute('aria-label', 'Interactive Desktop Companion');
+  let container = document.getElementById('desktopmate-root');
+  if (!container) {
+    container = document.createElement('div');
+    container.id = 'desktopmate-root';
+    container.className = `desktopmate-container ${_mateState.isMinimized ? 'hidden' : ''}`;
+    container.setAttribute('aria-label', 'Interactive Desktop Companion');
+    container.innerHTML = `
+      <!-- Speech Bubble -->
+      <div id="mate-speech-bubble" class="mate-bubble" role="status" aria-live="polite">
+        <button type="button" class="mate-bubble-close" onclick="mateHideBubble()" aria-label="Close message">✕</button>
+        <p id="mate-speech-text" class="mate-bubble-text"></p>
+      </div>
 
-  container.innerHTML = `
-    <!-- Speech Bubble -->
-    <div id="mate-speech-bubble" class="mate-bubble" role="status" aria-live="polite">
-      <button type="button" class="mate-bubble-close" onclick="mateHideBubble()" aria-label="Close message">✕</button>
-      <p id="mate-speech-text" class="mate-bubble-text"></p>
-    </div>
+      <!-- Quick Hover Toolbar -->
+      <div class="mate-quick-bar" role="toolbar" aria-label="Companion Quick Actions">
+        <button type="button" class="mate-btn-action" onclick="openMateModal()" title="Change Companion (Choose avatar)">🎭</button>
+        <button type="button" class="mate-btn-action" onclick="mateSpeakNextTip()" title="Say helpful tip">💡</button>
+        <button type="button" class="mate-btn-action" id="mate-btn-sleep" onclick="mateToggleSleep()" title="Sleep / Wake">💤</button>
+        <button type="button" class="mate-btn-action" onclick="mateSetMinimized(true)" title="Minimize Companion">✕</button>
+      </div>
 
-    <!-- Quick Hover Toolbar -->
-    <div class="mate-quick-bar" role="toolbar" aria-label="Companion Quick Actions">
-      <button type="button" class="mate-btn-action" onclick="openMateModal()" title="Change Companion (Choose avatar)">🎭</button>
-      <button type="button" class="mate-btn-action" onclick="mateSpeakNextTip()" title="Say helpful tip">💡</button>
-      <button type="button" class="mate-btn-action" id="mate-btn-sleep" onclick="mateToggleSleep()" title="Sleep / Wake">💤</button>
-      <button type="button" class="mate-btn-action" onclick="mateSetMinimized(true)" title="Minimize Companion">✕</button>
-    </div>
-
-    <!-- The Character Element -->
-    <div id="mate-char" class="mate-character mate-anim-idle" title="Click me to play!"></div>
-  `;
-
-  document.body.appendChild(container);
+      <!-- The Character Element -->
+      <div id="mate-char" class="mate-character mate-anim-idle" title="Click me to play!"></div>
+    `;
+    document.body.appendChild(container);
+  } else {
+    container.classList.toggle('hidden', _mateState.isMinimized);
+  }
 
   // 3. Companion Selection Modal
   initMateModal();
@@ -10323,10 +10333,12 @@ function initDesktopMate() {
   // Setup Dragging
   initMateDraggable(container);
 
-  // Character Click Event
+  // Character Click Event (both click and touch interaction support)
   const charEl = document.getElementById('mate-char');
-  if (charEl) {
+  if (charEl && !charEl.dataset.mateBound) {
+    charEl.dataset.mateBound = 'true';
     charEl.addEventListener('click', (e) => {
+      e.stopPropagation();
       if (container.dataset.dragged === 'true') {
         container.dataset.dragged = 'false';
         return;
@@ -10335,15 +10347,28 @@ function initDesktopMate() {
     });
   }
 
+  // Bind navbar button if present
+  const navBtn = document.getElementById('mate-nav-btn');
+  if (navBtn && !navBtn.dataset.mateBound) {
+    navBtn.dataset.mateBound = 'true';
+    navBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      openMateModal();
+    });
+  }
+
   // Periodic subtle idle tips (every 45-60s)
-  setInterval(() => {
-    if (!_mateState.isSleeping && _mateState.tips && !_mateState.isMinimized) {
-      const bubble = document.getElementById('mate-speech-bubble');
-      if (bubble && !bubble.classList.contains('is-visible') && Math.random() < 0.4) {
-        mateSpeakNextTip(true);
+  if (!window._mateIntervalStarted) {
+    window._mateIntervalStarted = true;
+    setInterval(() => {
+      if (!_mateState.isSleeping && _mateState.tips && !_mateState.isMinimized) {
+        const bubble = document.getElementById('mate-speech-bubble');
+        if (bubble && !bubble.classList.contains('is-visible') && Math.random() < 0.4) {
+          mateSpeakNextTip(true);
+        }
       }
-    }
-  }, 45000);
+    }, 45000);
+  }
 }
 
 function renderMateCharacter() {
@@ -10462,6 +10487,9 @@ function mateSetMinimized(min) {
 }
 
 function initMateDraggable(el) {
+  if (el.dataset.dragBound === 'true') return;
+  el.dataset.dragBound = 'true';
+
   let isDown = false;
   let startX = 0, startY = 0;
   let initLeft = 0, initTop = 0;
@@ -10485,10 +10513,13 @@ function initMateDraggable(el) {
     const dx = clientX - startX;
     const dy = clientY - startY;
 
-    if (Math.hypot(dx, dy) > 5) {
+    // Movement threshold (12px) prevents accidental drag detection on touch taps
+    if (Math.hypot(dx, dy) > 12) {
       hasMoved = true;
       el.dataset.dragged = 'true';
     }
+
+    if (!hasMoved) return;
 
     let newLeft = initLeft + dx;
     let newTop = initTop + dy;
@@ -10509,6 +10540,9 @@ function initMateDraggable(el) {
     if (!isDown) return;
     isDown = false;
     el.classList.remove('is-dragging');
+    if (!hasMoved) {
+      el.dataset.dragged = 'false';
+    }
   }
 
   el.addEventListener('mousedown', (e) => {
@@ -10530,70 +10564,104 @@ function initMateDraggable(el) {
 
 /* ── Modal: Choose Your DesktopMate Companion ── */
 function initMateModal() {
-  if (document.getElementById('mate-selector-modal')) return;
+  let modal = document.getElementById('mate-selector-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'mate-selector-modal';
+    modal.className = 'mate-modal-backdrop';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Choose Desktop Companion');
 
-  const modal = document.createElement('div');
-  modal.id = 'mate-selector-modal';
-  modal.className = 'mate-modal-backdrop';
-  modal.setAttribute('role', 'dialog');
-  modal.setAttribute('aria-modal', 'true');
-  modal.setAttribute('aria-label', 'Choose Desktop Companion');
-
-  modal.innerHTML = `
-    <div class="mate-modal-card">
-      <div class="mate-modal-header">
-        <div>
-          <h3 class="mate-modal-title">🎮 Choose Your DesktopMate</h3>
-          <p class="mate-modal-subtitle">Pick an interactive animated companion to accompany you while using ToolBoxPro!</p>
-        </div>
-        <button type="button" class="mate-modal-close" onclick="closeMateModal()" aria-label="Close selector">✕</button>
-      </div>
-
-      <div class="mate-grid">
-        ${Object.values(DESKTOP_MATES).map(m => `
-          <div class="mate-card ${m.id === _mateState.currentId ? 'is-active' : ''}" onclick="selectMate('${m.id}')" data-mate="${m.id}">
-            <div class="mate-card-preview">${m.svg}</div>
-            <div class="mate-card-name">${m.name}</div>
-            <div class="mate-card-tag">${m.tag}</div>
-            <p class="mate-card-desc">${m.desc}</p>
-            <button type="button" class="mate-card-btn">${m.id === _mateState.currentId ? '✓ Active Companion' : 'Choose Me'}</button>
+    modal.innerHTML = `
+      <div class="mate-modal-card">
+        <div class="mate-modal-header">
+          <div>
+            <h3 class="mate-modal-title">🎮 Choose Your DesktopMate</h3>
+            <p class="mate-modal-subtitle">Pick an interactive animated companion to accompany you while using ToolBoxPro!</p>
           </div>
-        `).join('')}
+          <button type="button" class="mate-modal-close" onclick="closeMateModal()" aria-label="Close selector">✕</button>
+        </div>
+
+        <div class="mate-grid" id="mate-modal-grid">
+          ${Object.values(DESKTOP_MATES).map(m => `
+            <div class="mate-card ${m.id === _mateState.currentId ? 'is-active' : ''}" onclick="selectMate('${m.id}')" data-mate="${m.id}">
+              <div class="mate-card-preview">${m.svg}</div>
+              <div class="mate-card-name">${m.name}</div>
+              <div class="mate-card-tag">${m.tag}</div>
+              <p class="mate-card-desc">${m.desc}</p>
+              <button type="button" class="mate-card-btn">${m.id === _mateState.currentId ? '✓ Active Companion' : 'Choose Me'}</button>
+            </div>
+          `).join('')}
+        </div>
+
+        <div class="mate-settings-row">
+          <span>Sound Effects (Chirps &amp; Purrs)</span>
+          <label class="mate-toggle">
+            <input type="checkbox" id="mate-toggle-sound" ${_mateState.sound ? 'checked' : ''} onchange="mateToggleSetting('sound', this.checked)"/>
+            <span style="font-weight:600;">Enable audio</span>
+          </label>
+        </div>
+
+        <div class="mate-settings-row">
+          <span>Helpful Tool Shortcuts &amp; Tips</span>
+          <label class="mate-toggle">
+            <input type="checkbox" id="mate-toggle-tips" ${_mateState.tips ? 'checked' : ''} onchange="mateToggleSetting('tips', this.checked)"/>
+            <span style="font-weight:600;">Show speech bubbles</span>
+          </label>
+        </div>
       </div>
+    `;
 
-      <div class="mate-settings-row">
-        <span>Sound Effects (Chirps &amp; Purrs)</span>
-        <label class="mate-toggle">
-          <input type="checkbox" id="mate-toggle-sound" ${_mateState.sound ? 'checked' : ''} onchange="mateToggleSetting('sound', this.checked)"/>
-          <span style="font-weight:600;">Enable audio</span>
-        </label>
-      </div>
+    document.body.appendChild(modal);
+  }
 
-      <div class="mate-settings-row">
-        <span>Helpful Tool Shortcuts &amp; Tips</span>
-        <label class="mate-toggle">
-          <input type="checkbox" id="mate-toggle-tips" ${_mateState.tips ? 'checked' : ''} onchange="mateToggleSetting('tips', this.checked)"/>
-          <span style="font-weight:600;">Show speech bubbles</span>
-        </label>
-      </div>
-    </div>
-  `;
-
-  modal.addEventListener('click', (e) => {
-    if (e.target === modal) closeMateModal();
-  });
-
-  document.body.appendChild(modal);
+  // Ensure click outside closes modal
+  if (!modal.dataset.bound) {
+    modal.dataset.bound = 'true';
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) closeMateModal();
+    });
+  }
 }
 
 function openMateModal() {
-  const modal = document.getElementById('mate-selector-modal');
-  if (modal) modal.classList.add('is-open');
+  let modal = document.getElementById('mate-selector-modal');
+  if (!modal) {
+    initMateModal();
+    modal = document.getElementById('mate-selector-modal');
+  }
+  if (modal) {
+    // Sync active card in modal
+    modal.querySelectorAll('.mate-card').forEach(card => {
+      const isThis = card.dataset.mate === _mateState.currentId;
+      card.classList.toggle('is-active', isThis);
+      const btn = card.querySelector('.mate-card-btn');
+      if (btn) btn.textContent = isThis ? '✓ Active Companion' : 'Choose Me';
+    });
+    // Sync checkboxes
+    const soundCb = document.getElementById('mate-toggle-sound');
+    if (soundCb) soundCb.checked = _mateState.sound;
+    const tipsCb = document.getElementById('mate-toggle-tips');
+    if (tipsCb) tipsCb.checked = _mateState.tips;
+
+    modal.style.display = 'flex';
+    void modal.offsetWidth;
+    modal.classList.add('is-open');
+    playMateSound('chirp');
+  }
 }
 
 function closeMateModal() {
   const modal = document.getElementById('mate-selector-modal');
-  if (modal) modal.classList.remove('is-open');
+  if (modal) {
+    modal.classList.remove('is-open');
+    setTimeout(() => {
+      if (!modal.classList.contains('is-open')) {
+        modal.style.display = 'none';
+      }
+    }, 250);
+  }
 }
 
 function selectMate(id) {
@@ -10624,6 +10692,18 @@ function mateToggleSetting(key, val) {
   try { localStorage.setItem(`tbp_mate_${key}`, val ? 'true' : 'false'); } catch (_) {}
   showToast(`Companion ${key} ${val ? 'enabled' : 'disabled'}`);
 }
+
+// Global window exports
+window.openMateModal = openMateModal;
+window.closeMateModal = closeMateModal;
+window.selectMate = selectMate;
+window.mateInteract = mateInteract;
+window.mateSpeakNextTip = mateSpeakNextTip;
+window.mateToggleSleep = mateToggleSleep;
+window.mateSetMinimized = mateSetMinimized;
+window.mateHideBubble = mateHideBubble;
+window.mateToggleSetting = mateToggleSetting;
+window.initDesktopMate = initDesktopMate;
 
 // Auto-initialize DesktopMate
 if (document.readyState === 'loading') {

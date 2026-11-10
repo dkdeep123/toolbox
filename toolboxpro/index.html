@@ -74,7 +74,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap"/>
 
   <!-- ── Styles ── -->
-  <link rel="stylesheet" href="styles.css?v=35"/>
+  <link rel="stylesheet" href="styles.css?v=50"/>
 
   <!-- ── Structured Data: Organization ── -->
   <script type="application/ld+json">
@@ -190,7 +190,7 @@
     <a href="/contact">Contact</a>
   </nav>
   <div class="nav-actions">
-    <button type="button" class="icon-btn" onclick="openMateModal()" aria-label="DesktopMate Companions" title="Choose Desktop Companion">🐾</button>
+    <button type="button" class="icon-btn" id="mate-nav-btn" onclick="openMateModal()" aria-label="DesktopMate Companions" title="Choose Desktop Companion">🐾</button>
     <button id="theme" class="icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button>
   </div>
 </header>
@@ -1126,7 +1126,120 @@
 <!-- ── Toast notification ── -->
 <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
+<!-- ── DesktopMate Companion & Selector Modal Pre-Render ── -->
+<div id="mate-min-pill" class="mate-minimized-pill hidden" role="button" aria-label="Show Companion" onclick="mateSetMinimized(false)">
+  <span id="mate-pill-icon">🐾</span> <span id="mate-pill-name">Companion</span>
+</div>
+
+<div id="desktopmate-root" class="desktopmate-container" aria-label="Interactive Desktop Companion">
+  <!-- Speech Bubble -->
+  <div id="mate-speech-bubble" class="mate-bubble" role="status" aria-live="polite">
+    <button type="button" class="mate-bubble-close" onclick="mateHideBubble()" aria-label="Close message">✕</button>
+    <p id="mate-speech-text" class="mate-bubble-text">Hi! Click me to interact or choose your companion! 🐾</p>
+  </div>
+
+  <!-- Quick Hover Toolbar -->
+  <div class="mate-quick-bar" role="toolbar" aria-label="Companion Quick Actions">
+    <button type="button" class="mate-btn-action" onclick="openMateModal()" title="Change Companion (Choose avatar)">🎭</button>
+    <button type="button" class="mate-btn-action" onclick="mateSpeakNextTip()" title="Say helpful tip">💡</button>
+    <button type="button" class="mate-btn-action" id="mate-btn-sleep" onclick="mateToggleSleep()" title="Sleep / Wake">💤</button>
+    <button type="button" class="mate-btn-action" onclick="mateSetMinimized(true)" title="Minimize Companion">✕</button>
+  </div>
+
+  <!-- The Character Element -->
+  <div id="mate-char" class="mate-character mate-anim-idle" title="Click me to play!">
+    <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M48 54C54 54 60 48 60 40C60 36 56 34 54 36C52 38 54 44 48 46" stroke="#fb923c" stroke-width="4.5" stroke-linecap="round"/><ellipse cx="36" cy="46" rx="20" ry="16" fill="#ffedd5"/><ellipse cx="36" cy="46" rx="14" ry="11" fill="#fff"/><path d="M42 34C48 34 52 40 52 46C52 50 48 52 44 50C44 44 42 38 42 34Z" fill="#fb923c"/><circle cx="36" cy="28" r="17" fill="#ffedd5"/><path d="M41 12C46 14 51 22 51 28C48 24 43 20 41 12Z" fill="#fb923c"/><polygon points="21,20 27,8 33,20" fill="#fb923c"/><polygon points="23,19 27,11 31,19" fill="#f472b6"/><polygon points="39,20 45,8 51,20" fill="#fb923c"/><polygon points="41,19 45,11 49,19" fill="#f472b6"/><circle cx="26" cy="33" r="2.5" fill="#fbcfe8"/><circle cx="46" cy="33" r="2.5" fill="#fbcfe8"/><ellipse cx="29" cy="27" rx="2.5" ry="3.5" fill="#1e293b"/><circle cx="28" cy="25.5" r="1.2" fill="#fff"/><ellipse cx="43" cy="27" rx="2.5" ry="3.5" fill="#1e293b"/><circle cx="42" cy="25.5" r="1.2" fill="#fff"/><polygon points="35,30 37,30 36,31.5" fill="#f472b6"/><path d="M33 32.5C34.5 34 36 33.5 36 32.5C36 33.5 37.5 34 39 32.5" stroke="#1e293b" stroke-width="1.2" stroke-linecap="round"/><line x1="16" y1="28" x2="23" y2="29" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round"/><line x1="16" y1="32" x2="23" y2="31" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round"/><line x1="56" y1="28" x2="49" y2="29" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round"/><line x1="56" y1="32" x2="49" y2="31" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round"/><path d="M26 39C30 43 42 43 46 39" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/><circle cx="36" cy="42" r="2.5" fill="#fbbf24"/><ellipse cx="30" cy="56" rx="4" ry="3" fill="#fff" stroke="#fed7aa" stroke-width="1"/><ellipse cx="42" cy="56" rx="4" ry="3" fill="#fff" stroke="#fed7aa" stroke-width="1"/></svg>
+  </div>
+</div>
+
+<!-- Modal: Choose Your DesktopMate Companion -->
+<div id="mate-selector-modal" class="mate-modal-backdrop" role="dialog" aria-modal="true" aria-label="Choose Desktop Companion">
+  <div class="mate-modal-card">
+    <div class="mate-modal-header">
+      <div>
+        <h3 class="mate-modal-title">🎮 Choose Your DesktopMate</h3>
+        <p class="mate-modal-subtitle">Pick an interactive animated companion to accompany you while using ToolBoxPro!</p>
+      </div>
+      <button type="button" class="mate-modal-close" onclick="closeMateModal()" aria-label="Close selector">✕</button>
+    </div>
+
+    <div class="mate-grid" id="mate-modal-grid">
+      <!-- Mochi / Cat -->
+      <div class="mate-card is-active" onclick="selectMate('neko')" data-mate="neko">
+        <div class="mate-card-preview">
+          <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M48 54C54 54 60 48 60 40C60 36 56 34 54 36C52 38 54 44 48 46" stroke="#fb923c" stroke-width="4.5" stroke-linecap="round"/><ellipse cx="36" cy="46" rx="20" ry="16" fill="#ffedd5"/><ellipse cx="36" cy="46" rx="14" ry="11" fill="#fff"/><path d="M42 34C48 34 52 40 52 46C52 50 48 52 44 50C44 44 42 38 42 34Z" fill="#fb923c"/><circle cx="36" cy="28" r="17" fill="#ffedd5"/><path d="M41 12C46 14 51 22 51 28C48 24 43 20 41 12Z" fill="#fb923c"/><polygon points="21,20 27,8 33,20" fill="#fb923c"/><polygon points="23,19 27,11 31,19" fill="#f472b6"/><polygon points="39,20 45,8 51,20" fill="#fb923c"/><polygon points="41,19 45,11 49,19" fill="#f472b6"/><circle cx="26" cy="33" r="2.5" fill="#fbcfe8"/><circle cx="46" cy="33" r="2.5" fill="#fbcfe8"/><ellipse cx="29" cy="27" rx="2.5" ry="3.5" fill="#1e293b"/><circle cx="28" cy="25.5" r="1.2" fill="#fff"/><ellipse cx="43" cy="27" rx="2.5" ry="3.5" fill="#1e293b"/><circle cx="42" cy="25.5" r="1.2" fill="#fff"/><polygon points="35,30 37,30 36,31.5" fill="#f472b6"/><path d="M33 32.5C34.5 34 36 33.5 36 32.5C36 33.5 37.5 34 39 32.5" stroke="#1e293b" stroke-width="1.2" stroke-linecap="round"/><line x1="16" y1="28" x2="23" y2="29" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round"/><line x1="16" y1="32" x2="23" y2="31" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round"/><line x1="56" y1="28" x2="49" y2="29" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round"/><line x1="56" y1="32" x2="49" y2="31" stroke="#94a3b8" stroke-width="1.2" stroke-linecap="round"/><path d="M26 39C30 43 42 43 46 39" stroke="#ef4444" stroke-width="2.5" stroke-linecap="round"/><circle cx="36" cy="42" r="2.5" fill="#fbbf24"/><ellipse cx="30" cy="56" rx="4" ry="3" fill="#fff" stroke="#fed7aa" stroke-width="1"/><ellipse cx="42" cy="56" rx="4" ry="3" fill="#fff" stroke="#fed7aa" stroke-width="1"/></svg>
+        </div>
+        <div class="mate-card-name">Mochi</div>
+        <div class="mate-card-tag">Productivity Cat</div>
+        <p class="mate-card-desc">Purrs when you calculate, keeps you company while you work, and loves shortcuts.</p>
+        <button type="button" class="mate-card-btn">✓ Active Companion</button>
+      </div>
+
+      <!-- Byte / Robot -->
+      <div class="mate-card" onclick="selectMate('robot')" data-mate="robot">
+        <div class="mate-card-preview">
+          <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg"><ellipse cx="36" cy="59" rx="10" ry="3" fill="rgba(14, 165, 233, 0.4)"/><ellipse cx="36" cy="58" rx="6" ry="2" fill="#38bdf8"/><rect x="10" y="38" width="6" height="12" rx="3" fill="#0284c7"/><circle cx="13" cy="44" r="1.5" fill="#38bdf8"/><rect x="56" y="38" width="6" height="12" rx="3" fill="#0284c7"/><circle cx="59" cy="44" r="1.5" fill="#38bdf8"/><rect x="22" y="34" width="28" height="22" rx="8" fill="#0284c7"/><rect x="26" y="38" width="20" height="14" rx="4" fill="#0369a1"/><circle cx="36" cy="45" r="3" fill="#38bdf8"/><line x1="36" y1="12" x2="36" y2="18" stroke="#0284c7" stroke-width="2.5" stroke-linecap="round"/><circle cx="36" cy="10" r="3.5" fill="#f59e0b"/><circle cx="36" cy="10" r="1.5" fill="#fef3c7"/><rect x="18" y="16" width="36" height="24" rx="7" fill="#0f172a" stroke="#0284c7" stroke-width="2.5"/><ellipse cx="29" cy="27" rx="3" ry="3.5" fill="#38bdf8"/><circle cx="28" cy="26" r="1" fill="#fff"/><ellipse cx="43" cy="27" rx="3" ry="3.5" fill="#38bdf8"/><circle cx="42" cy="26" r="1" fill="#fff"/><path d="M33 32H39" stroke="#38bdf8" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </div>
+        <div class="mate-card-name">Byte</div>
+        <div class="mate-card-tag">AI Cyberbot</div>
+        <p class="mate-card-desc">Equipped with digital telemetry, tool shortcuts, and sub-millisecond computing.</p>
+        <button type="button" class="mate-card-btn">Choose Me</button>
+      </div>
+
+      <!-- Sparky / Fox -->
+      <div class="mate-card" onclick="selectMate('fox')" data-mate="fox">
+        <div class="mate-card-preview">
+          <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M42 50C52 46 62 38 58 26C54 22 48 28 46 36C44 42 42 46 42 50Z" fill="#ea580c"/><path d="M58 26C55 24 51 27 50 31C53 31 56 30 58 26Z" fill="#ffffff"/><ellipse cx="36" cy="46" rx="16" ry="14" fill="#ea580c"/><path d="M32 38C34 44 38 44 40 38C40 44 36 54 32 38Z" fill="#ffffff"/><polygon points="20,24 25,10 32,22" fill="#ea580c"/><polygon points="23,22 25,12 29,20" fill="#1e293b"/><polygon points="40,22 47,10 52,24" fill="#ea580c"/><polygon points="43,20 47,12 49,22" fill="#1e293b"/><polygon points="18,26 54,26 36,46" fill="#ea580c"/><polygon points="21,27 36,44 26,38" fill="#ffffff"/><polygon points="51,27 36,44 46,38" fill="#ffffff"/><circle cx="36" cy="43.5" r="2.2" fill="#0f172a"/><path d="M26 29C28 27 31 27 33 29" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/><path d="M39 29C41 27 44 27 46 29" stroke="#0f172a" stroke-width="2" stroke-linecap="round"/><ellipse cx="31" cy="56" rx="3.5" ry="2.5" fill="#1e293b"/><ellipse cx="41" cy="56" rx="3.5" ry="2.5" fill="#1e293b"/></svg>
+        </div>
+        <div class="mate-card-name">Sparky</div>
+        <div class="mate-card-tag">Agile Fox</div>
+        <p class="mate-card-desc">Clever companion who loves discovering shortcuts and celebrating wins.</p>
+        <button type="button" class="mate-card-btn">Choose Me</button>
+      </div>
+
+      <!-- Pixel / Dino -->
+      <div class="mate-card" onclick="selectMate('dino')" data-mate="dino">
+        <div class="mate-card-preview">
+          <svg viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg"><polygon points="32,15 36,11 36,15" fill="#047857"/><polygon points="26,22 30,18 30,22" fill="#047857"/><polygon points="23,30 27,26 27,30" fill="#047857"/><polygon points="22,39 26,35 26,39" fill="#047857"/><path d="M24 45C16 46 12 40 10 34C14 36 18 42 24 45Z" fill="#10b981"/><rect x="24" y="24" width="26" height="26" rx="6" fill="#10b981"/><rect x="30" y="14" width="28" height="20" rx="5" fill="#10b981"/><rect x="46" y="22" width="14" height="12" rx="3" fill="#10b981"/><rect x="52" y="28" width="3" height="3" fill="#ffffff"/><rect x="56" y="28" width="3" height="3" fill="#ffffff"/><rect x="42" y="18" width="5" height="5" fill="#064e3b"/><rect x="43" y="19" width="2" height="2" fill="#ffffff"/><rect x="42" y="38" width="8" height="3" rx="1.5" fill="#059669"/><rect x="32" y="32" width="12" height="14" rx="3" fill="#a7f3d0"/><rect x="30" y="48" width="5" height="10" rx="2" fill="#047857"/><rect x="28" y="56" width="9" height="3" rx="1" fill="#047857"/><rect x="41" y="48" width="5" height="10" rx="2" fill="#047857"/><rect x="39" y="56" width="9" height="3" rx="1" fill="#047857"/></svg>
+        </div>
+        <div class="mate-card-name">Pixel</div>
+        <div class="mate-card-tag">8-Bit Dino</div>
+        <p class="mate-card-desc">Retro pixel dinosaur from classic offline games. Jumps with joy!</p>
+        <button type="button" class="mate-card-btn">Choose Me</button>
+      </div>
+    </div>
+
+    <div class="mate-settings-row">
+      <span>Sound Effects (Chirps &amp; Purrs)</span>
+      <label class="mate-toggle">
+        <input type="checkbox" id="mate-toggle-sound" checked onchange="mateToggleSetting('sound', this.checked)"/>
+        <span style="font-weight:600;">Enable audio</span>
+      </label>
+    </div>
+
+    <div class="mate-settings-row">
+      <span>Helpful Tool Shortcuts &amp; Tips</span>
+      <label class="mate-toggle">
+        <input type="checkbox" id="mate-toggle-tips" checked onchange="mateToggleSetting('tips', this.checked)"/>
+        <span style="font-weight:600;">Show speech bubbles</span>
+      </label>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Fast inline shim so clicks on 🐾 immediately open modal even if app.js is still loading
+  window.openMateModal = window.openMateModal || function() {
+    var m = document.getElementById('mate-selector-modal');
+    if (m) { m.style.display = 'flex'; m.classList.add('is-open'); }
+  };
+  window.closeMateModal = window.closeMateModal || function() {
+    var m = document.getElementById('mate-selector-modal');
+    if (m) { m.classList.remove('is-open'); m.style.display = 'none'; }
+  };
+</script>
+
 <!-- ── Scripts ── -->
-<script src="app.js?v=35" defer referrerpolicy="no-referrer"></script>
+<script src="app.js?v=50" defer referrerpolicy="no-referrer"></script>
 </body>
 </html>
