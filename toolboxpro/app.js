@@ -7777,17 +7777,186 @@ function pcDownload() {
 }
 
 /* ─────────────────────────────────────────
-   PWA Service Worker Registration & Native App Install
+   PWA Service Worker Registration, Live Update Engine & Native App Install
 ───────────────────────────────────────── */
 let deferredInstallPrompt = null;
+let swRegistration = null;
+let isRefreshingAfterUpdate = false;
 
+// Reload smoothly when new Service Worker claims control
 if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (isRefreshingAfterUpdate) return;
+    isRefreshingAfterUpdate = true;
+    window.location.reload();
+  });
+}
+
+function initPwaServiceWorker() {
+  if (!('serviceWorker' in navigator)) return;
+
   window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').catch(() => {
-      // SW registration failed silently (dev env, non-https, etc.)
+    navigator.serviceWorker
+      .register('sw.js', { updateViaCache: 'none' })
+      .then((reg) => {
+        swRegistration = reg;
+
+        // 1. If an updated worker is already installed and waiting, notify the user
+        if (reg.waiting && navigator.serviceWorker.controller) {
+          showPwaUpdatePrompt(reg.waiting);
+        }
+
+        // 2. Listen for background updates while the app is active
+        reg.addEventListener('updatefound', () => {
+          const newWorker = reg.installing;
+          if (!newWorker) return;
+
+          newWorker.addEventListener('statechange', () => {
+            // Once the new worker is fully downloaded and installed, notify the user
+            if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+              showPwaUpdatePrompt(newWorker);
+            }
+          });
+        });
+
+        // 3. Periodic update check every 30 minutes for long-running / installed apps
+        setInterval(() => {
+          if (navigator.onLine && swRegistration) {
+            swRegistration.update().catch(() => {});
+          }
+        }, 30 * 60 * 1000);
+      })
+      .catch(() => {
+        // SW registration failed silently (dev env, non-https, etc.)
+      });
+
+    // 4. Check for updates whenever the user switches back to the app/tab
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'visible' && swRegistration && navigator.onLine) {
+        swRegistration.update().catch(() => {});
+      }
+    });
+
+    // 5. Check for updates immediately when device regains network connectivity
+    window.addEventListener('online', () => {
+      if (swRegistration) {
+        swRegistration.update().catch(() => {});
+      }
     });
   });
 }
+
+function showPwaUpdatePrompt(worker) {
+  if (document.getElementById('pwa-update-banner')) return;
+
+  const banner = document.createElement('div');
+  banner.id = 'pwa-update-banner';
+  banner.className = 'pwa-update-banner';
+  banner.setAttribute('role', 'alert');
+  banner.setAttribute('aria-live', 'polite');
+
+  banner.innerHTML = `
+    <div class="pwa-update-badge">
+      <span class="pwa-update-dot"></span>
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21.5 2v6h-6"></path>
+        <path d="M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
+      </svg>
+    </div>
+    <div class="pwa-update-content">
+      <div class="pwa-update-title">
+        <span>New Update Available!</span>
+        <span class="pwa-update-tag">v.New</span>
+      </div>
+      <div class="pwa-update-desc">
+        A new version of ToolBoxPro is ready. Update now to load the latest tools, improvements and bug fixes.
+      </div>
+    </div>
+    <div class="pwa-update-actions">
+      <button type="button" class="pwa-update-btn pwa-update-apply-btn" id="pwa-update-apply-btn">
+        <span>Update Now</span>
+      </button>
+      <button type="button" class="pwa-update-close-btn" id="pwa-update-dismiss-btn" title="Dismiss for now" aria-label="Dismiss update notification">
+        ✕
+      </button>
+    </div>
+  `;
+
+  document.body.appendChild(banner);
+
+  // Trigger smooth enter animation
+  requestAnimationFrame(() => {
+    banner.classList.add('is-visible');
+  });
+
+  const applyBtn = banner.querySelector('#pwa-update-apply-btn');
+  const dismissBtn = banner.querySelector('#pwa-update-dismiss-btn');
+
+  const executeUpdate = () => {
+    if (applyBtn) {
+      applyBtn.disabled = true;
+      applyBtn.innerHTML = '<span class="pwa-update-spinner"></span> Updating...';
+    }
+
+    // Activate the waiting Service Worker
+    try {
+      if (worker) {
+        worker.postMessage({ type: 'SKIP_WAITING' });
+      } else if (swRegistration && swRegistration.waiting) {
+        swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+    } catch (_) {}
+
+    // Fallback: force reload if controllerchange event doesn't fire within 1.2s
+    setTimeout(() => {
+      window.location.reload();
+    }, 1200);
+  };
+
+  if (applyBtn) {
+    applyBtn.addEventListener('click', executeUpdate);
+  }
+
+  if (dismissBtn) {
+    dismissBtn.addEventListener('click', () => {
+      banner.classList.remove('is-visible');
+      setTimeout(() => banner.remove(), 350);
+      showPwaUpdateNavPill(worker);
+    });
+  }
+}
+
+function showPwaUpdateNavPill(worker) {
+  if (document.getElementById('pwa-update-nav-pill')) return;
+  const navActions = document.querySelector('.nav-actions') || document.querySelector('.nav nav');
+  if (!navActions) return;
+
+  const pill = document.createElement('button');
+  pill.id = 'pwa-update-nav-pill';
+  pill.className = 'pwa-update-nav-pill';
+  pill.setAttribute('type', 'button');
+  pill.setAttribute('title', 'New update is ready. Click to update!');
+  pill.innerHTML = '<span class="pwa-pill-dot"></span> <span>Update Ready</span>';
+
+  pill.addEventListener('click', () => {
+    pill.disabled = true;
+    pill.innerHTML = '<span class="pwa-update-spinner"></span> Updating...';
+    try {
+      if (worker) {
+        worker.postMessage({ type: 'SKIP_WAITING' });
+      } else if (swRegistration && swRegistration.waiting) {
+        swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
+      }
+    } catch (_) {}
+    setTimeout(() => {
+      window.location.reload();
+    }, 1200);
+  });
+
+  navActions.prepend(pill);
+}
+
+initPwaServiceWorker();
 
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();

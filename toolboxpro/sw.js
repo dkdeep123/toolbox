@@ -8,15 +8,15 @@
    ─ Falls back to offline page on error
 ───────────────────────────────────────── */
 
-const CACHE_NAME = 'toolboxpro-v51';
+const CACHE_NAME = 'toolboxpro-v52';
 
 /** Trusted, explicitly-listed assets to pre-cache on install. */
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
   '/404.html',
-  '/styles.css?v=51',
-  '/app.js?v=51',
+  '/styles.css?v=52',
+  '/app.js?v=52',
   '/logo.svg',
   '/og-image.png',
   '/manifest.json',
@@ -108,7 +108,6 @@ self.addEventListener('install', (event) => {
     caches
       .open(CACHE_NAME)
       .then((cache) => cache.addAll(PRECACHE_ASSETS))
-      .then(() => self.skipWaiting())
   );
 });
 
@@ -126,6 +125,13 @@ self.addEventListener('activate', (event) => {
       )
       .then(() => self.clients.claim())
   );
+});
+
+/* ── Message: support SKIP_WAITING from app ── */
+self.addEventListener('message', (event) => {
+  if (event.data && (event.data.type === 'SKIP_WAITING' || event.data === 'skipWaiting')) {
+    self.skipWaiting();
+  }
 });
 
 /* ── Fetch: cache-first, network fallback ── */
