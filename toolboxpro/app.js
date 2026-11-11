@@ -8603,6 +8603,183 @@ initDynamicSearchPlaceholder();
 initMouseSpotlightGlow();
 initCookieConsent();
 initUniqueBackground();
+initMobileNavigation();
+initSearchClearBtn();
+
+/* ─────────────────────────────────────────
+   Mobile Native App Navigation & Drawer Controller
+───────────────────────────────────────── */
+function initMobileNavigation() {
+  const nav = document.querySelector('.nav');
+  if (!nav) return;
+
+  // 1. Ensure .nav-actions exists in header
+  let navActions = nav.querySelector('.nav-actions');
+  if (!navActions) {
+    navActions = document.createElement('div');
+    navActions.className = 'nav-actions';
+    const themeBtn = nav.querySelector('#theme');
+    if (themeBtn) {
+      navActions.appendChild(themeBtn);
+    }
+    nav.appendChild(navActions);
+  }
+
+  // 2. Ensure mobile toggle button exists
+  let toggleBtn = document.getElementById('mobile-menu-toggle');
+  if (!toggleBtn) {
+    toggleBtn = document.createElement('button');
+    toggleBtn.id = 'mobile-menu-toggle';
+    toggleBtn.className = 'mobile-menu-btn';
+    toggleBtn.setAttribute('type', 'button');
+    toggleBtn.setAttribute('aria-label', 'Toggle navigation menu');
+    toggleBtn.setAttribute('aria-expanded', 'false');
+    toggleBtn.innerHTML = `
+      <span class="hamburger-bar"></span>
+      <span class="hamburger-bar"></span>
+      <span class="hamburger-bar"></span>
+    `;
+    navActions.appendChild(toggleBtn);
+  }
+
+  // 3. Ensure mobile drawer exists
+  let drawer = document.getElementById('mobile-nav-drawer');
+  if (!drawer) {
+    drawer = document.createElement('div');
+    drawer.id = 'mobile-nav-drawer';
+    drawer.className = 'mobile-nav-drawer';
+    drawer.setAttribute('aria-hidden', 'true');
+    drawer.innerHTML = `
+      <div class="mobile-drawer-backdrop" id="mobile-drawer-backdrop"></div>
+      <div class="mobile-drawer-panel" role="dialog" aria-modal="true" aria-label="Mobile Navigation">
+        <div class="mobile-drawer-header">
+          <div class="mobile-drawer-logo">
+            <img src="/logo.svg" alt="" width="28" height="28" aria-hidden="true"/>
+            <span>ToolBox<span class="logo-pro-badge">PRO</span></span>
+          </div>
+          <button type="button" class="mobile-drawer-close" id="mobile-drawer-close" aria-label="Close navigation menu">✕</button>
+        </div>
+        <nav class="mobile-drawer-nav" aria-label="Mobile navigation links">
+          <a href="/#tools" class="mobile-nav-item"><span class="mobile-nav-icon">🛠️</span> <span>All Tools</span> <span class="mobile-nav-badge">33</span></a>
+          <a href="/#popular" class="mobile-nav-item"><span class="mobile-nav-icon">⭐</span> <span>Popular Tools</span></a>
+          <a href="/guides" class="mobile-nav-item"><span class="mobile-nav-icon">📚</span> <span>Guides &amp; Articles</span></a>
+          <a href="/about" class="mobile-nav-item"><span class="mobile-nav-icon">ℹ️</span> <span>About ToolBoxPro</span></a>
+          <a href="/contact" class="mobile-nav-item"><span class="mobile-nav-icon">✉️</span> <span>Contact &amp; Feedback</span></a>
+        </nav>
+        <div class="mobile-drawer-categories">
+          <div class="mobile-cat-title">Quick Categories</div>
+          <div class="mobile-cat-chips">
+            <a href="/#tools" data-cat="image" class="mobile-cat-chip">🖼️ Images</a>
+            <a href="/#tools" data-cat="pdf" class="mobile-cat-chip">📄 PDFs</a>
+            <a href="/#tools" data-cat="finance" class="mobile-cat-chip">💰 Finance</a>
+            <a href="/#tools" data-cat="math" class="mobile-cat-chip">🔢 Math</a>
+            <a href="/#tools" data-cat="utility" class="mobile-cat-chip">⚙️ Utility</a>
+          </div>
+        </div>
+        <div class="mobile-drawer-footer">
+          <div class="mobile-drawer-features">
+            <span>🔒 100% In-Browser Private</span>
+            <span>⚡ Client-side Instant</span>
+          </div>
+        </div>
+      </div>
+    `;
+    document.body.appendChild(drawer);
+  }
+
+  const backdrop = drawer.querySelector('#mobile-drawer-backdrop');
+  const closeBtn = drawer.querySelector('#mobile-drawer-close');
+
+  function openMenu() {
+    drawer.classList.add('is-open');
+    toggleBtn.classList.add('is-active');
+    toggleBtn.setAttribute('aria-expanded', 'true');
+    drawer.setAttribute('aria-hidden', 'false');
+    document.body.classList.add('mobile-drawer-open');
+  }
+
+  function closeMenu() {
+    drawer.classList.remove('is-open');
+    toggleBtn.classList.remove('is-active');
+    toggleBtn.setAttribute('aria-expanded', 'false');
+    drawer.setAttribute('aria-hidden', 'true');
+    document.body.classList.remove('mobile-drawer-open');
+  }
+
+  toggleBtn.addEventListener('click', () => {
+    if (drawer.classList.contains('is-open')) {
+      closeMenu();
+    } else {
+      openMenu();
+    }
+  });
+
+  if (closeBtn) {
+    closeBtn.addEventListener('click', closeMenu);
+  }
+
+  if (backdrop) {
+    backdrop.addEventListener('click', closeMenu);
+  }
+
+  // Close on ESC key
+  window.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && drawer.classList.contains('is-open')) {
+      closeMenu();
+    }
+  });
+
+  // Handle link clicks inside drawer
+  drawer.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', (e) => {
+      const cat = link.getAttribute('data-cat');
+      if (cat && (window.location.pathname === '/' || window.location.pathname === '')) {
+        const chip = document.querySelector(`.chip[data-cat="${cat}"]`);
+        if (chip) {
+          e.preventDefault();
+          chip.click();
+          const toolsSec = document.getElementById('tools');
+          if (toolsSec) toolsSec.scrollIntoView({ behavior: 'smooth' });
+        }
+      }
+      closeMenu();
+    });
+  });
+}
+
+function initSearchClearBtn() {
+  const searchWrap = document.querySelector('.search-wrap');
+  const searchInput = document.getElementById('search');
+  if (!searchWrap || !searchInput) return;
+
+  let clearBtn = searchWrap.querySelector('.search-clear-btn');
+  if (!clearBtn) {
+    clearBtn = document.createElement('button');
+    clearBtn.type = 'button';
+    clearBtn.className = 'search-clear-btn hidden';
+    clearBtn.setAttribute('aria-label', 'Clear search input');
+    clearBtn.innerHTML = '✕';
+    searchWrap.appendChild(clearBtn);
+
+    clearBtn.addEventListener('click', () => {
+      searchInput.value = '';
+      searchInput.focus();
+      clearBtn.classList.add('hidden');
+      const dropdown = document.getElementById('search-dropdown');
+      if (dropdown) dropdown.classList.add('hidden');
+      const event = new Event('input', { bubbles: true });
+      searchInput.dispatchEvent(event);
+    });
+
+    searchInput.addEventListener('input', () => {
+      if (searchInput.value.trim().length > 0) {
+        clearBtn.classList.remove('hidden');
+      } else {
+        clearBtn.classList.add('hidden');
+      }
+    });
+  }
+}
 
 /* ─────────────────────────────────────────
    Interactive Delight & Visual Engagement

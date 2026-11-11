@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 
   <!-- ── Security Headers ── -->
   <!-- Content Security Policy: restrict sources to trusted origins only -->
@@ -74,7 +74,7 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap"/>
 
   <!-- ── Styles ── -->
-  <link rel="stylesheet" href="styles.css?v=53"/>
+  <link rel="stylesheet" href="styles.css?v=54"/>
 
   <!-- ── Structured Data: Organization ── -->
   <script type="application/ld+json">
@@ -180,21 +180,65 @@
     <img class="logo-icon" src="logo.svg" alt="" width="36" height="36" aria-hidden="true"/>
     <span class="logo-text">ToolBox<span class="logo-pro-badge">PRO</span></span>
   </a>
-  <nav aria-label="Primary navigation">
+  <nav class="nav-links" aria-label="Primary navigation">
     <a href="/#tools">Tools</a>
     <a href="/#popular">Popular</a>
     <a href="/guides">Guides</a>
     <a href="/about">About</a>
     <a href="/contact">Contact</a>
   </nav>
-  <button id="theme" class="icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button>
+  <div class="nav-actions">
+    <button id="theme" class="icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button>
+    <button id="mobile-menu-toggle" class="mobile-menu-btn" type="button" aria-label="Toggle navigation menu" aria-expanded="false">
+      <span class="hamburger-bar"></span>
+      <span class="hamburger-bar"></span>
+      <span class="hamburger-bar"></span>
+    </button>
+  </div>
 </header>
+
+<!-- ── Native App Style Mobile Navigation Drawer ── -->
+<div id="mobile-nav-drawer" class="mobile-nav-drawer" aria-hidden="true">
+  <div class="mobile-drawer-backdrop" id="mobile-drawer-backdrop"></div>
+  <div class="mobile-drawer-panel" role="dialog" aria-modal="true" aria-label="Mobile Navigation">
+    <div class="mobile-drawer-header">
+      <div class="mobile-drawer-logo">
+        <img src="logo.svg" alt="" width="28" height="28" aria-hidden="true"/>
+        <span>ToolBox<span class="logo-pro-badge">PRO</span></span>
+      </div>
+      <button type="button" class="mobile-drawer-close" id="mobile-drawer-close" aria-label="Close navigation menu">✕</button>
+    </div>
+    <nav class="mobile-drawer-nav" aria-label="Mobile navigation links">
+      <a href="/#tools" class="mobile-nav-item"><span class="mobile-nav-icon">🛠️</span> <span>All Tools</span> <span class="mobile-nav-badge">33</span></a>
+      <a href="/#popular" class="mobile-nav-item"><span class="mobile-nav-icon">⭐</span> <span>Popular Tools</span></a>
+      <a href="/guides" class="mobile-nav-item"><span class="mobile-nav-icon">📚</span> <span>Guides &amp; Articles</span></a>
+      <a href="/about" class="mobile-nav-item"><span class="mobile-nav-icon">ℹ️</span> <span>About ToolBoxPro</span></a>
+      <a href="/contact" class="mobile-nav-item"><span class="mobile-nav-icon">✉️</span> <span>Contact &amp; Feedback</span></a>
+    </nav>
+    <div class="mobile-drawer-categories">
+      <div class="mobile-cat-title">Quick Categories</div>
+      <div class="mobile-cat-chips">
+        <a href="/#tools" data-cat="image" class="mobile-cat-chip">🖼️ Images</a>
+        <a href="/#tools" data-cat="pdf" class="mobile-cat-chip">📄 PDFs</a>
+        <a href="/#tools" data-cat="finance" class="mobile-cat-chip">💰 Finance</a>
+        <a href="/#tools" data-cat="math" class="mobile-cat-chip">🔢 Math</a>
+        <a href="/#tools" data-cat="utility" class="mobile-cat-chip">⚙️ Utility</a>
+      </div>
+    </div>
+    <div class="mobile-drawer-footer">
+      <div class="mobile-drawer-features">
+        <span>🔒 100% In-Browser Private</span>
+        <span>⚡ Client-side Instant</span>
+      </div>
+    </div>
+  </div>
+</div>
 
 <main id="main-content">
   <section class="hero" aria-label="Hero section">
     <div class="hero-copy reveal-group">
       <div class="eyebrow reveal" data-reveal="fade-up" aria-hidden="true"><span class="live-dot-pulse"></span>Free Online Productivity Toolkit</div>
-      <h1 class="reveal hero-title-main" data-reveal="fade-up">All the tools you need for <br/><span class="dynamic-rotating-text" id="dynamicText">Fast Everyday Tasks</span></h1>
+      <h1 class="reveal hero-title-main" data-reveal="fade-up">All the tools you need for <br class="desktop-only"/><span class="dynamic-rotating-text" id="dynamicText">Fast Everyday Tasks</span></h1>
       <p class="reveal" data-reveal="fade-up">20+ free in-browser calculators, converters, image compressors &amp; PDF utilities. 100% private, no sign-up required.</p>
       <div class="search-wrap reveal" data-reveal="fade-up" role="search">
         <span class="search-icon" aria-hidden="true">
@@ -1122,6 +1166,6 @@
 <div id="toast" class="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
 <!-- ── Scripts ── -->
-<script src="app.js?v=53" defer referrerpolicy="no-referrer"></script>
+<script src="app.js?v=54" defer referrerpolicy="no-referrer"></script>
 </body>
 </html>
