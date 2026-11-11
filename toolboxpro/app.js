@@ -8602,6 +8602,7 @@ initDynamicRotatingText();
 initDynamicSearchPlaceholder();
 initMouseSpotlightGlow();
 initCookieConsent();
+initUniqueBackground();
 
 /* ─────────────────────────────────────────
    Interactive Delight & Visual Engagement
@@ -9939,4 +9940,342 @@ function tbDeclineCookies() {
   try { localStorage.setItem('tb_cookie_consent', 'declined'); } catch (_) {}
   const b = document.getElementById('tb-cookie-banner');
   if (b) b.remove();
+}
+
+/* ─────────────────────────────────────────
+   Unique Atmospheric Background Animation
+   ─ Dynamic Floating Aurora Glow Mesh
+   ─ Quantum Neural Constellation Nodes & Connecting Filaments
+   ─ Cyber Dot Matrix Grid & Periodic Scanner Beam
+   ─ Live Data Packets (Energy Pulses) along active filaments
+   ─ Ambient Interactive Mouse Halo (smooth, zero obstruction)
+───────────────────────────────────────── */
+function initUniqueBackground() {
+  if (typeof window === 'undefined' || !document.body) return;
+  if (document.getElementById('bg-canvas')) return; // already initialized
+
+  // 1. Inject Aurora Mesh wrap if not present
+  if (!document.querySelector('.bg-aurora-wrap')) {
+    const auroraWrap = document.createElement('div');
+    auroraWrap.className = 'bg-aurora-wrap';
+    auroraWrap.setAttribute('aria-hidden', 'true');
+    auroraWrap.innerHTML = `
+      <div class="bg-aurora-orb bg-aurora-orb-1"></div>
+      <div class="bg-aurora-orb bg-aurora-orb-2"></div>
+      <div class="bg-aurora-orb bg-aurora-orb-3"></div>
+    `;
+    document.body.prepend(auroraWrap);
+  }
+
+  // 2. Inject Quantum Constellation & Cyber Grid Canvas
+  const canvas = document.createElement('canvas');
+  canvas.id = 'bg-canvas';
+  canvas.setAttribute('aria-hidden', 'true');
+  document.body.prepend(canvas);
+
+  const ctx = canvas.getContext('2d');
+  if (!ctx) return;
+
+  // Dynamic Dimensions & High-DPI support
+  let width = 0;
+  let height = 0;
+  let dpr = 1;
+
+  function resize() {
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  resize();
+
+  let resizeTimeout;
+  window.addEventListener('resize', () => {
+    clearTimeout(resizeTimeout);
+    resizeTimeout = setTimeout(resize, 100);
+  }, { passive: true });
+
+  // Mouse tracking (subtle ambient spotlight with smooth inertia)
+  const mouse = {
+    x: -2000,
+    y: -2000,
+    targetX: -2000,
+    targetY: -2000,
+    active: false,
+    radius: 180
+  };
+
+  window.addEventListener('mousemove', (e) => {
+    mouse.targetX = e.clientX;
+    mouse.targetY = e.clientY;
+    if (!mouse.active) {
+      mouse.x = e.clientX;
+      mouse.y = e.clientY;
+      mouse.active = true;
+    }
+  }, { passive: true });
+
+  window.addEventListener('mouseleave', () => {
+    mouse.active = false;
+  }, { passive: true });
+
+  // Particle Constellation setup
+  const isMobile = width < 768;
+  const particleCount = isMobile ? 22 : 46;
+  const particles = [];
+
+  const COLOR_PALETTES = {
+    dark: [
+      { r: 96, g: 165, b: 250 },  // cyan blue (#60a5fa)
+      { r: 192, g: 132, b: 252 }, // electric violet (#c084fc)
+      { r: 45, g: 212, b: 191 },  // teal mint (#2dd4bf)
+      { r: 244, g: 114, b: 182 }  // soft pink (#f472b6)
+    ],
+    light: [
+      { r: 37, g: 99, b: 235 },   // royal blue
+      { r: 14, g: 165, b: 233 },  // sky blue
+      { r: 124, g: 58, b: 237 },  // deep violet
+      { r: 16, g: 185, b: 129 }   // emerald
+    ]
+  };
+
+  for (let i = 0; i < particleCount; i++) {
+    const angle = Math.random() * Math.PI * 2;
+    const speed = 0.18 + Math.random() * 0.32;
+    particles.push({
+      x: Math.random() * width,
+      y: Math.random() * height,
+      vx: Math.cos(angle) * speed,
+      vy: Math.sin(angle) * speed,
+      radius: 1.2 + Math.random() * 1.5,
+      colorIndex: Math.floor(Math.random() * 4),
+      baseAlpha: 0.35 + Math.random() * 0.45,
+      pulsePhase: Math.random() * Math.PI * 2,
+      pulseSpeed: 0.015 + Math.random() * 0.02
+    });
+  }
+
+  // Active Data Packets (luminous signals traveling along filaments)
+  const dataPulses = [];
+  const maxDataPulses = isMobile ? 3 : 6;
+  let pulseTimer = 0;
+
+  // Periodic Cyber Scanner Beam
+  const scanBeam = {
+    active: false,
+    y: 0,
+    speed: 1.8,
+    timer: 0,
+    interval: 380 // ~6.5 seconds
+  };
+
+  let animationFrameId = null;
+  let isRunning = true;
+  let lastTime = performance.now();
+
+  // Pause when tab is hidden to save 0% battery/CPU
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      isRunning = false;
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    } else {
+      if (!isRunning) {
+        isRunning = true;
+        lastTime = performance.now();
+        animationFrameId = requestAnimationFrame(render);
+      }
+    }
+  });
+
+  function render(now) {
+    if (!isRunning) return;
+
+    const dt = Math.min((now - lastTime) / 16.666, 2.5);
+    lastTime = now;
+
+    ctx.clearRect(0, 0, width, height);
+
+    const isDark = document.body.classList.contains('dark');
+    const palette = isDark ? COLOR_PALETTES.dark : COLOR_PALETTES.light;
+
+    // 1. Draw Architectural Cyber Dot Matrix Grid
+    const gridSpacing = 44;
+    const dotAlpha = isDark ? 0.045 : 0.028;
+    ctx.fillStyle = isDark
+      ? `rgba(255, 255, 255, ${dotAlpha})`
+      : `rgba(15, 23, 42, ${dotAlpha})`;
+
+    for (let x = (gridSpacing / 2); x < width; x += gridSpacing) {
+      for (let y = (gridSpacing / 2); y < height; y += gridSpacing) {
+        ctx.fillRect(x, y, 1.2, 1.2);
+      }
+    }
+
+    // 2. Periodic Cyber Scanner Beam
+    scanBeam.timer += dt;
+    if (!scanBeam.active && scanBeam.timer >= scanBeam.interval) {
+      scanBeam.active = true;
+      scanBeam.y = 0;
+      scanBeam.timer = 0;
+    }
+    if (scanBeam.active) {
+      scanBeam.y += scanBeam.speed * dt;
+      const progress = scanBeam.y / height;
+      const beamAlpha = Math.sin(progress * Math.PI) * (isDark ? 0.08 : 0.045);
+
+      if (progress >= 1) {
+        scanBeam.active = false;
+      } else {
+        const beamGrad = ctx.createLinearGradient(0, scanBeam.y, width, scanBeam.y);
+        beamGrad.addColorStop(0, 'rgba(59, 130, 246, 0)');
+        beamGrad.addColorStop(0.3, isDark ? `rgba(6, 182, 212, ${beamAlpha})` : `rgba(37, 99, 235, ${beamAlpha})`);
+        beamGrad.addColorStop(0.7, isDark ? `rgba(147, 51, 234, ${beamAlpha})` : `rgba(124, 58, 237, ${beamAlpha})`);
+        beamGrad.addColorStop(1, 'rgba(59, 130, 246, 0)');
+        ctx.fillStyle = beamGrad;
+        ctx.fillRect(0, scanBeam.y - 1, width, 2);
+      }
+    }
+
+    // 3. Smooth Mouse Ambient Halo (subtle radial glow)
+    if (mouse.active) {
+      mouse.x += (mouse.targetX - mouse.x) * 0.12 * dt;
+      mouse.y += (mouse.targetY - mouse.y) * 0.12 * dt;
+
+      const haloGrad = ctx.createRadialGradient(mouse.x, mouse.y, 0, mouse.x, mouse.y, mouse.radius);
+      if (isDark) {
+        haloGrad.addColorStop(0, 'rgba(59, 130, 246, 0.09)');
+        haloGrad.addColorStop(0.5, 'rgba(147, 51, 234, 0.04)');
+        haloGrad.addColorStop(1, 'rgba(59, 130, 246, 0)');
+      } else {
+        haloGrad.addColorStop(0, 'rgba(37, 99, 235, 0.06)');
+        haloGrad.addColorStop(0.6, 'rgba(6, 182, 212, 0.025)');
+        haloGrad.addColorStop(1, 'rgba(37, 99, 235, 0)');
+      }
+      ctx.fillStyle = haloGrad;
+      ctx.beginPath();
+      ctx.arc(mouse.x, mouse.y, mouse.radius, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // 4. Update & Draw Constellation Nodes & Connecting Filaments
+    const maxLinkDist = 115;
+    const maxLinkDistSq = maxLinkDist * maxLinkDist;
+    const activeLinks = [];
+
+    for (let i = 0; i < particles.length; i++) {
+      const p = particles[i];
+
+      // Subtle repulsion when mouse gets near
+      if (mouse.active) {
+        const dx = p.x - mouse.x;
+        const dy = p.y - mouse.y;
+        const distSq = dx * dx + dy * dy;
+        const pushRadius = 110;
+        if (distSq < pushRadius * pushRadius && distSq > 0) {
+          const dist = Math.sqrt(distSq);
+          const force = (1 - dist / pushRadius) * 0.8;
+          p.x += (dx / dist) * force * 2.2 * dt;
+          p.y += (dy / dist) * force * 2.2 * dt;
+        }
+      }
+
+      // Movement
+      p.x += p.vx * dt;
+      p.y += p.vy * dt;
+
+      // Gentle bounds bounce
+      if (p.x < 0) { p.x = 0; p.vx = Math.abs(p.vx); }
+      else if (p.x > width) { p.x = width; p.vx = -Math.abs(p.vx); }
+      if (p.y < 0) { p.y = 0; p.vy = Math.abs(p.vy); }
+      else if (p.y > height) { p.y = height; p.vy = -Math.abs(p.vy); }
+
+      // Twinkle breathing
+      p.pulsePhase += p.pulseSpeed * dt;
+      const pulseAlpha = p.baseAlpha + Math.sin(p.pulsePhase) * 0.15;
+      const c = palette[p.colorIndex];
+
+      // Draw particle
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${c.r}, ${c.g}, ${c.b}, ${Math.max(0.1, pulseAlpha)})`;
+      ctx.fill();
+
+      // Check pairs for links
+      for (let j = i + 1; j < particles.length; j++) {
+        const p2 = particles[j];
+        const dx = p.x - p2.x;
+        const dy = p.y - p2.y;
+        const distSq = dx * dx + dy * dy;
+
+        if (distSq < maxLinkDistSq) {
+          const dist = Math.sqrt(distSq);
+          const linkAlpha = (1 - dist / maxLinkDist) * (isDark ? 0.16 : 0.08);
+
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(p2.x, p2.y);
+          ctx.strokeStyle = `rgba(${c.r}, ${c.g}, ${c.b}, ${linkAlpha})`;
+          ctx.lineWidth = 0.9;
+          ctx.stroke();
+
+          activeLinks.push({ p1: p, p2: p2, dist });
+        }
+      }
+    }
+
+    // 5. Spawn & Animate Live Data Packets
+    pulseTimer += dt;
+    if (pulseTimer >= 40 && activeLinks.length > 0 && dataPulses.length < maxDataPulses) {
+      pulseTimer = 0;
+      const randomLink = activeLinks[Math.floor(Math.random() * activeLinks.length)];
+      const col = palette[Math.floor(Math.random() * palette.length)];
+      dataPulses.push({
+        p1: randomLink.p1,
+        p2: randomLink.p2,
+        progress: 0,
+        speed: 0.018 + Math.random() * 0.016,
+        color: col
+      });
+    }
+
+    for (let i = dataPulses.length - 1; i >= 0; i--) {
+      const pulse = dataPulses[i];
+      pulse.progress += pulse.speed * dt;
+
+      if (pulse.progress >= 1) {
+        dataPulses.splice(i, 1);
+        continue;
+      }
+
+      const px = pulse.p1.x + (pulse.p2.x - pulse.p1.x) * pulse.progress;
+      const py = pulse.p1.y + (pulse.p2.y - pulse.p1.y) * pulse.progress;
+      const pAlpha = Math.sin(pulse.progress * Math.PI) * (isDark ? 0.75 : 0.6);
+
+      ctx.beginPath();
+      ctx.arc(px, py, 1.8, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(${pulse.color.r}, ${pulse.color.g}, ${pulse.color.b}, ${pAlpha})`;
+      ctx.shadowColor = `rgba(${pulse.color.r}, ${pulse.color.g}, ${pulse.color.b}, 0.8)`;
+      ctx.shadowBlur = 6;
+      ctx.fill();
+      ctx.shadowBlur = 0;
+    }
+
+    animationFrameId = requestAnimationFrame(render);
+  }
+
+  animationFrameId = requestAnimationFrame(render);
+}
+
+// Fallback init on DOM ready
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initUniqueBackground);
+  } else {
+    initUniqueBackground();
+  }
 }

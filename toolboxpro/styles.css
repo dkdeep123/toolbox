@@ -50,17 +50,107 @@ body {
   transition: background-color 0.24s ease, color 0.24s ease;
 }
 
-/* ── Restrained Architectural Grid / Subtle Surface Accents ── */
+/* ── Base Canvas Background ── */
 body::before {
   content: '';
   position: fixed;
   inset: 0;
-  z-index: -2;
-  background:
-    radial-gradient(ellipse 90% 45% at 50% -10%, rgba(37, 99, 235, 0.04) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 90% 100%, rgba(15, 23, 42, 0.02) 0%, transparent 50%);
+  z-index: -3;
   background-color: var(--bg);
   pointer-events: none;
+}
+
+/* ── Dynamic Atmospheric Aurora Glow Mesh ── */
+.bg-aurora-wrap {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  overflow: hidden;
+  contain: strict;
+}
+
+.bg-aurora-orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(90px);
+  -webkit-filter: blur(90px);
+  will-change: transform;
+  pointer-events: none;
+  opacity: 0.28;
+  transition: opacity 0.5s ease;
+}
+
+.bg-aurora-orb-1 {
+  top: -12%;
+  left: 10%;
+  width: 580px;
+  height: 580px;
+  background: radial-gradient(circle, rgba(37, 99, 235, 0.45) 0%, rgba(6, 182, 212, 0.2) 50%, transparent 70%);
+  animation: bgAuroraMove1 24s ease-in-out infinite alternate;
+}
+
+.bg-aurora-orb-2 {
+  top: 35%;
+  right: -6%;
+  width: 640px;
+  height: 640px;
+  background: radial-gradient(circle, rgba(124, 58, 237, 0.42) 0%, rgba(217, 70, 239, 0.18) 50%, transparent 70%);
+  animation: bgAuroraMove2 28s ease-in-out infinite alternate;
+}
+
+.bg-aurora-orb-3 {
+  bottom: -15%;
+  left: 22%;
+  width: 620px;
+  height: 620px;
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.4) 0%, rgba(16, 185, 129, 0.16) 50%, transparent 70%);
+  animation: bgAuroraMove3 22s ease-in-out infinite alternate;
+}
+
+body.dark .bg-aurora-orb {
+  opacity: 0.45;
+}
+
+body.dark .bg-aurora-orb-1 {
+  background: radial-gradient(circle, rgba(59, 130, 246, 0.52) 0%, rgba(6, 182, 212, 0.25) 50%, transparent 70%);
+}
+
+body.dark .bg-aurora-orb-2 {
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.48) 0%, rgba(236, 72, 153, 0.22) 50%, transparent 70%);
+}
+
+body.dark .bg-aurora-orb-3 {
+  background: radial-gradient(circle, rgba(14, 165, 233, 0.44) 0%, rgba(16, 185, 129, 0.2) 50%, transparent 70%);
+}
+
+@keyframes bgAuroraMove1 {
+  0% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+  50% { transform: translate3d(130px, 80px, 0) scale(1.15) rotate(90deg); }
+  100% { transform: translate3d(-70px, 150px, 0) scale(0.92) rotate(180deg); }
+}
+
+@keyframes bgAuroraMove2 {
+  0% { transform: translate3d(0, 0, 0) scale(1) rotate(0deg); }
+  50% { transform: translate3d(-110px, -90px, 0) scale(1.12) rotate(-120deg); }
+  100% { transform: translate3d(80px, 100px, 0) scale(0.95) rotate(-240deg); }
+}
+
+@keyframes bgAuroraMove3 {
+  0% { transform: translate3d(0, 0, 0) scale(1); }
+  50% { transform: translate3d(90px, -110px, 0) scale(1.18); }
+  100% { transform: translate3d(-120px, -70px, 0) scale(0.88); }
+}
+
+/* ── Quantum Constellation & Cyber Grid Canvas ── */
+#bg-canvas {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: -1;
+  pointer-events: none;
+  contain: strict;
 }
 
 a { text-decoration: none; color: inherit; }
@@ -1514,9 +1604,6 @@ body.dark {
   --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.75);
 }
 body.dark::before {
-  background:
-    radial-gradient(ellipse 90% 45% at 50% -10%, rgba(255, 255, 255, 0.035) 0%, transparent 60%),
-    radial-gradient(ellipse 60% 40% at 90% 100%, rgba(0, 0, 0, 0.9) 0%, transparent 50%);
   background-color: var(--bg);
 }
 body.dark .nav {
