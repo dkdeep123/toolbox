@@ -3022,11 +3022,12 @@ function buildForm(id) {
 
         <!-- 2. Lock Mode Selector -->
         <div class="gl-section">
-          <label class="gl-section-label">2. Select Lock Action</label>
-          <div class="gl-mode-selector">
+          <label class="gl-section-label">2. Select Smart Lock Action</label>
+          <p class="gl-sublabel">Select what happens when your gesture is detected (clicking any action automatically requests camera permission):</p>
+          <div class="gl-mode-selector" role="radiogroup" aria-label="Smart Lock Action Selection">
             <button type="button" class="gl-mode-btn active" data-mode="blackout" onclick="glSelectMode('blackout')">
               <span class="gl-m-icon">📱</span>
-              <span class="gl-m-text"><strong>OLED Blackout</strong><small>Deep pitch-black shield</small></span>
+              <span class="gl-m-text"><strong>OLED Blackout</strong><small>Pitch-black stealth shield</small></span>
             </button>
             <button type="button" class="gl-mode-btn" data-mode="pin" onclick="glSelectMode('pin')">
               <span class="gl-m-icon">🔒</span>
@@ -3034,11 +3035,27 @@ function buildForm(id) {
             </button>
             <button type="button" class="gl-mode-btn" data-mode="siren" onclick="glSelectMode('siren')">
               <span class="gl-m-icon">🚨</span>
-              <span class="gl-m-text"><strong>Anti-Theft Siren</strong><small>Sound alarm on detection</small></span>
+              <span class="gl-m-text"><strong>Anti-Theft Siren</strong><small>Loud dual-tone alarm</small></span>
+            </button>
+            <button type="button" class="gl-mode-btn" data-mode="flashlight" onclick="glSelectMode('flashlight')">
+              <span class="gl-m-icon">🔦</span>
+              <span class="gl-m-text"><strong>Torch / Flashlight</strong><small>Screen &amp; LED high torch</small></span>
+            </button>
+            <button type="button" class="gl-mode-btn" data-mode="sos" onclick="glSelectMode('sos')">
+              <span class="gl-m-icon">🆘</span>
+              <span class="gl-m-text"><strong>Emergency SOS</strong><small>Strobe flash &amp; SOS alarm</small></span>
+            </button>
+            <button type="button" class="gl-mode-btn" data-mode="stealth" onclick="glSelectMode('stealth')">
+              <span class="gl-m-icon">🧮</span>
+              <span class="gl-m-text"><strong>Stealth Camouflage</strong><small>Decoy calculator hide</small></span>
+            </button>
+            <button type="button" class="gl-mode-btn" data-mode="snapshot" onclick="glSelectMode('snapshot')">
+              <span class="gl-m-icon">📸</span>
+              <span class="gl-m-text"><strong>Intruder Photo Snap</strong><small>Secret photo &amp; lockdown</small></span>
             </button>
           </div>
 
-          <!-- PIN setting (visible when pin or siren mode active) -->
+          <!-- PIN setting (visible when pin, siren, snapshot, or sos mode active) -->
           <div id="gl_pin_config" class="gl-pin-config hidden">
             <label for="gl_user_pin">Configure 4-Digit Unlock PIN:</label>
             <div style="display:flex; gap:8px; align-items:center;">
@@ -3051,15 +3068,24 @@ function buildForm(id) {
         <!-- 3. Camera Viewfinder with Cyber HUD -->
         <div class="gl-section">
           <div class="gl-cam-header">
-            <label class="gl-section-label" style="margin:0;">3. Camera Sensor Vision</label>
-            <span id="gl_cam_status" class="gl-status-badge gl-status-idle">● CAMERA STANDBY</span>
+            <div>
+              <label class="gl-section-label" style="margin:0;">3. Live AI Camera Sensor</label>
+              <div class="gl-auto-start-hint">Tap any gesture or action to request permission &amp; activate sensor</div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+              <span id="gl_cam_status" class="gl-status-badge gl-status-off">⚪ SENSOR OFF</span>
+              <button type="button" id="gl_sensor_off_btn" class="gl-sensor-power-btn" onclick="glToggleSensorPower()" title="Turn sensor OFF or ON">
+                <span class="gl-power-icon">⏻</span>
+                <span id="gl_sensor_off_text">Turn OFF</span>
+              </button>
+            </div>
           </div>
 
           <div class="gl-viewport-wrap">
             <div id="gl_placeholder" class="gl-viewport-placeholder">
               <div class="gl-ph-icon">📷</div>
-              <div class="gl-ph-title">Camera Permission Required</div>
-              <p class="gl-ph-desc">Click "Allow Camera &amp; Start Sensor" below to grant camera permission and start gesture detection.</p>
+              <div id="gl_ph_title" class="gl-ph-title">Camera Sensor is OFF</div>
+              <p id="gl_ph_desc" class="gl-ph-desc">Click any gesture (Fist, Palm, Wave) or action above to automatically request camera permission and start the sensor.</p>
             </div>
 
             <video id="gl_video" class="gl-video hidden" autoplay playsinline muted></video>
@@ -3090,7 +3116,7 @@ function buildForm(id) {
                   <div id="gl_conf_fill" class="gl-conf-fill" style="width:0%;"></div>
                 </div>
                 <div class="gl-conf-meta">
-                  <span>LOCK TRIGGER CONFIDENCE</span>
+                  <span>TRIGGER CONFIDENCE</span>
                   <span id="gl_conf_pct">0%</span>
                 </div>
               </div>
@@ -3099,11 +3125,11 @@ function buildForm(id) {
 
           <!-- Controls -->
           <div class="gl-controls">
-            <button type="button" class="primary" id="gl_cam_toggle_btn" onclick="glToggleCamera()">
-              <span>📷 Allow Camera &amp; Start Sensor</span>
+            <button type="button" class="gl-sensor-action-btn gl-turn-off-btn" id="gl_bottom_off_btn" onclick="glTurnSensorOff()">
+              <span>⏹️ Turn Sensor OFF</span>
             </button>
             <button type="button" class="preset-chip" onclick="glTriggerLockTest()">
-              <span>⚡ Test Lock Action</span>
+              <span>⚡ Test Selected Action</span>
             </button>
           </div>
         </div>
@@ -7957,8 +7983,8 @@ function pcDownload() {
 /* ─────────────────────────────────────────
    PWA Service Worker Registration, Live Update Engine & Native App Install
 ───────────────────────────────────────── */
-const APP_VERSION = 'v55.0';
-const APP_BUILD_NUM = '55';
+const APP_VERSION = 'v56.0';
+const APP_BUILD_NUM = '56';
 
 let deferredInstallPrompt = null;
 let swRegistration = null;
@@ -8326,20 +8352,20 @@ function showAppVersionModal(e) {
           <div class="ver-section-title">What's New in ${APP_VERSION}:</div>
           <ul class="ver-changelog-list">
             <li>
-              <strong>⚡ New Smart Tools Category:</strong>
-              <span>Added AI &amp; device sensor utilities category with dedicated shortcuts and momentum filter chips.</span>
+              <strong>✋ 7 Smart Gesture Lock Actions:</strong>
+              <span>Added OLED Blackout, Security PIN Pad, Anti-Theft Siren, Flashlight Torch, Emergency SOS Beacon, Stealth Decoy Calculator, and Intruder Photo Snap.</span>
             </li>
             <li>
-              <strong>✋ Smart Gesture Lock:</strong>
-              <span>Lock or blackout your phone hands-free via real-time front camera AI gesture detection (Fist, Palm, Wave, Peace, Cover).</span>
+              <strong>⚡ Instant Gesture/Action Sensor Activation:</strong>
+              <span>Tapping any gesture or action card automatically triggers camera permission and activates sensor instantly without extra button steps. Dedicated one-tap Sensor OFF button added.</span>
+            </li>
+            <li>
+              <strong>🚀 Real-Time Live Deploy PWA Sync:</strong>
+              <span>Instant update detection engine with mandatory blocking full-screen update screen.</span>
             </li>
             <li>
               <strong>📱 Mobile Responsive 2.0:</strong>
               <span>New fluid mobile app navigation drawer, touch-friendly edge-to-edge layout, and zero horizontal scrolling.</span>
-            </li>
-            <li>
-              <strong>🌌 Atmospheric Aurora Background:</strong>
-              <span>Dynamic quantum constellation canvas with ambient filament pulses and cyber scanner beam.</span>
             </li>
           </ul>
 
@@ -10395,8 +10421,15 @@ let glAlarmCtx = null;
 let glAlarmOsc = null;
 let glAlarmGain = null;
 let glAlarmInterval = null;
+let glSosCtx = null;
+let glSosInterval = null;
 let glClockInterval = null;
 let glPinInputBuffer = '';
+let glIntruderPhotoData = null;
+let glCalcDisplayVal = '0';
+let glCalcPrevVal = null;
+let glCalcCurOp = null;
+let glCalcClearTaps = 0;
 
 function isGestureLockInstalled() {
   return window.matchMedia('(display-mode: standalone)').matches ||
@@ -10420,12 +10453,12 @@ function initGestureLockTool() {
     }
   }
 
-  // Restore saved preferences
+  // Restore saved preferences without triggering auto camera request on initial load
   try {
     const savedG = localStorage.getItem('tb_gl_gesture');
-    if (savedG) glSelectGesture(savedG, false);
+    if (savedG) glSelectGesture(savedG, false, false);
     const savedM = localStorage.getItem('tb_gl_mode');
-    if (savedM) glSelectMode(savedM, false);
+    if (savedM) glSelectMode(savedM, false, false);
     const savedP = localStorage.getItem('tb_gl_pin');
     const pinEl = document.getElementById('gl_user_pin');
     if (savedP && pinEl) pinEl.value = savedP;
@@ -10471,7 +10504,7 @@ function glCheckInstalledStatus() {
   }
 }
 
-function glSelectGesture(gesture, persist = true) {
+async function glSelectGesture(gesture, persist = true, autoStart = true) {
   glSelectedGesture = gesture;
   glConfidence = 0;
   glCentroidHistory = [];
@@ -10495,11 +10528,16 @@ function glSelectGesture(gesture, persist = true) {
 
   if (persist) {
     try { localStorage.setItem('tb_gl_gesture', gesture); } catch (_) {}
-    showToast(`✓ Trigger Gesture Set: ${gesture.toUpperCase()}`);
+    showToast(`✓ Gesture: ${gesture.toUpperCase()}`);
+  }
+
+  // Automatic camera sensor activation on gesture select
+  if (autoStart && !glStream) {
+    await glStartCamera();
   }
 }
 
-function glSelectMode(mode, persist = true) {
+async function glSelectMode(mode, persist = true, autoStart = true) {
   glSelectedMode = mode;
   const buttons = document.querySelectorAll('.gl-mode-btn');
   buttons.forEach(b => {
@@ -10508,12 +10546,40 @@ function glSelectMode(mode, persist = true) {
 
   const pinConfig = document.getElementById('gl_pin_config');
   if (pinConfig) {
-    pinConfig.classList.toggle('hidden', mode === 'blackout');
+    const needsPin = ['pin', 'siren', 'snapshot', 'sos'].includes(mode);
+    pinConfig.classList.toggle('hidden', !needsPin);
   }
 
   if (persist) {
     try { localStorage.setItem('tb_gl_mode', mode); } catch (_) {}
-    showToast(`✓ Lock Action: ${mode.toUpperCase()}`);
+    const modeNames = {
+      blackout: 'OLED Blackout',
+      pin: 'Security PIN',
+      siren: 'Anti-Theft Siren',
+      flashlight: 'Torch / Flashlight',
+      sos: 'Emergency SOS',
+      stealth: 'Stealth Camouflage',
+      snapshot: 'Intruder Photo Snap'
+    };
+    showToast(`✓ Action: ${modeNames[mode] || mode.toUpperCase()}`);
+  }
+
+  // Automatic camera sensor activation on action select
+  if (autoStart && !glStream) {
+    await glStartCamera();
+  }
+}
+
+function glTurnSensorOff() {
+  stopGestureLockCamera();
+  showToast('⚪ Camera Sensor turned OFF');
+}
+
+function glToggleSensorPower() {
+  if (glStream) {
+    glTurnSensorOff();
+  } else {
+    glStartCamera();
   }
 }
 
@@ -10536,7 +10602,11 @@ async function glStartCamera() {
   const placeholder = document.getElementById('gl_placeholder');
   const hud = document.getElementById('gl_hud');
   const statusBadge = document.getElementById('gl_cam_status');
-  const btn = document.getElementById('gl_cam_toggle_btn');
+  const powerBtn = document.getElementById('gl_sensor_off_btn');
+  const powerBtnText = document.getElementById('gl_sensor_off_text');
+  const bottomBtn = document.getElementById('gl_bottom_off_btn');
+  const phTitle = document.getElementById('gl_ph_title');
+  const phDesc = document.getElementById('gl_ph_desc');
 
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     showToast('⚠️ Camera access not supported on this browser or device.');
@@ -10544,11 +10614,12 @@ async function glStartCamera() {
   }
 
   try {
-    if (btn) btn.innerHTML = '<span>⏳ Requesting Camera Permission...</span>';
     if (statusBadge) {
-      statusBadge.textContent = '● REQUESTING CAMERA PERMISSION...';
-      statusBadge.className = 'gl-status-badge gl-status-idle';
+      statusBadge.textContent = '● REQUESTING PERMISSION...';
+      statusBadge.className = 'gl-status-badge gl-status-requesting';
     }
+    if (phTitle) phTitle.textContent = 'Requesting Camera Permission...';
+    if (phDesc) phDesc.textContent = 'Please tap "Allow" on your device camera prompt.';
 
     // Explicitly prompt device for camera permission
     glStream = await navigator.mediaDevices.getUserMedia({
@@ -10568,29 +10639,34 @@ async function glStartCamera() {
 
     if (placeholder) placeholder.classList.add('hidden');
     if (hud) hud.classList.remove('hidden');
+
     if (statusBadge) {
       statusBadge.textContent = '● SENSOR ACTIVE';
       statusBadge.className = 'gl-status-badge gl-status-active';
     }
-    if (btn) {
-      btn.innerHTML = '<span>⏹ Stop Camera Sensor</span>';
-      btn.classList.add('btn-stop-active');
+    if (powerBtn) powerBtn.classList.add('is-active');
+    if (powerBtnText) powerBtnText.textContent = 'Turn OFF';
+
+    if (bottomBtn) {
+      bottomBtn.innerHTML = '<span>⏹️ Turn Sensor OFF</span>';
+      bottomBtn.className = 'gl-sensor-action-btn gl-turn-off-btn';
+      bottomBtn.onclick = glTurnSensorOff;
     }
 
     glConfidence = 0;
     glCentroidHistory = [];
-    showToast('✓ Camera permission granted! Gesture tracking active.');
+    showToast('✓ Camera permission granted! Sensor ACTIVE.');
     glProcessFrame();
   } catch (err) {
     stopGestureLockCamera();
     if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')) {
-      showToast('⚠️ Camera permission denied. Please allow camera in settings.');
+      showToast('⚠️ Camera permission denied. Please allow camera in device settings.');
       if (statusBadge) {
         statusBadge.textContent = '⚠️ CAMERA PERMISSION DENIED';
-        statusBadge.className = 'gl-status-badge';
-        statusBadge.style.background = 'rgba(239, 68, 68, 0.15)';
-        statusBadge.style.color = '#ef4444';
+        statusBadge.className = 'gl-status-badge gl-status-denied';
       }
+      if (phTitle) phTitle.textContent = 'Camera Permission Denied';
+      if (phDesc) phDesc.textContent = 'Camera access was denied. Tap any gesture or action above after enabling camera permissions.';
     } else {
       showToast('⚠️ Camera sensor busy or inaccessible.');
     }
@@ -10599,6 +10675,12 @@ async function glStartCamera() {
 
 function stopGestureLockCamera() {
   if (glStream) {
+    try {
+      const track = glStream.getVideoTracks()[0];
+      if (track && track.getCapabilities && track.getCapabilities().torch) {
+        track.applyConstraints({ advanced: [{ torch: false }] }).catch(() => {});
+      }
+    } catch (_) {}
     glStream.getTracks().forEach(t => t.stop());
     glStream = null;
   }
@@ -10611,7 +10693,11 @@ function stopGestureLockCamera() {
   const placeholder = document.getElementById('gl_placeholder');
   const hud = document.getElementById('gl_hud');
   const statusBadge = document.getElementById('gl_cam_status');
-  const btn = document.getElementById('gl_cam_toggle_btn');
+  const powerBtn = document.getElementById('gl_sensor_off_btn');
+  const powerBtnText = document.getElementById('gl_sensor_off_text');
+  const bottomBtn = document.getElementById('gl_bottom_off_btn');
+  const phTitle = document.getElementById('gl_ph_title');
+  const phDesc = document.getElementById('gl_ph_desc');
   const fill = document.getElementById('gl_conf_fill');
   const pct = document.getElementById('gl_conf_pct');
 
@@ -10621,14 +10707,23 @@ function stopGestureLockCamera() {
   }
   if (placeholder) placeholder.classList.remove('hidden');
   if (hud) hud.classList.add('hidden');
+
   if (statusBadge) {
-    statusBadge.textContent = '● SENSOR STANDBY';
-    statusBadge.className = 'gl-status-badge gl-status-idle';
+    statusBadge.textContent = '⚪ SENSOR OFF';
+    statusBadge.className = 'gl-status-badge gl-status-off';
   }
-  if (btn) {
-    btn.innerHTML = '<span>📷 Start Camera Sensor</span>';
-    btn.classList.remove('btn-stop-active');
+  if (powerBtn) powerBtn.classList.remove('is-active');
+  if (powerBtnText) powerBtnText.textContent = 'Turn ON';
+
+  if (bottomBtn) {
+    bottomBtn.innerHTML = '<span>▶️ Turn Sensor ON</span>';
+    bottomBtn.className = 'gl-sensor-action-btn gl-turn-on-btn';
+    bottomBtn.onclick = glStartCamera;
   }
+
+  if (phTitle) phTitle.textContent = 'Camera Sensor is OFF';
+  if (phDesc) phDesc.textContent = 'Click any gesture (Fist, Palm, Wave) or action above to automatically request camera permission and start the sensor.';
+
   if (fill) fill.style.width = '0%';
   if (pct) pct.textContent = '0%';
   glConfidence = 0;
@@ -10831,15 +10926,38 @@ function glTriggerLock() {
   if (glIsLocked) return;
   glIsLocked = true;
 
-  playDeviceLockSound();
+  // If snapshot mode, capture intruder frame before anything else!
+  if (glSelectedMode === 'snapshot') {
+    glCaptureIntruderPhoto();
+    glPlayShutterSound();
+  } else {
+    playDeviceLockSound();
+  }
+
   if (navigator.vibrate) {
-    try { navigator.vibrate([90, 40, 90]); } catch (_) {}
+    if (glSelectedMode === 'sos') {
+      try { navigator.vibrate([150, 100, 150, 100, 150, 300, 400, 100, 400, 100, 400, 300, 150, 100, 150]); } catch (_) {}
+    } else {
+      try { navigator.vibrate([90, 40, 90]); } catch (_) {}
+    }
   }
 
   // Attempt screen wakeLock release
   if (glWakeLockSentinel) {
     try { glWakeLockSentinel.release(); } catch (_) {}
     glWakeLockSentinel = null;
+  }
+
+  // Handle hardware camera torch if flashlight mode
+  if (glSelectedMode === 'flashlight') {
+    try {
+      if (glStream) {
+        const track = glStream.getVideoTracks()[0];
+        if (track && track.getCapabilities && track.getCapabilities().torch) {
+          track.applyConstraints({ advanced: [{ torch: true }] }).catch(() => {});
+        }
+      }
+    } catch (_) {}
   }
 
   // Fullscreen shield request
@@ -10858,67 +10976,311 @@ function glTriggerLock() {
   glShowLockScreen();
 }
 
+function glCaptureIntruderPhoto() {
+  const video = document.getElementById('gl_video');
+  if (video && video.videoWidth > 0) {
+    try {
+      const snapCanvas = document.createElement('canvas');
+      snapCanvas.width = video.videoWidth;
+      snapCanvas.height = video.videoHeight;
+      const sCtx = snapCanvas.getContext('2d');
+      sCtx.translate(snapCanvas.width, 0);
+      sCtx.scale(-1, 1);
+      sCtx.drawImage(video, 0, 0);
+      glIntruderPhotoData = snapCanvas.toDataURL('image/jpeg', 0.85);
+    } catch (_) {
+      glIntruderPhotoData = null;
+    }
+  }
+}
+
+function glPlayShutterSound() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(1400, ctx.currentTime);
+    osc.frequency.exponentialRampToValueAtTime(120, ctx.currentTime + 0.05);
+    gain.gain.setValueAtTime(0.5, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.05);
+    osc.connect(gain);
+    gain.connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.06);
+  } catch (_) {}
+}
+
+function glStartSosSound() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    glSosCtx = new AudioCtx();
+
+    // Repeating Morse SOS pattern: 3 short (120ms), 3 long (340ms), 3 short (120ms)
+    let sosStep = 0;
+    const sosDurations = [
+      120, 90, 120, 90, 120, 260,
+      340, 90, 340, 90, 340, 260,
+      120, 90, 120, 90, 120, 650
+    ];
+
+    const playNextBeep = () => {
+      if (!glSosCtx || !glIsLocked || glSelectedMode !== 'sos') return;
+      const dur = sosDurations[sosStep % sosDurations.length];
+      const isSound = (sosStep % 2 === 0);
+      sosStep++;
+
+      if (isSound) {
+        try {
+          const osc = glSosCtx.createOscillator();
+          const gain = glSosCtx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(880, glSosCtx.currentTime);
+          gain.gain.setValueAtTime(0.35, glSosCtx.currentTime);
+          osc.connect(gain);
+          gain.connect(glSosCtx.destination);
+          osc.start();
+          osc.stop(glSosCtx.currentTime + dur / 1000);
+        } catch (_) {}
+      }
+      glSosInterval = setTimeout(playNextBeep, dur);
+    };
+
+    playNextBeep();
+  } catch (_) {}
+}
+
+function glStopSosSound() {
+  if (glSosInterval) {
+    clearTimeout(glSosInterval);
+    glSosInterval = null;
+  }
+  if (glSosCtx) {
+    try { glSosCtx.close(); } catch (_) {}
+    glSosCtx = null;
+  }
+}
+
+function glCalcInput(key) {
+  const dispEl = document.getElementById('gl_calc_display');
+  const exprEl = document.getElementById('gl_calc_expr');
+  const targetPin = (localStorage.getItem('tb_gl_pin') || '1234').trim();
+
+  if (key === 'C') {
+    if (glCalcDisplayVal === '0') {
+      glCalcClearTaps++;
+      if (glCalcClearTaps >= 2) {
+        glUnlockDevice();
+        return;
+      }
+    } else {
+      glCalcClearTaps = 0;
+    }
+    glCalcDisplayVal = '0';
+    glCalcPrevVal = null;
+    glCalcCurOp = null;
+  } else if (key === '+/-') {
+    glCalcClearTaps = 0;
+    if (glCalcDisplayVal !== '0') {
+      glCalcDisplayVal = glCalcDisplayVal.startsWith('-') ? glCalcDisplayVal.slice(1) : '-' + glCalcDisplayVal;
+    }
+  } else if (key === '%') {
+    glCalcClearTaps = 0;
+    glCalcDisplayVal = String(parseFloat(glCalcDisplayVal || '0') / 100);
+  } else if (['+', '-', '*', '/'].includes(key)) {
+    glCalcClearTaps = 0;
+    glCalcPrevVal = parseFloat(glCalcDisplayVal || '0');
+    glCalcCurOp = key;
+    glCalcDisplayVal = '0';
+  } else if (key === '=') {
+    // Secret exit: entering user PIN and pressing '=' unlocks screen
+    if (glCalcDisplayVal === targetPin || glCalcDisplayVal === '1234') {
+      glUnlockDevice();
+      return;
+    }
+    if (glCalcPrevVal !== null && glCalcCurOp) {
+      const cur = parseFloat(glCalcDisplayVal || '0');
+      let result = 0;
+      if (glCalcCurOp === '+') result = glCalcPrevVal + cur;
+      else if (glCalcCurOp === '-') result = glCalcPrevVal - cur;
+      else if (glCalcCurOp === '*') result = glCalcPrevVal * cur;
+      else if (glCalcCurOp === '/') result = cur !== 0 ? (glCalcPrevVal / cur) : 'Error';
+
+      glCalcDisplayVal = String(result).slice(0, 10);
+      glCalcPrevVal = null;
+      glCalcCurOp = null;
+    }
+  } else {
+    // Digits and dot
+    glCalcClearTaps = 0;
+    if (key === '.') {
+      if (!glCalcDisplayVal.includes('.')) glCalcDisplayVal += '.';
+    } else {
+      if (glCalcDisplayVal === '0') glCalcDisplayVal = key;
+      else if (glCalcDisplayVal.length < 10) glCalcDisplayVal += key;
+    }
+  }
+
+  if (dispEl) dispEl.textContent = glCalcDisplayVal;
+  if (exprEl) {
+    exprEl.textContent = (glCalcPrevVal !== null && glCalcCurOp) ? `${glCalcPrevVal} ${glCalcCurOp}` : '';
+  }
+}
+
 function glShowLockScreen() {
   let lockScreen = document.getElementById('gl_lock_screen');
   if (!lockScreen) {
     lockScreen = document.createElement('div');
     lockScreen.id = 'gl_lock_screen';
-    lockScreen.className = 'gl-lock-screen';
     document.body.appendChild(lockScreen);
   }
 
-  const isSiren = glSelectedMode === 'siren';
-  const isPin = glSelectedMode === 'pin' || isSiren;
+  const mode = glSelectedMode;
+  const isSiren = mode === 'siren';
+  const isSos = mode === 'sos';
+  const isFlashlight = mode === 'flashlight';
+  const isStealth = mode === 'stealth';
+  const isSnapshot = mode === 'snapshot';
+  const isPin = mode === 'pin' || isSiren || isSos || isSnapshot;
 
-  lockScreen.innerHTML = `
-    <div class="gl-ls-content ${isSiren ? 'gl-ls-siren-mode' : ''}">
-      <!-- Minimal Digital Clock -->
-      <div class="gl-ls-clock">
-        <div id="gl_ls_time" class="gl-ls-time">--:--</div>
-        <div id="gl_ls_date" class="gl-ls-date">---</div>
-      </div>
+  lockScreen.className = 'gl-lock-screen';
+  if (isFlashlight) {
+    lockScreen.classList.add('gl-ls-flashlight');
+  } else if (isSos) {
+    lockScreen.classList.add('gl-ls-sos');
+  }
 
-      <!-- State Indicator -->
-      <div class="gl-ls-badge">
-        <span class="gl-ls-badge-icon">${isSiren ? '🚨' : '🔒'}</span>
-        <span id="gl_ls_status_text">${isSiren ? 'ANTI-THEFT ALARM TRIGGERED' : 'PHONE SCREEN LOCKED'}</span>
-      </div>
+  if (isStealth) {
+    // Decoy Calculator Camouflage Mode
+    glCalcDisplayVal = '0';
+    glCalcPrevVal = null;
+    glCalcCurOp = null;
+    glCalcClearTaps = 0;
 
-      ${isPin ? `
-        <!-- Security PIN Pad -->
-        <div class="gl-keypad-wrap">
-          <div class="gl-pin-dots" id="gl_pin_dots">
-            <span class="gl-p-dot"></span>
-            <span class="gl-p-dot"></span>
-            <span class="gl-p-dot"></span>
-            <span class="gl-p-dot"></span>
-          </div>
-          <div class="gl-keypad-grid">
-            <button type="button" class="gl-key" onclick="glKeyPress('1')">1</button>
-            <button type="button" class="gl-key" onclick="glKeyPress('2')">2</button>
-            <button type="button" class="gl-key" onclick="glKeyPress('3')">3</button>
-            <button type="button" class="gl-key" onclick="glKeyPress('4')">4</button>
-            <button type="button" class="gl-key" onclick="glKeyPress('5')">5</button>
-            <button type="button" class="gl-key" onclick="glKeyPress('6')">6</button>
-            <button type="button" class="gl-key" onclick="glKeyPress('7')">7</button>
-            <button type="button" class="gl-key" onclick="glKeyPress('8')">8</button>
-            <button type="button" class="gl-key" onclick="glKeyPress('9')">9</button>
-            <button type="button" class="gl-key gl-key-ghost" onclick="glUnlockDevice()">Tap</button>
-            <button type="button" class="gl-key" onclick="glKeyPress('0')">0</button>
-            <button type="button" class="gl-key gl-key-action" onclick="glKeyBackspace()">⌫</button>
-          </div>
+    lockScreen.innerHTML = `
+      <div class="gl-ls-content gl-ls-calc-mode">
+        <div class="gl-calc-top-bar">
+          <span class="gl-calc-time" id="gl_calc_clock">09:41</span>
+          <button type="button" class="gl-calc-secret-exit" onclick="glUnlockDevice()" title="Exit Stealth">✕</button>
         </div>
-      ` : `
-        <!-- Simple OLED Tap to Wake -->
-        <div class="gl-blackout-wake">
-          <p class="gl-wake-hint">Gesture triggered. Screen blackout active.</p>
-          <button type="button" class="gl-wake-btn" onclick="glUnlockDevice()">
-            <span>⚡ Tap to Wake Screen</span>
-          </button>
+        <div class="gl-calc-screen">
+          <div id="gl_calc_expr" class="gl-calc-expr"></div>
+          <div id="gl_calc_display" class="gl-calc-display">0</div>
         </div>
-      `}
-    </div>
-  `;
+        <div class="gl-calc-grid">
+          <button type="button" class="gl-calc-btn gl-calc-fn" onclick="glCalcInput('C')">C</button>
+          <button type="button" class="gl-calc-btn gl-calc-fn" onclick="glCalcInput('+/-')">±</button>
+          <button type="button" class="gl-calc-btn gl-calc-fn" onclick="glCalcInput('%')">%</button>
+          <button type="button" class="gl-calc-btn gl-calc-op" onclick="glCalcInput('/')">÷</button>
+
+          <button type="button" class="gl-calc-btn" onclick="glCalcInput('7')">7</button>
+          <button type="button" class="gl-calc-btn" onclick="glCalcInput('8')">8</button>
+          <button type="button" class="gl-calc-btn" onclick="glCalcInput('9')">9</button>
+          <button type="button" class="gl-calc-btn gl-calc-op" onclick="glCalcInput('*')">×</button>
+
+          <button type="button" class="gl-calc-btn" onclick="glCalcInput('4')">4</button>
+          <button type="button" class="gl-calc-btn" onclick="glCalcInput('5')">5</button>
+          <button type="button" class="gl-calc-btn" onclick="glCalcInput('6')">6</button>
+          <button type="button" class="gl-calc-btn gl-calc-op" onclick="glCalcInput('-')">−</button>
+
+          <button type="button" class="gl-calc-btn" onclick="glCalcInput('1')">1</button>
+          <button type="button" class="gl-calc-btn" onclick="glCalcInput('2')">2</button>
+          <button type="button" class="gl-calc-btn" onclick="glCalcInput('3')">3</button>
+          <button type="button" class="gl-calc-btn gl-calc-op" onclick="glCalcInput('+')">+</button>
+
+          <button type="button" class="gl-calc-btn gl-calc-zero" onclick="glCalcInput('0')">0</button>
+          <button type="button" class="gl-calc-btn" onclick="glCalcInput('.')">.</button>
+          <button type="button" class="gl-calc-btn gl-calc-op gl-calc-eq" onclick="glCalcInput('=')">=</button>
+        </div>
+      </div>
+    `;
+  } else if (isFlashlight) {
+    // High-Power Screen & LED Flashlight Mode
+    lockScreen.innerHTML = `
+      <div class="gl-ls-content">
+        <div class="gl-torch-icon">🔦</div>
+        <div class="gl-ls-clock">
+          <div id="gl_ls_time" class="gl-ls-time">--:--</div>
+          <div id="gl_ls_date" class="gl-ls-date">---</div>
+        </div>
+        <div class="gl-ls-badge" style="background:#0f172a; color:#ffffff; border-color:#0f172a; margin-bottom:28px;">
+          <span>🔦 HIGH-POWER TORCH ACTIVE</span>
+        </div>
+        <button type="button" class="gl-torch-wake-btn" onclick="glUnlockDevice()">
+          <span>⚡ Turn OFF Flashlight &amp; Unlock</span>
+        </button>
+      </div>
+    `;
+  } else {
+    // Blackout, PIN, Siren, SOS, or Snapshot Mode
+    const badgeText = isSiren ? 'ANTI-THEFT ALARM TRIGGERED'
+                    : isSos ? 'EMERGENCY SOS BEACON'
+                    : isSnapshot ? 'INTRUDER PHOTO CAPTURED'
+                    : isPin ? 'SECURITY PIN LOCK'
+                    : 'PHONE SCREEN LOCKED';
+
+    const badgeIcon = isSiren ? '🚨' : isSos ? '🆘' : isSnapshot ? '📸' : '🔒';
+
+    lockScreen.innerHTML = `
+      <div class="gl-ls-content ${isSiren ? 'gl-ls-siren-mode' : ''}">
+        <!-- Minimal Digital Clock -->
+        <div class="gl-ls-clock">
+          <div id="gl_ls_time" class="gl-ls-time">--:--</div>
+          <div id="gl_ls_date" class="gl-ls-date">---</div>
+        </div>
+
+        <!-- State Indicator -->
+        <div class="gl-ls-badge">
+          <span class="gl-ls-badge-icon">${badgeIcon}</span>
+          <span id="gl_ls_status_text">${badgeText}</span>
+        </div>
+
+        ${isSnapshot && glIntruderPhotoData ? `
+          <div class="gl-snap-card">
+            <img src="${glIntruderPhotoData}" class="gl-intruder-preview" alt="Intruder Snapshot" />
+            <span class="gl-snap-tag">🚨 Motion Trigger Snapshot</span>
+          </div>
+        ` : ''}
+
+        ${isPin ? `
+          <!-- Security PIN Pad -->
+          <div class="gl-keypad-wrap">
+            <div class="gl-pin-dots" id="gl_pin_dots">
+              <span class="gl-p-dot"></span>
+              <span class="gl-p-dot"></span>
+              <span class="gl-p-dot"></span>
+              <span class="gl-p-dot"></span>
+            </div>
+            <div class="gl-keypad-grid">
+              <button type="button" class="gl-key" onclick="glKeyPress('1')">1</button>
+              <button type="button" class="gl-key" onclick="glKeyPress('2')">2</button>
+              <button type="button" class="gl-key" onclick="glKeyPress('3')">3</button>
+              <button type="button" class="gl-key" onclick="glKeyPress('4')">4</button>
+              <button type="button" class="gl-key" onclick="glKeyPress('5')">5</button>
+              <button type="button" class="gl-key" onclick="glKeyPress('6')">6</button>
+              <button type="button" class="gl-key" onclick="glKeyPress('7')">7</button>
+              <button type="button" class="gl-key" onclick="glKeyPress('8')">8</button>
+              <button type="button" class="gl-key" onclick="glKeyPress('9')">9</button>
+              <button type="button" class="gl-key gl-key-ghost" onclick="glUnlockDevice()">Tap</button>
+              <button type="button" class="gl-key" onclick="glKeyPress('0')">0</button>
+              <button type="button" class="gl-key gl-key-action" onclick="glKeyBackspace()">⌫</button>
+            </div>
+          </div>
+        ` : `
+          <!-- Simple OLED Tap to Wake -->
+          <div class="gl-blackout-wake">
+            <p class="gl-wake-hint">Gesture triggered. Screen blackout active.</p>
+            <button type="button" class="gl-wake-btn" onclick="glUnlockDevice()">
+              <span>⚡ Tap to Wake Screen</span>
+            </button>
+          </div>
+        `}
+      </div>
+    `;
+  }
 
   glPinInputBuffer = '';
   lockScreen.classList.remove('hidden');
@@ -10928,21 +11290,24 @@ function glShowLockScreen() {
   const updateClock = () => {
     const timeEl = document.getElementById('gl_ls_time');
     const dateEl = document.getElementById('gl_ls_date');
-    if (!timeEl || !dateEl) return;
+    const calcClock = document.getElementById('gl_calc_clock');
     const now = new Date();
     const h = String(now.getHours()).padStart(2, '0');
     const m = String(now.getMinutes()).padStart(2, '0');
-    timeEl.textContent = `${h}:${m}`;
-    dateEl.textContent = now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+    if (timeEl) timeEl.textContent = `${h}:${m}`;
+    if (dateEl) dateEl.textContent = now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+    if (calcClock) calcClock.textContent = `${h}:${m}`;
   };
 
   updateClock();
   if (glClockInterval) clearInterval(glClockInterval);
   glClockInterval = setInterval(updateClock, 1000);
 
-  // If Siren mode, play alarm audio
+  // Trigger audio alerts
   if (isSiren) {
     glStartSirenSound();
+  } else if (isSos) {
+    glStartSosSound();
   }
 }
 
@@ -11028,15 +11393,27 @@ function glStopSirenSound() {
 
 function glUnlockDevice() {
   glStopSirenSound();
+  glStopSosSound();
   if (glClockInterval) {
     clearInterval(glClockInterval);
     glClockInterval = null;
   }
 
+  // Turn off hardware torch if active
+  try {
+    if (glStream) {
+      const track = glStream.getVideoTracks()[0];
+      if (track && track.getCapabilities && track.getCapabilities().torch) {
+        track.applyConstraints({ advanced: [{ torch: false }] }).catch(() => {});
+      }
+    }
+  } catch (_) {}
+
   const lockScreen = document.getElementById('gl_lock_screen');
   if (lockScreen) {
     lockScreen.classList.add('hidden');
     lockScreen.style.display = 'none';
+    lockScreen.className = 'gl-lock-screen hidden';
   }
 
   if (document.exitFullscreen && document.fullscreenElement) {

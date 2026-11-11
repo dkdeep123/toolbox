@@ -1,9 +1,9 @@
-Ôªø<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-  <title>Understanding Digital Image Compression: Lossless vs Lossy, WebP &amp; JPEG ‚Äî ToolBoxPro</title>
+  <title>Understanding Digital Image Compression: Lossless vs Lossy, WebP &amp; JPEG ó ToolBoxPro</title>
   <meta name="description" content="Master the science of digital image compression. Learn how Discrete Cosine Transform (DCT), chroma subsampling, quantization, and WebP vs JPEG formats work, plus screen vs print DPI."/>
   <meta name="keywords" content="image compression science, lossless vs lossy compression, discrete cosine transform explained, chroma subsampling 420 vs 444, webp vs jpeg vs png, dpi resolution calculation"/>
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1"/>
@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin/>
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&family=Space+Grotesk:wght@500;600;700&display=swap"/>
-  <link rel="stylesheet" href="styles.css?v=55"/>
+  <link rel="stylesheet" href="styles.css?v=56"/>
   <meta property="og:type" content="article"/>
   <meta property="og:title" content="Understanding Digital Image Compression: Lossless vs Lossy, WebP &amp; JPEG"/>
   <meta property="og:description" content="In-depth computer graphics guide to image compression algorithms, color subsampling, and DPI resolution."/>
@@ -160,7 +160,7 @@
       white-space: nowrap;
     }
   </style>
-  <!-- ‚îÄ‚îÄ Google AdSense Verification & Auto-Ads ‚îÄ‚îÄ -->
+  <!-- -- Google AdSense Verification & Auto-Ads -- -->
   <meta name="google-adsense-account" content="ca-pub-7731050098679485"/>
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-7731050098679485" crossorigin="anonymous"></script>
 
@@ -238,32 +238,32 @@
     <a href="/about">About</a>
     <a href="/contact">Contact</a>
   </nav>
-  <button id="theme" class="icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">‚òæ</button>
+  <button id="theme" class="icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">?</button>
 </header>
 
 <main class="article-wrap">
   <div class="article-card">
     <div class="article-header">
-      <span class="article-tag">üñºÔ∏è Computer Graphics &amp; Media Guide</span>
+      <span class="article-tag">??? Computer Graphics &amp; Media Guide</span>
       <h1>Understanding Digital Image Compression: Lossless vs Lossy, WebP &amp; JPEG</h1>
       <div class="article-meta">
         <span>By ToolBoxPro Editorial Team</span>
-        <span>‚Ä¢</span>
+        <span>ï</span>
         <span>Published: November 2026</span>
-        <span>‚Ä¢</span>
+        <span>ï</span>
         <span>7 Min Read</span>
       </div>
     </div>
 
     <div class="article-body">
-      <p>In modern digital computing, uncompressed images are astronomically large. A standard 12-megapixel smartphone photo captures <code>4000 √ó 3000</code> pixels. At 24 bits per pixel (8 bits each for Red, Green, and Blue), the uncompressed raw bitmap payload exceeds <strong>36 Megabytes per single picture</strong>. Transmitting or storing millions of such uncompressed files across the internet would crash networks and web servers.</p>
+      <p>In modern digital computing, uncompressed images are astronomically large. A standard 12-megapixel smartphone photo captures <code>4000 ◊ 3000</code> pixels. At 24 bits per pixel (8 bits each for Red, Green, and Blue), the uncompressed raw bitmap payload exceeds <strong>36 Megabytes per single picture</strong>. Transmitting or storing millions of such uncompressed files across the internet would crash networks and web servers.</p>
       
       <p>Digital image compression algorithms solve this bottleneck by discarding imperceptible optical redundancies while preserving the perceived sharpness of lines, faces, and text. This technical guide explores the mathematics behind lossy and lossless compression, the mechanics of Discrete Cosine Transform (DCT), Chroma Subsampling, format comparisons (JPEG vs PNG vs WebP), and why client-side browser compression provides supreme speed and privacy.</p>
 
       <h2>1. Lossless vs Lossy Compression: The Fundamental Distinction</h2>
       <p>All image compression falls into two distinct algorithmic philosophies:</p>
       <ul>
-        <li><strong>Lossless Compression (PNG, GIF, Lossless WebP):</strong> Every single pixel value from the original image is preserved with zero alteration. Algorithms like DEFLATE, LZ77, and Huffman encoding identify repeated patterns and token sequences (similar to ZIP files). While visual quality remains 100% bit-for-bit identical, file size reductions are modest‚Äîtypically <strong>20% to 50%</strong>. This format is ideal for screenshots, UI wireframes, line art, and transparent logos.</li>
+        <li><strong>Lossless Compression (PNG, GIF, Lossless WebP):</strong> Every single pixel value from the original image is preserved with zero alteration. Algorithms like DEFLATE, LZ77, and Huffman encoding identify repeated patterns and token sequences (similar to ZIP files). While visual quality remains 100% bit-for-bit identical, file size reductions are modestótypically <strong>20% to 50%</strong>. This format is ideal for screenshots, UI wireframes, line art, and transparent logos.</li>
         <li><strong>Lossy Compression (JPEG, WebP, AVIF):</strong> Explores psychovisual flaws in human optical biology. The human eye has far higher sensitivity to brightness (luminance) than to subtle color variations (chrominance), and struggles to perceive high-frequency spatial noise. By discarding details the human eye cannot detect, lossy compression achieves massive file size reductions of <strong>70% to 92%</strong> with virtually no perceptible degradation.</li>
       </ul>
 
@@ -271,13 +271,13 @@
       <ol>
         <li><strong>Color Space Transformation (RGB to YCbCr):</strong> The red, green, and blue values are separated into <em>Y (Luminance / Brightness)</em> and <em>Cb &amp; Cr (Chrominance / Blue &amp; Red color deviations)</em>.</li>
         <li><strong>Chroma Subsampling (4:2:0):</strong> Because human retinas have many more rod cells (light receptors) than cone cells (color receptors), the color data is downsampled by a factor of 2 horizontally and vertically, instantly discarding 50% of the raw data without human notice.</li>
-        <li><strong>Discrete Cosine Transform (DCT):</strong> The image is divided into <code>8 √ó 8</code> pixel blocks. The DCT mathematically translates spatial pixel intensity into frequency components, isolating smooth flat areas (low frequency) from sharp edges (high frequency).</li>
+        <li><strong>Discrete Cosine Transform (DCT):</strong> The image is divided into <code>8 ◊ 8</code> pixel blocks. The DCT mathematically translates spatial pixel intensity into frequency components, isolating smooth flat areas (low frequency) from sharp edges (high frequency).</li>
         <li><strong>Quantization &amp; Huffman Encoding:</strong> The high-frequency coefficients are divided by a quantization table and rounded to zero. This is the only "lossy" step in the JPEG pipeline; adjusting the "Quality Slider" in our <a href="/image-compressor">Image Compressor</a> directly controls this quantization matrix.</li>
       </ol>
 
       <div class="tool-callout">
-        <p>üóúÔ∏è <strong>Compress your JPG, PNG, or WebP images with live side-by-side preview:</strong></p>
-        <a href="/image-compressor">Open Image Compressor Tool ‚Üí</a>
+        <p>??? <strong>Compress your JPG, PNG, or WebP images with live side-by-side preview:</strong></p>
+        <a href="/image-compressor">Open Image Compressor Tool ?</a>
       </div>
 
       <h2>3. Format Comparison: JPEG vs PNG vs WebP vs AVIF</h2>
@@ -328,10 +328,10 @@
       <h2>4. Demystifying DPI: Screen Resolution vs Print Resolution</h2>
       <p>A frequent point of confusion among candidates and graphic designers is <strong>Dots Per Inch (DPI)</strong> or Pixels Per Inch (PPI):</p>
       <ul>
-        <li><strong>Screen Display (72 to 96 DPI):</strong> Computer and mobile screens display pixels 1:1. Changing the DPI metadata of an image file from 72 to 300 does NOT change its display size or quality on a screen‚Äîonly the raw pixel dimensions (e.g. <code>1920 √ó 1080</code>) matter.</li>
-        <li><strong>Print Standard (300 DPI):</strong> For physical printing (such as ID cards, photo prints, or passport documents), 300 dots per inch is required for crisp paper reproduction without dot grain. To calculate the pixels needed for a 3.5 √ó 4.5 cm passport print:
-        <br><code>Width = (3.5 cm / 2.54) √ó 300 DPI ‚âà 413 pixels</code>
-        <br><code>Height = (4.5 cm / 2.54) √ó 300 DPI ‚âà 531 pixels</code></li>
+        <li><strong>Screen Display (72 to 96 DPI):</strong> Computer and mobile screens display pixels 1:1. Changing the DPI metadata of an image file from 72 to 300 does NOT change its display size or quality on a screenóonly the raw pixel dimensions (e.g. <code>1920 ◊ 1080</code>) matter.</li>
+        <li><strong>Print Standard (300 DPI):</strong> For physical printing (such as ID cards, photo prints, or passport documents), 300 dots per inch is required for crisp paper reproduction without dot grain. To calculate the pixels needed for a 3.5 ◊ 4.5 cm passport print:
+        <br><code>Width = (3.5 cm / 2.54) ◊ 300 DPI ò 413 pixels</code>
+        <br><code>Height = (4.5 cm / 2.54) ◊ 300 DPI ò 531 pixels</code></li>
       </ul>
 
       <h2>5. The Privacy Superiority of Browser-Based Compression</h2>
@@ -350,7 +350,7 @@
     <p>Simple tools for everyday problems. 100% free, private &amp; client-side.</p>
   </div>
   <div class="footer-bottom">
-    <span>¬© 2026 ToolBoxPro</span>
+    <span>© 2026 ToolBoxPro</span>
     <nav aria-label="Footer navigation">
       <a href="/about">About Us</a>
       <a href="/guides">Educational Guides</a>
@@ -362,6 +362,6 @@
   </div>
 </footer>
 
-<script src="app.js?v=55" defer></script>
+<script src="app.js?v=56" defer></script>
 </body>
 </html>
