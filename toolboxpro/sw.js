@@ -143,7 +143,7 @@ self.addEventListener('fetch', (event) => {
   if (request.method !== 'GET') return;
 
   // Only handle cacheable (same-origin) URLs
-  try { const p = new URL(request.url).pathname; if (p === '/ads.txt' || p === '/robots.txt' || p === '/sitemap.xml') return; } catch (_) {}
+  try { const p = new URL(request.url).pathname; if (p === '/version.json' || p === '/ads.txt' || p === '/robots.txt' || p === '/sitemap.xml') return; } catch (_) {}
   if (!isCacheable(request.url)) return;
 
   event.respondWith(

@@ -31,6 +31,12 @@ jobs:
       - name: Setup GitHub Pages
         uses: actions/configure-pages@v5
 
+      - name: Generate dynamic build and version metadata
+        run: |
+          BUILD_TIME=$(date +%s%3N)
+          DEPLOY_ISO=$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          echo "{\"version\":\"v55.0\",\"build\":${{ github.run_number }},\"sha\":\"${{ github.sha }}\",\"timestamp\":${BUILD_TIME},\"deployedAt\":\"${DEPLOY_ISO}\"}" > toolboxpro/version.json
+
       # Upload only the toolboxpro/ subfolder as the site root
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

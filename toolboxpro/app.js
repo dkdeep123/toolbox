@@ -7963,6 +7963,8 @@ const APP_BUILD_NUM = '55';
 let deferredInstallPrompt = null;
 let swRegistration = null;
 let isRefreshingAfterUpdate = false;
+let lastKnownDeployId = null;
+let isForceUpdateVisible = false;
 
 // Reload smoothly when new Service Worker claims control
 if ('serviceWorker' in navigator) {
@@ -7982,9 +7984,9 @@ function initPwaServiceWorker() {
       .then((reg) => {
         swRegistration = reg;
 
-        // 1. If an updated worker is already installed and waiting, notify the user
+        // 1. If an updated worker is already installed and waiting, trigger mandatory update screen
         if (reg.waiting && navigator.serviceWorker.controller) {
-          showPwaUpdatePrompt(reg.waiting);
+          showPwaForceUpdateModal(reg.waiting);
         }
 
         // 2. Listen for background updates while the app is active
@@ -7993,93 +7995,142 @@ function initPwaServiceWorker() {
           if (!newWorker) return;
 
           newWorker.addEventListener('statechange', () => {
-            // Once the new worker is fully downloaded and installed, notify the user
+            // Once the new worker is fully downloaded and installed, trigger mandatory update screen
             if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-              showPwaUpdatePrompt(newWorker);
+              showPwaForceUpdateModal(newWorker);
             }
           });
         });
 
-        // 3. Periodic update check every 30 minutes for long-running / installed apps
+        // 3. Ultra-fast update polling: check every 15 seconds for latest GitHub deploy
         setInterval(() => {
-          if (navigator.onLine && swRegistration) {
-            swRegistration.update().catch(() => {});
-          }
-        }, 30 * 60 * 1000);
+          checkLiveDeploy();
+        }, 15000);
       })
       .catch(() => {
         // SW registration failed silently (dev env, non-https, etc.)
       });
 
-    // 4. Check for updates whenever the user switches back to the app/tab
+    // 4. Initial live deploy check immediately on page load
+    setTimeout(checkLiveDeploy, 800);
+
+    // 5. Check for updates whenever the user switches back to the app/tab
     document.addEventListener('visibilitychange', () => {
-      if (document.visibilityState === 'visible' && swRegistration && navigator.onLine) {
-        swRegistration.update().catch(() => {});
+      if (document.visibilityState === 'visible') {
+        checkLiveDeploy();
       }
     });
 
-    // 5. Check for updates immediately when device regains network connectivity
+    // 6. Check for updates on window focus
+    window.addEventListener('focus', () => {
+      checkLiveDeploy();
+    });
+
+    // 7. Check for updates immediately when device regains network connectivity
     window.addEventListener('online', () => {
-      if (swRegistration) {
-        swRegistration.update().catch(() => {});
-      }
+      checkLiveDeploy();
     });
   });
 }
 
-function showPwaUpdatePrompt(worker) {
-  if (document.getElementById('pwa-update-banner')) return;
+/**
+ * Ultra-fast network check against /version.json
+ * Bypasses Service Worker cache to detect new GitHub deployments instantly.
+ */
+async function checkLiveDeploy() {
+  if (isForceUpdateVisible || !navigator.onLine) return;
 
-  const banner = document.createElement('div');
-  banner.id = 'pwa-update-banner';
-  banner.className = 'pwa-update-banner';
-  banner.setAttribute('role', 'alert');
-  banner.setAttribute('aria-live', 'polite');
+  // Trigger SW background check
+  if (swRegistration) {
+    try { swRegistration.update(); } catch (_) {}
+  }
 
-  banner.innerHTML = `
-    <div class="pwa-update-badge">
-      <span class="pwa-update-dot"></span>
-      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M21.5 2v6h-6"></path>
-        <path d="M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"></path>
-      </svg>
-    </div>
-    <div class="pwa-update-content">
-      <div class="pwa-update-title">
-        <span>New Update Available!</span>
-        <span class="pwa-update-tag">${APP_VERSION}</span>
-      </div>
-      <div class="pwa-update-desc">
-        A new version of ToolBoxPro (${APP_VERSION}) is ready. Update now to load the latest tools, improvements and bug fixes.
-      </div>
-    </div>
-    <div class="pwa-update-actions">
-      <button type="button" class="pwa-update-btn pwa-update-apply-btn" id="pwa-update-apply-btn">
-        <span>Update to ${APP_VERSION}</span>
-      </button>
-      <button type="button" class="pwa-update-close-btn" id="pwa-update-dismiss-btn" title="Dismiss for now" aria-label="Dismiss update notification">
-        ✕
-      </button>
-    </div>
-  `;
+  // Ping live version.json
+  try {
+    const res = await fetch(`version.json?_t=${Date.now()}`, {
+      cache: 'no-store',
+      headers: { 'Cache-Control': 'no-cache, no-store, must-revalidate', 'Pragma': 'no-cache' }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data) return;
 
-  document.body.appendChild(banner);
-
-  // Trigger smooth enter animation
-  requestAnimationFrame(() => {
-    banner.classList.add('is-visible');
-  });
-
-  const applyBtn = banner.querySelector('#pwa-update-apply-btn');
-  const dismissBtn = banner.querySelector('#pwa-update-dismiss-btn');
-
-  const executeUpdate = () => {
-    if (applyBtn) {
-      applyBtn.disabled = true;
-      applyBtn.innerHTML = '<span class="pwa-update-spinner"></span> Updating...';
+    const currentDeploy = data.timestamp || data.sha || data.build;
+    if (lastKnownDeployId === null) {
+      lastKnownDeployId = currentDeploy;
+      return;
     }
 
-    // Activate the waiting Service Worker
+    // If new deploy timestamp or build differs from initial load -> MANDATORY UPDATE!
+    if (currentDeploy && currentDeploy !== lastKnownDeployId) {
+      showPwaForceUpdateModal(swRegistration ? swRegistration.waiting : null, data.version || APP_VERSION);
+    }
+  } catch (_) {}
+}
+
+/**
+ * Mandatory Blocking Update Screen:
+ * User CANNOT use the app until updated. No dismiss button.
+ */
+function showPwaForceUpdateModal(worker, targetVersion) {
+  if (isForceUpdateVisible) return;
+  isForceUpdateVisible = true;
+
+  // Lock body interaction
+  document.body.classList.add('pwa-update-locked');
+
+  let modal = document.getElementById('pwa-force-update-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'pwa-force-update-modal';
+    modal.className = 'pwa-force-update-modal';
+    modal.setAttribute('role', 'alertdialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-labelledby', 'pwa-force-title');
+
+    modal.innerHTML = `
+      <div class="pwa-force-update-card">
+        <div class="pwa-force-icon-wrap">
+          <div class="pwa-force-radar"></div>
+          <div class="pwa-force-icon">🚀</div>
+        </div>
+
+        <div class="pwa-force-badge">⚡ Update Required to Continue</div>
+        <h2 id="pwa-force-title" class="pwa-force-title">New Version Deployed!</h2>
+        <p class="pwa-force-desc">
+          A new version of ToolBoxPro has just been deployed with the latest tools, improvements and security fixes. You must update now to continue using the app.
+        </p>
+
+        <div class="pwa-force-meta">
+          <span class="pwa-force-ver">New Version: <strong id="pwa-force-ver-val">${targetVersion || APP_VERSION}</strong></span>
+          <span class="pwa-force-status">● Ready to Install</span>
+        </div>
+
+        <button type="button" class="primary pwa-force-apply-btn" id="pwa-force-apply-btn">
+          <span>🔄 Update Now &amp; Open App</span>
+        </button>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+  } else {
+    const verVal = modal.querySelector('#pwa-force-ver-val');
+    if (verVal && targetVersion) verVal.textContent = targetVersion;
+  }
+
+  requestAnimationFrame(() => {
+    modal.classList.add('is-visible');
+  });
+
+  const applyBtn = modal.querySelector('#pwa-force-apply-btn');
+
+  const executeForceUpdate = () => {
+    if (applyBtn) {
+      applyBtn.disabled = true;
+      applyBtn.innerHTML = '<span class="pwa-update-spinner"></span> Updating cache &amp; launching...';
+    }
+
+    // 1. Tell Service Worker to activate immediately
     try {
       if (worker) {
         worker.postMessage({ type: 'SKIP_WAITING' });
@@ -8088,53 +8139,35 @@ function showPwaUpdatePrompt(worker) {
       }
     } catch (_) {}
 
-    // Fallback: force reload if controllerchange event doesn't fire within 1.2s
+    // 2. Clear outdated browser caches
+    try {
+      if ('caches' in window) {
+        caches.keys().then((names) => {
+          names.forEach((name) => {
+            if (name !== 'toolboxpro-v55') caches.delete(name);
+          });
+        });
+      }
+    } catch (_) {}
+
+    // 3. Instant hard reload into the new deploy
     setTimeout(() => {
-      window.location.reload();
-    }, 1200);
+      window.location.reload(true);
+    }, 700);
   };
 
   if (applyBtn) {
-    applyBtn.addEventListener('click', executeUpdate);
-  }
-
-  if (dismissBtn) {
-    dismissBtn.addEventListener('click', () => {
-      banner.classList.remove('is-visible');
-      setTimeout(() => banner.remove(), 350);
-      showPwaUpdateNavPill(worker);
-    });
+    applyBtn.addEventListener('click', executeForceUpdate);
   }
 }
 
+// Deprecated fallback alias
+function showPwaUpdatePrompt(worker) {
+  showPwaForceUpdateModal(worker, APP_VERSION);
+}
+
 function showPwaUpdateNavPill(worker) {
-  if (document.getElementById('pwa-update-nav-pill')) return;
-  const navActions = document.querySelector('.nav-actions') || document.querySelector('.nav nav');
-  if (!navActions) return;
-
-  const pill = document.createElement('button');
-  pill.id = 'pwa-update-nav-pill';
-  pill.className = 'pwa-update-nav-pill';
-  pill.setAttribute('type', 'button');
-  pill.setAttribute('title', `New update (${APP_VERSION}) is ready. Click to update!`);
-  pill.innerHTML = `<span class="pwa-pill-dot"></span> <span>Update Ready (${APP_VERSION})</span>`;
-
-  pill.addEventListener('click', () => {
-    pill.disabled = true;
-    pill.innerHTML = '<span class="pwa-update-spinner"></span> Updating...';
-    try {
-      if (worker) {
-        worker.postMessage({ type: 'SKIP_WAITING' });
-      } else if (swRegistration && swRegistration.waiting) {
-        swRegistration.waiting.postMessage({ type: 'SKIP_WAITING' });
-      }
-    } catch (_) {}
-    setTimeout(() => {
-      window.location.reload();
-    }, 1200);
-  });
-
-  navActions.prepend(pill);
+  showPwaForceUpdateModal(worker, APP_VERSION);
 }
 
 initPwaServiceWorker();
