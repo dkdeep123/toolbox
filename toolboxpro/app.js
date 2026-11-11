@@ -2964,24 +2964,24 @@ function buildForm(id) {
       <h2>🤖 Smart Gesture Lock</h2>
       <p>Lock your phone or blackout your screen hands-free with real-time AI hand gesture detection.</p>
 
-      <!-- PWA Install Gate Notice (shown when not installed & not demo mode) -->
+      <!-- PWA Install Gate Notice (shown when not installed) -->
       <div id="gl_pwa_gate" class="gl-pwa-gate">
-        <div class="gl-gate-badge">📲 PWA Smart Service Required</div>
-        <h3 class="gl-gate-title">Install ToolBoxPro App to Activate Gesture Lock</h3>
+        <div class="gl-gate-badge">🔒 App Installation Required</div>
+        <h3 class="gl-gate-title">Install ToolBoxPro to Use Smart Gesture Lock</h3>
         <p class="gl-gate-desc">
-          Smart Gesture Lock runs as a background PWA smart service to monitor camera vision and secure your phone. Install the app on your home screen to enable hands-free gesture locking.
+          Smart Gesture Lock works as a native device sensor service. It is only accessible after installing the ToolBoxPro App on your phone. Once installed, it will request camera permission to detect gestures.
         </p>
         <div class="gl-gate-actions">
           <button type="button" class="primary gl-gate-install-btn" onclick="glTriggerInstall()">
             <span>📲 Install ToolBoxPro App</span>
           </button>
-          <button type="button" class="preset-chip gl-gate-demo-btn" onclick="glEnableDemoMode()">
-            <span>⚡ Try Live Demo in Browser</span>
+          <button type="button" class="preset-chip gl-gate-verify-btn" onclick="glCheckInstalledStatus()">
+            <span>✓ I Have Installed the App</span>
           </button>
         </div>
         <div id="gl_install_help" class="gl-install-help hidden">
-          <small>💡 <strong>iOS Safari:</strong> Tap the Share button (⎋), then tap <strong>"Add to Home Screen"</strong> (⊞).<br>
-          💡 <strong>Android Chrome:</strong> Tap ⋮ menu &gt; <strong>"Install app"</strong> or <strong>"Add to Home Screen"</strong>.</small>
+          <small>💡 <strong>Android / Chrome / Edge:</strong> Tap <strong>"Install ToolBoxPro App"</strong> above, or tap the browser menu (⋮) &gt; <strong>"Install app"</strong> / <strong>"Add to Home screen"</strong>.<br>
+          💡 <strong>iPhone / iOS Safari:</strong> Tap the Share icon (⎋) at the bottom, then scroll down and tap <strong>"Add to Home Screen"</strong> (⊞). Then launch ToolBoxPro from your Home Screen.</small>
         </div>
       </div>
 
@@ -3052,14 +3052,14 @@ function buildForm(id) {
         <div class="gl-section">
           <div class="gl-cam-header">
             <label class="gl-section-label" style="margin:0;">3. Camera Sensor Vision</label>
-            <span id="gl_cam_status" class="gl-status-badge gl-status-idle">● SENSOR STANDBY</span>
+            <span id="gl_cam_status" class="gl-status-badge gl-status-idle">● CAMERA STANDBY</span>
           </div>
 
           <div class="gl-viewport-wrap">
             <div id="gl_placeholder" class="gl-viewport-placeholder">
               <div class="gl-ph-icon">📷</div>
-              <div class="gl-ph-title">Camera Sensor Inactive</div>
-              <p class="gl-ph-desc">Click "Start Camera Sensor" to begin real-time hand gesture tracking.</p>
+              <div class="gl-ph-title">Camera Permission Required</div>
+              <p class="gl-ph-desc">Click "Allow Camera &amp; Start Sensor" below to grant camera permission and start gesture detection.</p>
             </div>
 
             <video id="gl_video" class="gl-video hidden" autoplay playsinline muted></video>
@@ -3100,7 +3100,7 @@ function buildForm(id) {
           <!-- Controls -->
           <div class="gl-controls">
             <button type="button" class="primary" id="gl_cam_toggle_btn" onclick="glToggleCamera()">
-              <span>📷 Start Camera Sensor</span>
+              <span>📷 Allow Camera &amp; Start Sensor</span>
             </button>
             <button type="button" class="preset-chip" onclick="glTriggerLockTest()">
               <span>⚡ Test Lock Action</span>
@@ -10364,24 +10364,26 @@ let glAlarmGain = null;
 let glAlarmInterval = null;
 let glClockInterval = null;
 let glPinInputBuffer = '';
-window.glDemoModeActive = false;
+
+function isGestureLockInstalled() {
+  return window.matchMedia('(display-mode: standalone)').matches ||
+         window.navigator.standalone === true ||
+         localStorage.getItem('tb_pwa_installed') === 'true';
+}
 
 function initGestureLockTool() {
-  const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
-                       window.navigator.standalone === true ||
-                       localStorage.getItem('tb_pwa_installed') === 'true' ||
-                       window.glDemoModeActive === true;
-
+  const isInstalled = isGestureLockInstalled();
   const gate = document.getElementById('gl_pwa_gate');
   const dash = document.getElementById('gl_dashboard');
 
   if (gate && dash) {
-    if (isStandalone) {
+    if (isInstalled) {
       gate.classList.add('hidden');
       dash.classList.remove('hidden');
     } else {
       gate.classList.remove('hidden');
       dash.classList.add('hidden');
+      stopGestureLockCamera();
     }
   }
 
@@ -10403,26 +10405,37 @@ function glTriggerInstall() {
     deferredInstallPrompt.userChoice.then((res) => {
       if (res && res.outcome === 'accepted') {
         try { localStorage.setItem('tb_pwa_installed', 'true'); } catch (_) {}
-        glEnableDemoMode();
-        showToast('✓ ToolBoxPro Installed! Smart Gesture Lock Activated.');
+        initGestureLockTool();
+        showToast('✓ ToolBoxPro Installed! You can now allow camera permission.');
+      } else {
+        showToast('⚠️ App install required to use Smart Gesture Lock.');
       }
       deferredInstallPrompt = null;
     }).catch(() => {
-      glEnableDemoMode();
+      showToast('⚠️ App installation could not be completed.');
     });
   } else {
     const help = document.getElementById('gl_install_help');
-    if (help) help.classList.toggle('hidden');
+    if (help) help.classList.remove('hidden');
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+    if (isIOS) {
+      showToast('📲 iPhone: Tap Share (⎋) -> "Add to Home Screen"');
+    } else {
+      showToast('📲 Tap browser menu (⋮) -> "Install App" or "Add to Home screen"');
+    }
   }
 }
 
-function glEnableDemoMode() {
-  window.glDemoModeActive = true;
-  const gate = document.getElementById('gl_pwa_gate');
-  const dash = document.getElementById('gl_dashboard');
-  if (gate) gate.classList.add('hidden');
-  if (dash) dash.classList.remove('hidden');
-  showToast('⚡ Live Demo Mode Active');
+function glCheckInstalledStatus() {
+  if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
+    try { localStorage.setItem('tb_pwa_installed', 'true'); } catch (_) {}
+    initGestureLockTool();
+    showToast('✓ ToolBoxPro App detected! Gesture Lock unlocked.');
+  } else {
+    try { localStorage.setItem('tb_pwa_installed', 'true'); } catch (_) {}
+    initGestureLockTool();
+    showToast('✓ App installation verified! You can now allow camera permission.');
+  }
 }
 
 function glSelectGesture(gesture, persist = true) {
@@ -10480,6 +10493,12 @@ async function glToggleCamera() {
 }
 
 async function glStartCamera() {
+  if (!isGestureLockInstalled()) {
+    showToast('⚠️ Smart Gesture Lock is locked. Please install ToolBoxPro App first.');
+    initGestureLockTool();
+    return;
+  }
+
   const video = document.getElementById('gl_video');
   const placeholder = document.getElementById('gl_placeholder');
   const hud = document.getElementById('gl_hud');
@@ -10487,12 +10506,18 @@ async function glStartCamera() {
   const btn = document.getElementById('gl_cam_toggle_btn');
 
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    showToast('⚠️ Camera access not supported on this browser');
+    showToast('⚠️ Camera access not supported on this browser or device.');
     return;
   }
 
   try {
-    if (btn) btn.innerHTML = '<span>⏳ Connecting Camera...</span>';
+    if (btn) btn.innerHTML = '<span>⏳ Requesting Camera Permission...</span>';
+    if (statusBadge) {
+      statusBadge.textContent = '● REQUESTING CAMERA PERMISSION...';
+      statusBadge.className = 'gl-status-badge gl-status-idle';
+    }
+
+    // Explicitly prompt device for camera permission
     glStream = await navigator.mediaDevices.getUserMedia({
       video: {
         facingMode: 'user',
@@ -10521,10 +10546,21 @@ async function glStartCamera() {
 
     glConfidence = 0;
     glCentroidHistory = [];
+    showToast('✓ Camera permission granted! Gesture tracking active.');
     glProcessFrame();
   } catch (err) {
     stopGestureLockCamera();
-    showToast('⚠️ Camera permission denied or device busy');
+    if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')) {
+      showToast('⚠️ Camera permission denied. Please allow camera in settings.');
+      if (statusBadge) {
+        statusBadge.textContent = '⚠️ CAMERA PERMISSION DENIED';
+        statusBadge.className = 'gl-status-badge';
+        statusBadge.style.background = 'rgba(239, 68, 68, 0.15)';
+        statusBadge.style.color = '#ef4444';
+      }
+    } else {
+      showToast('⚠️ Camera sensor busy or inaccessible.');
+    }
   }
 }
 
@@ -11321,8 +11357,27 @@ function initUniqueBackground() {
     }
   });
 
+  // Mobile Scroll Throttling: Pause canvas execution during touch scrolling
+  let isScrolling = false;
+  let scrollDebounce = null;
+  window.addEventListener('scroll', () => {
+    if (isMobile) {
+      isScrolling = true;
+      clearTimeout(scrollDebounce);
+      scrollDebounce = setTimeout(() => {
+        isScrolling = false;
+        lastTime = performance.now();
+      }, 90);
+    }
+  }, { passive: true });
+
   function render(now) {
     if (!isRunning) return;
+
+    if (isScrolling && isMobile) {
+      animationFrameId = requestAnimationFrame(render);
+      return;
+    }
 
     const dt = Math.min((now - lastTime) / 16.666, 2.5);
     lastTime = now;
@@ -11332,16 +11387,18 @@ function initUniqueBackground() {
     const isDark = document.body.classList.contains('dark');
     const palette = isDark ? COLOR_PALETTES.dark : COLOR_PALETTES.light;
 
-    // 1. Draw Architectural Cyber Dot Matrix Grid
-    const gridSpacing = 44;
-    const dotAlpha = isDark ? 0.045 : 0.028;
-    ctx.fillStyle = isDark
-      ? `rgba(255, 255, 255, ${dotAlpha})`
-      : `rgba(15, 23, 42, ${dotAlpha})`;
+    // 1. Draw Architectural Cyber Dot Matrix Grid (Desktop only for max mobile scroll performance)
+    if (!isMobile) {
+      const gridSpacing = 44;
+      const dotAlpha = isDark ? 0.045 : 0.028;
+      ctx.fillStyle = isDark
+        ? `rgba(255, 255, 255, ${dotAlpha})`
+        : `rgba(15, 23, 42, ${dotAlpha})`;
 
-    for (let x = (gridSpacing / 2); x < width; x += gridSpacing) {
-      for (let y = (gridSpacing / 2); y < height; y += gridSpacing) {
-        ctx.fillRect(x, y, 1.2, 1.2);
+      for (let x = (gridSpacing / 2); x < width; x += gridSpacing) {
+        for (let y = (gridSpacing / 2); y < height; y += gridSpacing) {
+          ctx.fillRect(x, y, 1.2, 1.2);
+        }
       }
     }
 
@@ -11488,10 +11545,14 @@ function initUniqueBackground() {
       ctx.beginPath();
       ctx.arc(px, py, 1.8, 0, Math.PI * 2);
       ctx.fillStyle = `rgba(${pulse.color.r}, ${pulse.color.g}, ${pulse.color.b}, ${pAlpha})`;
-      ctx.shadowColor = `rgba(${pulse.color.r}, ${pulse.color.g}, ${pulse.color.b}, 0.8)`;
-      ctx.shadowBlur = 6;
+      if (!isMobile) {
+        ctx.shadowColor = `rgba(${pulse.color.r}, ${pulse.color.g}, ${pulse.color.b}, 0.8)`;
+        ctx.shadowBlur = 6;
+      }
       ctx.fill();
-      ctx.shadowBlur = 0;
+      if (!isMobile) {
+        ctx.shadowBlur = 0;
+      }
     }
 
     animationFrameId = requestAnimationFrame(render);

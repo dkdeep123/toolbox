@@ -38,9 +38,14 @@
 /* ── Reset & Base ── */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 html {
-  scroll-behavior: smooth;
   -webkit-text-size-adjust: 100%;
   overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+}
+@media (min-width: 769px) {
+  html {
+    scroll-behavior: smooth;
+  }
 }
 body {
   background: var(--bg);
@@ -49,11 +54,13 @@ body {
   line-height: 1.5;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
   position: relative;
   overflow-x: hidden;
   width: 100%;
   max-width: 100%;
-  transition: background-color 0.24s ease, color 0.24s ease;
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior-y: auto;
 }
 body.mobile-drawer-open,
 body.modal-open {
@@ -63,6 +70,32 @@ body.modal-open {
 .desktop-only { display: inline; }
 @media (max-width: 768px) {
   .desktop-only { display: none !important; }
+
+  html {
+    scroll-behavior: auto !important; /* Critical for native 120Hz touch fling physics */
+    -webkit-overflow-scrolling: touch !important;
+  }
+  body {
+    -webkit-overflow-scrolling: touch !important;
+    overscroll-behavior-y: auto !important;
+  }
+  /* Eliminate heavy 90px multi-pass blur and continuous keyframe recalculation on mobile */
+  .bg-aurora-orb {
+    filter: blur(24px) !important;
+    -webkit-filter: blur(24px) !important;
+    animation: none !important;
+    opacity: 0.16 !important;
+    transform: none !important;
+  }
+  /* Content visibility allows mobile browser to skip offscreen layout during scrolling */
+  .category-block {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 420px;
+  }
+  .tool {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+  }
 }
 
 /* ── Base Canvas Background ── */
