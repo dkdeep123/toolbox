@@ -7957,6 +7957,9 @@ function pcDownload() {
 /* ─────────────────────────────────────────
    PWA Service Worker Registration, Live Update Engine & Native App Install
 ───────────────────────────────────────── */
+const APP_VERSION = 'v55.0';
+const APP_BUILD_NUM = '55';
+
 let deferredInstallPrompt = null;
 let swRegistration = null;
 let isRefreshingAfterUpdate = false;
@@ -8044,15 +8047,15 @@ function showPwaUpdatePrompt(worker) {
     <div class="pwa-update-content">
       <div class="pwa-update-title">
         <span>New Update Available!</span>
-        <span class="pwa-update-tag">v.New</span>
+        <span class="pwa-update-tag">${APP_VERSION}</span>
       </div>
       <div class="pwa-update-desc">
-        A new version of ToolBoxPro is ready. Update now to load the latest tools, improvements and bug fixes.
+        A new version of ToolBoxPro (${APP_VERSION}) is ready. Update now to load the latest tools, improvements and bug fixes.
       </div>
     </div>
     <div class="pwa-update-actions">
       <button type="button" class="pwa-update-btn pwa-update-apply-btn" id="pwa-update-apply-btn">
-        <span>Update Now</span>
+        <span>Update to ${APP_VERSION}</span>
       </button>
       <button type="button" class="pwa-update-close-btn" id="pwa-update-dismiss-btn" title="Dismiss for now" aria-label="Dismiss update notification">
         ✕
@@ -8113,8 +8116,8 @@ function showPwaUpdateNavPill(worker) {
   pill.id = 'pwa-update-nav-pill';
   pill.className = 'pwa-update-nav-pill';
   pill.setAttribute('type', 'button');
-  pill.setAttribute('title', 'New update is ready. Click to update!');
-  pill.innerHTML = '<span class="pwa-pill-dot"></span> <span>Update Ready</span>';
+  pill.setAttribute('title', `New update (${APP_VERSION}) is ready. Click to update!`);
+  pill.innerHTML = `<span class="pwa-pill-dot"></span> <span>Update Ready (${APP_VERSION})</span>`;
 
   pill.addEventListener('click', () => {
     pill.disabled = true;
@@ -8157,6 +8160,7 @@ function showPwaInstallButton() {
     deferredInstallPrompt.prompt();
     const { outcome } = await deferredInstallPrompt.userChoice;
     if (outcome === 'accepted') {
+      try { localStorage.setItem('tb_pwa_installed', 'true'); } catch (_) {}
       btn.remove();
     }
     deferredInstallPrompt = null;
@@ -8165,10 +8169,240 @@ function showPwaInstallButton() {
 }
 
 window.addEventListener('appinstalled', () => {
+  try { localStorage.setItem('tb_pwa_installed', 'true'); } catch (_) {}
   deferredInstallPrompt = null;
   const btn = document.getElementById('pwa-install-btn');
   if (btn) btn.remove();
 });
+
+/* ─────────────────────────────────────────
+   App Version Management & System Info Modal
+───────────────────────────────────────── */
+function initAppVersionDisplay() {
+  if (typeof document === 'undefined') return;
+
+  // 1. Inject or update logo version badges across all headers
+  document.querySelectorAll('.logo-text').forEach(logoText => {
+    if (!logoText.querySelector('.logo-ver-badge')) {
+      const badge = document.createElement('span');
+      badge.className = 'logo-ver-badge';
+      badge.setAttribute('role', 'button');
+      badge.setAttribute('tabindex', '0');
+      badge.setAttribute('title', `ToolBoxPro ${APP_VERSION} • Click for release notes`);
+      badge.textContent = APP_VERSION;
+      badge.addEventListener('click', (e) => {
+        showAppVersionModal(e);
+      });
+      badge.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          showAppVersionModal(e);
+        }
+      });
+      logoText.appendChild(badge);
+    }
+  });
+
+  // 2. Inject version into mobile drawer logo if present
+  const drawerLogo = document.querySelector('.mobile-drawer-logo span');
+  if (drawerLogo && !drawerLogo.querySelector('.logo-ver-badge')) {
+    const badge = document.createElement('span');
+    badge.className = 'logo-ver-badge';
+    badge.textContent = APP_VERSION;
+    badge.addEventListener('click', (e) => {
+      showAppVersionModal(e);
+    });
+    drawerLogo.appendChild(badge);
+  }
+
+  // 3. Inject version into mobile drawer footer
+  const drawerFooter = document.querySelector('.mobile-drawer-footer');
+  if (drawerFooter && !drawerFooter.querySelector('.mobile-drawer-version-row')) {
+    const verRow = document.createElement('div');
+    verRow.className = 'mobile-drawer-version-row';
+    verRow.innerHTML = `
+      <button type="button" class="drawer-ver-btn" onclick="showAppVersionModal(event)">
+        <span class="ver-live-dot"></span> ToolBoxPro ${APP_VERSION} (Build ${APP_BUILD_NUM}) • Latest
+      </button>
+    `;
+    drawerFooter.appendChild(verRow);
+  }
+
+  // 4. Inject version button into desktop/page footer
+  const footerBottom = document.querySelector('.footer-bottom');
+  if (footerBottom) {
+    const copySpan = footerBottom.querySelector('span');
+    if (copySpan && !copySpan.querySelector('.footer-version-btn')) {
+      const verBtn = document.createElement('button');
+      verBtn.type = 'button';
+      verBtn.className = 'footer-version-btn';
+      verBtn.textContent = APP_VERSION;
+      verBtn.title = `ToolBoxPro ${APP_VERSION} • Click for version details`;
+      verBtn.onclick = (e) => showAppVersionModal(e);
+      copySpan.appendChild(document.createTextNode(' • '));
+      copySpan.appendChild(verBtn);
+    }
+  }
+
+  // 5. In nav-actions, if no version badge exists, add nav-version-badge
+  const navActions = document.querySelector('.nav-actions');
+  if (navActions && !navActions.querySelector('.nav-version-badge')) {
+    const navVer = document.createElement('button');
+    navVer.type = 'button';
+    navVer.className = 'nav-version-badge';
+    navVer.textContent = APP_VERSION;
+    navVer.title = `ToolBoxPro ${APP_VERSION} • Click for release info`;
+    navVer.onclick = (e) => showAppVersionModal(e);
+    navActions.prepend(navVer);
+  }
+}
+
+function showAppVersionModal(e) {
+  if (e) {
+    if (typeof e.preventDefault === 'function') e.preventDefault();
+    if (typeof e.stopPropagation === 'function') e.stopPropagation();
+  }
+
+  let modal = document.getElementById('version-info-modal');
+  if (!modal) {
+    modal = document.createElement('div');
+    modal.id = 'version-info-modal';
+    modal.className = 'ver-modal-backdrop';
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'ToolBoxPro Version and Release Information');
+
+    modal.innerHTML = `
+      <div class="ver-modal-card">
+        <div class="ver-modal-header">
+          <div class="ver-modal-brand">
+            <img src="logo.svg" alt="" width="30" height="30" />
+            <div>
+              <div class="ver-modal-title">ToolBox<span class="logo-pro-badge">PRO</span> <span class="ver-modal-tag">${APP_VERSION}</span></div>
+              <div class="ver-modal-sub">Build ${APP_BUILD_NUM}.0 • Production Release</div>
+            </div>
+          </div>
+          <button type="button" class="ver-modal-close" onclick="closeAppVersionModal()" aria-label="Close dialog">✕</button>
+        </div>
+
+        <div class="ver-modal-body">
+          <div class="ver-status-pill">
+            <span class="ver-live-dot"></span>
+            <span>Up to date • PWA Cache Active (v${APP_BUILD_NUM})</span>
+          </div>
+
+          <div class="ver-section-title">What's New in ${APP_VERSION}:</div>
+          <ul class="ver-changelog-list">
+            <li>
+              <strong>⚡ New Smart Tools Category:</strong>
+              <span>Added AI &amp; device sensor utilities category with dedicated shortcuts and momentum filter chips.</span>
+            </li>
+            <li>
+              <strong>✋ Smart Gesture Lock:</strong>
+              <span>Lock or blackout your phone hands-free via real-time front camera AI gesture detection (Fist, Palm, Wave, Peace, Cover).</span>
+            </li>
+            <li>
+              <strong>📱 Mobile Responsive 2.0:</strong>
+              <span>New fluid mobile app navigation drawer, touch-friendly edge-to-edge layout, and zero horizontal scrolling.</span>
+            </li>
+            <li>
+              <strong>🌌 Atmospheric Aurora Background:</strong>
+              <span>Dynamic quantum constellation canvas with ambient filament pulses and cyber scanner beam.</span>
+            </li>
+          </ul>
+
+          <div class="ver-meta-grid">
+            <div class="ver-meta-item">
+              <span class="ver-meta-label">Total Online Tools</span>
+              <span class="ver-meta-val">34 Tools Active</span>
+            </div>
+            <div class="ver-meta-item">
+              <span class="ver-meta-label">Architecture</span>
+              <span class="ver-meta-val">100% Client-Side Private</span>
+            </div>
+            <div class="ver-meta-item">
+              <span class="ver-meta-label">Offline Support</span>
+              <span class="ver-meta-val">PWA Cache Ready</span>
+            </div>
+            <div class="ver-meta-item">
+              <span class="ver-meta-label">Cache Channel</span>
+              <span class="ver-meta-val">toolboxpro-v${APP_BUILD_NUM}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="ver-modal-footer">
+          <button type="button" class="primary ver-check-update-btn" onclick="checkAppVersionUpdate(this)">
+            <span>🔄 Check for Updates</span>
+          </button>
+          <button type="button" class="preset-chip" onclick="closeAppVersionModal()">
+            <span>Done</span>
+          </button>
+        </div>
+      </div>
+    `;
+
+    document.body.appendChild(modal);
+
+    modal.addEventListener('click', (ev) => {
+      if (ev.target === modal) closeAppVersionModal();
+    });
+  }
+
+  modal.classList.add('is-open');
+  document.body.classList.add('modal-open');
+}
+
+function closeAppVersionModal() {
+  const modal = document.getElementById('version-info-modal');
+  if (modal) {
+    modal.classList.remove('is-open');
+    document.body.classList.remove('modal-open');
+  }
+}
+
+function checkAppVersionUpdate(btn) {
+  if (btn) {
+    btn.disabled = true;
+    btn.innerHTML = '<span>⏳ Checking Updates...</span>';
+  }
+
+  if (swRegistration) {
+    swRegistration.update().then(() => {
+      setTimeout(() => {
+        if (btn) {
+          btn.disabled = false;
+          btn.innerHTML = '<span>✓ Latest Version Running</span>';
+          setTimeout(() => {
+            btn.innerHTML = '<span>🔄 Check for Updates</span>';
+          }, 2500);
+        }
+        showToast(`✓ ToolBoxPro ${APP_VERSION} is the latest version!`);
+      }, 700);
+    }).catch(() => {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<span>🔄 Check for Updates</span>';
+      }
+      showToast(`ToolBoxPro ${APP_VERSION} is active.`);
+    });
+  } else {
+    setTimeout(() => {
+      if (btn) {
+        btn.disabled = false;
+        btn.innerHTML = '<span>🔄 Check for Updates</span>';
+      }
+      showToast(`✓ ToolBoxPro ${APP_VERSION} is running.`);
+    }, 500);
+  }
+}
+
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initAppVersionDisplay);
+  } else {
+    initAppVersionDisplay();
+  }
+}
 
 /* ── Viral Copy & Embed Helpers ── */
 function copyToolLink(url, btn) {

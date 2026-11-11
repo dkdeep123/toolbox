@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="en">
 <head>
   <meta charset="UTF-8"/>
@@ -179,7 +179,7 @@
 <header class="nav" role="banner">
   <a class="logo" href="/" aria-label="ToolBoxPro home">
     <img class="logo-icon" src="logo.svg" alt="" width="36" height="36" aria-hidden="true"/>
-    <span class="logo-text">ToolBox<span class="logo-pro-badge">PRO</span></span>
+    <span class="logo-text">ToolBox<span class="logo-pro-badge">PRO</span><span class="logo-ver-badge" title="ToolBoxPro v55.0 — Click for release info" onclick="showAppVersionModal(event)">v55.0</span></span>
   </a>
   <nav class="nav-links" aria-label="Primary navigation">
     <a href="/#tools">Tools</a>
@@ -189,6 +189,7 @@
     <a href="/contact">Contact</a>
   </nav>
   <div class="nav-actions">
+    <button type="button" class="nav-version-badge" onclick="showAppVersionModal(event)" title="ToolBoxPro v55.0 — Click for release info">v55.0</button>
     <button id="theme" class="icon-btn" aria-label="Toggle dark mode" title="Toggle dark mode">☾</button>
     <button id="mobile-menu-toggle" class="mobile-menu-btn" type="button" aria-label="Toggle navigation menu" aria-expanded="false">
       <span class="hamburger-bar"></span>
@@ -205,7 +206,7 @@
     <div class="mobile-drawer-header">
       <div class="mobile-drawer-logo">
         <img src="logo.svg" alt="" width="28" height="28" aria-hidden="true"/>
-        <span>ToolBox<span class="logo-pro-badge">PRO</span></span>
+        <span>ToolBox<span class="logo-pro-badge">PRO</span><span class="logo-ver-badge" onclick="showAppVersionModal(event)">v55.0</span></span>
       </div>
       <button type="button" class="mobile-drawer-close" id="mobile-drawer-close" aria-label="Close navigation menu">✕</button>
     </div>
@@ -231,6 +232,11 @@
       <div class="mobile-drawer-features">
         <span>🔒 100% In-Browser Private</span>
         <span>⚡ Client-side Instant</span>
+      </div>
+      <div class="mobile-drawer-version-row">
+        <button type="button" class="drawer-ver-btn" onclick="showAppVersionModal(event)">
+          <span class="ver-live-dot"></span> ToolBoxPro v55.0 (Build 55) • Latest
+        </button>
       </div>
     </div>
   </div>
@@ -1177,7 +1183,7 @@
     <p>Simple tools for everyday problems. Always free.</p>
   </div>
   <div class="footer-bottom">
-    <span>© 2026 ToolBoxPro</span>
+    <span>© 2026 ToolBoxPro • <button type="button" class="footer-version-btn" onclick="showAppVersionModal(event)">v55.0</button></span>
     <nav aria-label="Footer navigation">
       <a href="/about">About Us</a>
       <a href="/guides">Educational Guides</a>
