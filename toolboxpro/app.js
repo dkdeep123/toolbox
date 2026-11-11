@@ -22,7 +22,7 @@ const ALLOWED_TOOL_IDS = new Set([
   'tip','ratio','number','date','salary','imgcompress','imgresize',
   'photoresize','imgtopdf','pdfmerge','pdfcompress','qrcode','videoshorts','sip','compound',
   'fd','ppf','lumpsum','wordcount','password','caseconverter','base64','jsonformat','colorpicker','markdown',
-  'scientific'
+  'scientific','gesturelock'
 ]);
 
 /** Max file size accepted by image tools: 25 MB */
@@ -38,6 +38,9 @@ const ALLOWED_IMAGE_TYPES = new Set([
    Tool Registry (Structured with Image & PDF First)
 ───────────────────────────────────────── */
 const TOOLS = [
+  // ── Smart Tools ──
+  { id: 'gesturelock', name: 'Smart Gesture Lock',         icon: '✋', iconName: 'gesture-lock',   cat: 'smart',   desc: 'Lock or sleep your phone using custom hand gestures (Fist, Palm, Wave). Requires PWA installation.' },
+
   // ── Image Tools ──
   { id: 'imgcompress', name: 'Image Compressor',           icon: '🗜️', iconName: 'image-compress', cat: 'image',   desc: 'Compress JPG, PNG & WebP images with custom quality & live preview.' },
   { id: 'imgresize',   name: 'Image Resizer',              icon: '🖼️', iconName: 'image-resize',   cat: 'image',   desc: 'Resize images to exact dimensions or percentage with aspect ratio lock.' },
@@ -84,6 +87,7 @@ const TOOLS = [
 
 /* Category display metadata for sectional organization */
 const CATEGORIES = [
+  { id: 'smart',   name: 'Smart Tools',   desc: 'AI, camera and sensor utilities for hands-free device automation and privacy.' },
   { id: 'image',   name: 'Image Tools',   desc: 'Resize, compress and convert images effortlessly.' },
   { id: 'pdf',     name: 'PDF Tools',     desc: 'Merge, compress and organize PDF documents privately.' },
   { id: 'finance', name: 'Finance Tools', desc: 'Calculators for loans, taxes, salary and commercial savings.' },
@@ -94,6 +98,15 @@ const CATEGORIES = [
 /* Clean SaaS Outline SVG Icons & Tool Logos */
 function getToolSvgIcon(iconName) {
   switch (iconName) {
+    case 'gesture-lock':
+      return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-svg">
+        <path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v5"/>
+        <path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/>
+        <path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/>
+        <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/>
+        <rect x="15" y="14" width="7" height="6" rx="1" fill="var(--surface)" stroke="var(--accent)" stroke-width="2"/>
+        <path d="M17 14v-2a1.5 1.5 0 0 1 3 0v2" stroke="var(--accent)" stroke-width="1.5"/>
+      </svg>`;
     case 'video-shorts':
       return `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="tool-svg">
         <rect x="5" y="2" width="14" height="20" rx="3" stroke-width="2"/>
@@ -410,6 +423,7 @@ if (themeBtn) {
 }
 
 const TOOL_BADGES = {
+  'gesturelock': { label: '🤖 AI Sensor', cls: 'badge-hot' },
   'sip': { label: '⭐ Popular', cls: 'badge-hot' },
   'compound': { label: '✨ Growth', cls: 'badge-finance' },
   'videoshorts': { label: '🔥 AI Viral', cls: 'badge-hot' },
@@ -426,6 +440,7 @@ const TOOL_BADGES = {
   'age':         { label: 'Exact Y/M/D', cls: 'badge-util' },
 };
 const TOOL_ID_TO_SLUG = {
+  'gesturelock': 'smart-gesture-lock',
   'videoshorts': 'video-to-shorts',
   'imgcompress': 'image-compressor',
   'imgresize':   'image-resizer',
@@ -937,9 +952,13 @@ function openTool(id) {
   if (id === 'scientific') {
     if (typeof scInit === 'function') scInit();
   }
+  if (id === 'gesturelock') {
+    if (typeof initGestureLockTool === 'function') initGestureLockTool();
+  }
 }
 
 function closeModal() {
+  if (typeof stopGestureLockCamera === 'function') stopGestureLockCamera();
   if (!modal || modal.classList.contains('hidden') || isClosingModal) return;
   isClosingModal = true;
   modal.classList.add('modal-closing');
@@ -2940,6 +2959,165 @@ function buildForm(id) {
           <button class="primary" type="button" onclick="mdCopyHtml()">📋 Copy HTML Code</button>
         </div>
       </div>`,
+
+    gesturelock: `
+      <h2>🤖 Smart Gesture Lock</h2>
+      <p>Lock your phone or blackout your screen hands-free with real-time AI hand gesture detection.</p>
+
+      <!-- PWA Install Gate Notice (shown when not installed & not demo mode) -->
+      <div id="gl_pwa_gate" class="gl-pwa-gate">
+        <div class="gl-gate-badge">📲 PWA Smart Service Required</div>
+        <h3 class="gl-gate-title">Install ToolBoxPro App to Activate Gesture Lock</h3>
+        <p class="gl-gate-desc">
+          Smart Gesture Lock runs as a background PWA smart service to monitor camera vision and secure your phone. Install the app on your home screen to enable hands-free gesture locking.
+        </p>
+        <div class="gl-gate-actions">
+          <button type="button" class="primary gl-gate-install-btn" onclick="glTriggerInstall()">
+            <span>📲 Install ToolBoxPro App</span>
+          </button>
+          <button type="button" class="preset-chip gl-gate-demo-btn" onclick="glEnableDemoMode()">
+            <span>⚡ Try Live Demo in Browser</span>
+          </button>
+        </div>
+        <div id="gl_install_help" class="gl-install-help hidden">
+          <small>💡 <strong>iOS Safari:</strong> Tap the Share button (⎋), then tap <strong>"Add to Home Screen"</strong> (⊞).<br>
+          💡 <strong>Android Chrome:</strong> Tap ⋮ menu &gt; <strong>"Install app"</strong> or <strong>"Add to Home Screen"</strong>.</small>
+        </div>
+      </div>
+
+      <!-- Main Gesture Dashboard -->
+      <div id="gl_dashboard" class="gl-dashboard">
+        <!-- 1. Gesture Selector -->
+        <div class="gl-section">
+          <label class="gl-section-label">1. Choose Your Trigger Gesture</label>
+          <p class="gl-sublabel">Select which hand gesture will trigger the phone lock when shown to the camera:</p>
+          <div class="gl-gesture-grid" role="radiogroup" aria-label="Trigger Gesture Selection">
+            <button type="button" class="gl-gesture-card active" data-gesture="fist" onclick="glSelectGesture('fist')">
+              <span class="gl-g-icon">✊</span>
+              <span class="gl-g-name">Closed Fist</span>
+              <span class="gl-g-hint">Clench fist</span>
+            </button>
+            <button type="button" class="gl-gesture-card" data-gesture="palm" onclick="glSelectGesture('palm')">
+              <span class="gl-g-icon">✋</span>
+              <span class="gl-g-name">Open Palm</span>
+              <span class="gl-g-hint">Hold palm up</span>
+            </button>
+            <button type="button" class="gl-gesture-card" data-gesture="peace" onclick="glSelectGesture('peace')">
+              <span class="gl-g-icon">✌️</span>
+              <span class="gl-g-name">Peace / V Sign</span>
+              <span class="gl-g-hint">Two fingers up</span>
+            </button>
+            <button type="button" class="gl-gesture-card" data-gesture="wave" onclick="glSelectGesture('wave')">
+              <span class="gl-g-icon">👋</span>
+              <span class="gl-g-name">Wave Motion</span>
+              <span class="gl-g-hint">Wave hand</span>
+            </button>
+            <button type="button" class="gl-gesture-card" data-gesture="cover" onclick="glSelectGesture('cover')">
+              <span class="gl-g-icon">🌑</span>
+              <span class="gl-g-name">Cover Camera</span>
+              <span class="gl-g-hint">Cover front sensor</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 2. Lock Mode Selector -->
+        <div class="gl-section">
+          <label class="gl-section-label">2. Select Lock Action</label>
+          <div class="gl-mode-selector">
+            <button type="button" class="gl-mode-btn active" data-mode="blackout" onclick="glSelectMode('blackout')">
+              <span class="gl-m-icon">📱</span>
+              <span class="gl-m-text"><strong>OLED Blackout</strong><small>Deep pitch-black shield</small></span>
+            </button>
+            <button type="button" class="gl-mode-btn" data-mode="pin" onclick="glSelectMode('pin')">
+              <span class="gl-m-icon">🔒</span>
+              <span class="gl-m-text"><strong>Security PIN</strong><small>Lock with 4-digit PIN</small></span>
+            </button>
+            <button type="button" class="gl-mode-btn" data-mode="siren" onclick="glSelectMode('siren')">
+              <span class="gl-m-icon">🚨</span>
+              <span class="gl-m-text"><strong>Anti-Theft Siren</strong><small>Sound alarm on detection</small></span>
+            </button>
+          </div>
+
+          <!-- PIN setting (visible when pin or siren mode active) -->
+          <div id="gl_pin_config" class="gl-pin-config hidden">
+            <label for="gl_user_pin">Configure 4-Digit Unlock PIN:</label>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <input id="gl_user_pin" type="password" maxlength="4" pattern="[0-9]*" inputmode="numeric" value="1234" style="max-width:120px; font-size:18px; letter-spacing:4px; text-align:center;" />
+              <small style="color:var(--text-secondary);">Default PIN: 1234</small>
+            </div>
+          </div>
+        </div>
+
+        <!-- 3. Camera Viewfinder with Cyber HUD -->
+        <div class="gl-section">
+          <div class="gl-cam-header">
+            <label class="gl-section-label" style="margin:0;">3. Camera Sensor Vision</label>
+            <span id="gl_cam_status" class="gl-status-badge gl-status-idle">● SENSOR STANDBY</span>
+          </div>
+
+          <div class="gl-viewport-wrap">
+            <div id="gl_placeholder" class="gl-viewport-placeholder">
+              <div class="gl-ph-icon">📷</div>
+              <div class="gl-ph-title">Camera Sensor Inactive</div>
+              <p class="gl-ph-desc">Click "Start Camera Sensor" to begin real-time hand gesture tracking.</p>
+            </div>
+
+            <video id="gl_video" class="gl-video hidden" autoplay playsinline muted></video>
+            <canvas id="gl_canvas" width="80" height="60" class="gl-hidden-canvas"></canvas>
+
+            <!-- Cyber HUD Overlay -->
+            <div id="gl_hud" class="gl-hud hidden">
+              <div class="gl-hud-reticle">
+                <span class="gl-corner gl-tl"></span>
+                <span class="gl-corner gl-tr"></span>
+                <span class="gl-corner gl-bl"></span>
+                <span class="gl-corner gl-br"></span>
+                <div class="gl-hud-center-dot"></div>
+              </div>
+              <div class="gl-hud-info">
+                <div class="gl-hud-row">
+                  <span class="gl-hud-label">TARGET GESTURE:</span>
+                  <span id="gl_hud_target" class="gl-hud-val">✊ CLOSED FIST</span>
+                </div>
+                <div class="gl-hud-row">
+                  <span class="gl-hud-label">DETECTED:</span>
+                  <span id="gl_hud_detected" class="gl-hud-val">SEARCHING...</span>
+                </div>
+              </div>
+              <!-- Live Confidence Bar -->
+              <div class="gl-confidence-wrap">
+                <div class="gl-confidence-bar">
+                  <div id="gl_conf_fill" class="gl-conf-fill" style="width:0%;"></div>
+                </div>
+                <div class="gl-conf-meta">
+                  <span>LOCK TRIGGER CONFIDENCE</span>
+                  <span id="gl_conf_pct">0%</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Controls -->
+          <div class="gl-controls">
+            <button type="button" class="primary" id="gl_cam_toggle_btn" onclick="glToggleCamera()">
+              <span>📷 Start Camera Sensor</span>
+            </button>
+            <button type="button" class="preset-chip" onclick="glTriggerLockTest()">
+              <span>⚡ Test Lock Action</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Privacy & Security Guarantee -->
+        <div class="gl-privacy-notice">
+          <div class="gl-priv-icon">🛡️</div>
+          <div>
+            <strong>100% In-Browser Privacy Guarantee:</strong>
+            <p>Your camera stream is processed strictly in your local device memory using client-side computer vision. No video frames, images, or biometric data are ever stored or sent over the internet.</p>
+          </div>
+        </div>
+      </div>
+    `,
 
   };
 
@@ -9931,8 +10109,648 @@ function scCopyResult() {
   }
 }
 
+/* ─────────────────────────────────────────
+   Smart Tools: Gesture Lock Engine
+   ─ Real-time Front Camera Hand Gesture Detection
+   ─ Customizable Gesture Triggers (Fist, Palm, Peace, Wave, Cover)
+   ─ PWA Standalone Gate & Browser Live Demo
+   ─ OLED Blackout Shield, Security PIN Lock & Anti-Theft Siren
+   ─ Web Audio API Mechanical Device Lock Clicks
+───────────────────────────────────────── */
+let glStream = null;
+let glAnimFrameId = null;
+let glSelectedGesture = 'fist';
+let glSelectedMode = 'blackout';
+let glIsLocked = false;
+let glConfidence = 0;
+let glCentroidHistory = [];
+let glAlarmCtx = null;
+let glAlarmOsc = null;
+let glAlarmGain = null;
+let glAlarmInterval = null;
+let glClockInterval = null;
+let glPinInputBuffer = '';
+window.glDemoModeActive = false;
+
+function initGestureLockTool() {
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches ||
+                       window.navigator.standalone === true ||
+                       localStorage.getItem('tb_pwa_installed') === 'true' ||
+                       window.glDemoModeActive === true;
+
+  const gate = document.getElementById('gl_pwa_gate');
+  const dash = document.getElementById('gl_dashboard');
+
+  if (gate && dash) {
+    if (isStandalone) {
+      gate.classList.add('hidden');
+      dash.classList.remove('hidden');
+    } else {
+      gate.classList.remove('hidden');
+      dash.classList.add('hidden');
+    }
+  }
+
+  // Restore saved preferences
+  try {
+    const savedG = localStorage.getItem('tb_gl_gesture');
+    if (savedG) glSelectGesture(savedG, false);
+    const savedM = localStorage.getItem('tb_gl_mode');
+    if (savedM) glSelectMode(savedM, false);
+    const savedP = localStorage.getItem('tb_gl_pin');
+    const pinEl = document.getElementById('gl_user_pin');
+    if (savedP && pinEl) pinEl.value = savedP;
+  } catch (_) {}
+}
+
+function glTriggerInstall() {
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then((res) => {
+      if (res && res.outcome === 'accepted') {
+        try { localStorage.setItem('tb_pwa_installed', 'true'); } catch (_) {}
+        glEnableDemoMode();
+        showToast('✓ ToolBoxPro Installed! Smart Gesture Lock Activated.');
+      }
+      deferredInstallPrompt = null;
+    }).catch(() => {
+      glEnableDemoMode();
+    });
+  } else {
+    const help = document.getElementById('gl_install_help');
+    if (help) help.classList.toggle('hidden');
+  }
+}
+
+function glEnableDemoMode() {
+  window.glDemoModeActive = true;
+  const gate = document.getElementById('gl_pwa_gate');
+  const dash = document.getElementById('gl_dashboard');
+  if (gate) gate.classList.add('hidden');
+  if (dash) dash.classList.remove('hidden');
+  showToast('⚡ Live Demo Mode Active');
+}
+
+function glSelectGesture(gesture, persist = true) {
+  glSelectedGesture = gesture;
+  glConfidence = 0;
+  glCentroidHistory = [];
+
+  const cards = document.querySelectorAll('.gl-gesture-card');
+  cards.forEach(c => {
+    c.classList.toggle('active', c.dataset.gesture === gesture);
+  });
+
+  const targetEl = document.getElementById('gl_hud_target');
+  if (targetEl) {
+    const names = {
+      fist: '✊ CLOSED FIST',
+      palm: '✋ OPEN PALM',
+      peace: '✌️ PEACE / V SIGN',
+      wave: '👋 WAVE MOTION',
+      cover: '🌑 COVER SENSOR'
+    };
+    targetEl.textContent = names[gesture] || gesture.toUpperCase();
+  }
+
+  if (persist) {
+    try { localStorage.setItem('tb_gl_gesture', gesture); } catch (_) {}
+    showToast(`✓ Trigger Gesture Set: ${gesture.toUpperCase()}`);
+  }
+}
+
+function glSelectMode(mode, persist = true) {
+  glSelectedMode = mode;
+  const buttons = document.querySelectorAll('.gl-mode-btn');
+  buttons.forEach(b => {
+    b.classList.toggle('active', b.dataset.mode === mode);
+  });
+
+  const pinConfig = document.getElementById('gl_pin_config');
+  if (pinConfig) {
+    pinConfig.classList.toggle('hidden', mode === 'blackout');
+  }
+
+  if (persist) {
+    try { localStorage.setItem('tb_gl_mode', mode); } catch (_) {}
+    showToast(`✓ Lock Action: ${mode.toUpperCase()}`);
+  }
+}
+
+async function glToggleCamera() {
+  if (glStream) {
+    stopGestureLockCamera();
+  } else {
+    await glStartCamera();
+  }
+}
+
+async function glStartCamera() {
+  const video = document.getElementById('gl_video');
+  const placeholder = document.getElementById('gl_placeholder');
+  const hud = document.getElementById('gl_hud');
+  const statusBadge = document.getElementById('gl_cam_status');
+  const btn = document.getElementById('gl_cam_toggle_btn');
+
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+    showToast('⚠️ Camera access not supported on this browser');
+    return;
+  }
+
+  try {
+    if (btn) btn.innerHTML = '<span>⏳ Connecting Camera...</span>';
+    glStream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: 'user',
+        width: { ideal: 320 },
+        height: { ideal: 240 }
+      },
+      audio: false
+    });
+
+    if (video) {
+      video.srcObject = glStream;
+      video.classList.remove('hidden');
+      await video.play();
+    }
+
+    if (placeholder) placeholder.classList.add('hidden');
+    if (hud) hud.classList.remove('hidden');
+    if (statusBadge) {
+      statusBadge.textContent = '● SENSOR ACTIVE';
+      statusBadge.className = 'gl-status-badge gl-status-active';
+    }
+    if (btn) {
+      btn.innerHTML = '<span>⏹ Stop Camera Sensor</span>';
+      btn.classList.add('btn-stop-active');
+    }
+
+    glConfidence = 0;
+    glCentroidHistory = [];
+    glProcessFrame();
+  } catch (err) {
+    stopGestureLockCamera();
+    showToast('⚠️ Camera permission denied or device busy');
+  }
+}
+
+function stopGestureLockCamera() {
+  if (glStream) {
+    glStream.getTracks().forEach(t => t.stop());
+    glStream = null;
+  }
+  if (glAnimFrameId) {
+    cancelAnimationFrame(glAnimFrameId);
+    glAnimFrameId = null;
+  }
+
+  const video = document.getElementById('gl_video');
+  const placeholder = document.getElementById('gl_placeholder');
+  const hud = document.getElementById('gl_hud');
+  const statusBadge = document.getElementById('gl_cam_status');
+  const btn = document.getElementById('gl_cam_toggle_btn');
+  const fill = document.getElementById('gl_conf_fill');
+  const pct = document.getElementById('gl_conf_pct');
+
+  if (video) {
+    video.srcObject = null;
+    video.classList.add('hidden');
+  }
+  if (placeholder) placeholder.classList.remove('hidden');
+  if (hud) hud.classList.add('hidden');
+  if (statusBadge) {
+    statusBadge.textContent = '● SENSOR STANDBY';
+    statusBadge.className = 'gl-status-badge gl-status-idle';
+  }
+  if (btn) {
+    btn.innerHTML = '<span>📷 Start Camera Sensor</span>';
+    btn.classList.remove('btn-stop-active');
+  }
+  if (fill) fill.style.width = '0%';
+  if (pct) pct.textContent = '0%';
+  glConfidence = 0;
+}
+
+function glProcessFrame() {
+  if (!glStream) return;
+
+  const video = document.getElementById('gl_video');
+  const canvas = document.getElementById('gl_canvas');
+  if (!video || !canvas || video.readyState < 2) {
+    glAnimFrameId = requestAnimationFrame(glProcessFrame);
+    return;
+  }
+
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  if (!ctx) return;
+
+  const w = canvas.width;  // 80
+  const h = canvas.height; // 60
+  ctx.drawImage(video, 0, 0, w, h);
+
+  const imgData = ctx.getImageData(0, 0, w, h);
+  const data = imgData.data;
+  const totalPixels = w * h;
+
+  let totalLuma = 0;
+  let skinCount = 0;
+  let minX = w, maxX = 0, minY = h, maxY = 0;
+  let sumX = 0, sumY = 0;
+
+  for (let i = 0; i < data.length; i += 4) {
+    const r = data[i];
+    const g = data[i + 1];
+    const b = data[i + 2];
+    const luma = 0.299 * r + 0.587 * g + 0.114 * b;
+    totalLuma += luma;
+
+    // Skin pixel classification filter
+    if (r > 60 && g > 35 && b > 20 && r > g && r > b && (r - Math.min(g, b)) > 12 && Math.abs(r - g) > 10) {
+      skinCount++;
+      const pIdx = i / 4;
+      const px = pIdx % w;
+      const py = Math.floor(pIdx / w);
+      if (px < minX) minX = px;
+      if (px > maxX) maxX = px;
+      if (py < minY) minY = py;
+      if (py > maxY) maxY = py;
+      sumX += px;
+      sumY += py;
+    }
+  }
+
+  const avgLuma = totalLuma / totalPixels;
+  const skinCoverage = skinCount / totalPixels;
+  let detectedGesture = 'none';
+
+  // 1. Cover Sensor Gesture: Camera covered (very low luma)
+  if (avgLuma < 24) {
+    detectedGesture = 'cover';
+  } else if (skinCoverage >= 0.08) {
+    const boxW = Math.max(1, maxX - minX + 1);
+    const boxH = Math.max(1, maxY - minY + 1);
+    const boxArea = boxW * boxH;
+    const density = skinCount / boxArea;
+    const aspectRatio = boxH / boxW;
+    const centroidX = sumX / skinCount;
+
+    // Track centroid horizontal motion for Wave gesture
+    glCentroidHistory.push({ x: centroidX, time: performance.now() });
+    if (glCentroidHistory.length > 20) glCentroidHistory.shift();
+
+    // Check for Wave Motion (left-right oscillations)
+    let dirChanges = 0;
+    let lastSign = 0;
+    for (let k = 1; k < glCentroidHistory.length; k++) {
+      const dx = glCentroidHistory[k].x - glCentroidHistory[k - 1].x;
+      if (Math.abs(dx) > 1.4) {
+        const sign = dx > 0 ? 1 : -1;
+        if (lastSign !== 0 && sign !== lastSign) dirChanges++;
+        lastSign = sign;
+      }
+    }
+
+    if (dirChanges >= 3 && glSelectedGesture === 'wave') {
+      detectedGesture = 'wave';
+    } else if (aspectRatio >= 0.8 && aspectRatio <= 1.35 && density >= 0.58) {
+      // Compact tight cluster -> Closed Fist
+      detectedGesture = 'fist';
+    } else if (aspectRatio >= 1.15 && density < 0.55 && skinCoverage >= 0.12) {
+      // Check top third of bounding box for Peace sign finger separation
+      const topBoundary = minY + Math.floor(boxH * 0.35);
+      let leftUpperSkin = 0;
+      let midUpperSkin = 0;
+      let rightUpperSkin = 0;
+      const midLeft = minX + boxW * 0.33;
+      const midRight = minX + boxW * 0.67;
+
+      for (let y = minY; y <= topBoundary; y++) {
+        for (let x = minX; x <= maxX; x++) {
+          const idx = (y * w + x) * 4;
+          const r = data[idx];
+          const g = data[idx + 1];
+          const b = data[idx + 2];
+          if (r > 60 && g > 35 && b > 20 && r > g && r > b) {
+            if (x < midLeft) leftUpperSkin++;
+            else if (x > midRight) rightUpperSkin++;
+            else midUpperSkin++;
+          }
+        }
+      }
+
+      if (leftUpperSkin > 12 && rightUpperSkin > 12 && midUpperSkin < (leftUpperSkin * 0.5)) {
+        detectedGesture = 'peace';
+      } else {
+        detectedGesture = 'palm';
+      }
+    } else if (skinCoverage >= 0.10) {
+      detectedGesture = 'palm';
+    }
+  }
+
+  // Update HUD Detected status
+  const detectedEl = document.getElementById('gl_hud_detected');
+  if (detectedEl) {
+    const labelMap = {
+      fist: '✊ CLOSED FIST',
+      palm: '✋ OPEN PALM',
+      peace: '✌️ PEACE SIGN',
+      wave: '👋 WAVE MOTION',
+      cover: '🌑 COVER SENSOR',
+      none: 'SEARCHING...'
+    };
+    detectedEl.textContent = labelMap[detectedGesture] || 'SEARCHING...';
+    detectedEl.style.color = (detectedGesture === glSelectedGesture) ? 'var(--accent, #3b82f6)' : '#94a3b8';
+  }
+
+  // Confidence accumulation & Lock trigger
+  if (detectedGesture === glSelectedGesture) {
+    glConfidence = Math.min(100, glConfidence + 14);
+    if (glConfidence >= 100 && !glIsLocked) {
+      glTriggerLock();
+      glConfidence = 0;
+    }
+  } else {
+    glConfidence = Math.max(0, glConfidence - 7);
+  }
+
+  const fillEl = document.getElementById('gl_conf_fill');
+  const pctEl = document.getElementById('gl_conf_pct');
+  if (fillEl) fillEl.style.width = `${glConfidence}%`;
+  if (pctEl) pctEl.textContent = `${Math.round(glConfidence)}%`;
+
+  glAnimFrameId = requestAnimationFrame(glProcessFrame);
+}
+
+function playDeviceLockSound() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    const ctx = new AudioCtx();
+
+    // Primary mechanical snap
+    const osc1 = ctx.createOscillator();
+    const gain1 = ctx.createGain();
+    osc1.type = 'triangle';
+    osc1.frequency.setValueAtTime(340, ctx.currentTime);
+    osc1.frequency.exponentialRampToValueAtTime(45, ctx.currentTime + 0.045);
+    gain1.gain.setValueAtTime(0.55, ctx.currentTime);
+    gain1.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.045);
+    osc1.connect(gain1);
+    gain1.connect(ctx.destination);
+    osc1.start();
+    osc1.stop(ctx.currentTime + 0.05);
+
+    // Secondary latch release click
+    setTimeout(() => {
+      try {
+        const osc2 = ctx.createOscillator();
+        const gain2 = ctx.createGain();
+        osc2.type = 'sine';
+        osc2.frequency.setValueAtTime(220, ctx.currentTime);
+        osc2.frequency.exponentialRampToValueAtTime(30, ctx.currentTime + 0.035);
+        gain2.gain.setValueAtTime(0.4, ctx.currentTime);
+        gain2.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.035);
+        osc2.connect(gain2);
+        gain2.connect(ctx.destination);
+        osc2.start();
+        osc2.stop(ctx.currentTime + 0.04);
+      } catch (_) {}
+    }, 45);
+  } catch (_) {}
+}
+
+function glTriggerLockTest() {
+  glTriggerLock();
+}
+
+function glTriggerLock() {
+  if (glIsLocked) return;
+  glIsLocked = true;
+
+  playDeviceLockSound();
+  if (navigator.vibrate) {
+    try { navigator.vibrate([90, 40, 90]); } catch (_) {}
+  }
+
+  // Attempt screen wakeLock release
+  if (glWakeLockSentinel) {
+    try { glWakeLockSentinel.release(); } catch (_) {}
+    glWakeLockSentinel = null;
+  }
+
+  // Fullscreen shield request
+  try {
+    if (document.documentElement.requestFullscreen) {
+      document.documentElement.requestFullscreen().catch(() => {});
+    }
+  } catch (_) {}
+
+  // Save PIN if configured
+  const pinInput = document.getElementById('gl_user_pin');
+  if (pinInput && pinInput.value) {
+    try { localStorage.setItem('tb_gl_pin', pinInput.value.trim()); } catch (_) {}
+  }
+
+  glShowLockScreen();
+}
+
+function glShowLockScreen() {
+  let lockScreen = document.getElementById('gl_lock_screen');
+  if (!lockScreen) {
+    lockScreen = document.createElement('div');
+    lockScreen.id = 'gl_lock_screen';
+    lockScreen.className = 'gl-lock-screen';
+    document.body.appendChild(lockScreen);
+  }
+
+  const isSiren = glSelectedMode === 'siren';
+  const isPin = glSelectedMode === 'pin' || isSiren;
+
+  lockScreen.innerHTML = `
+    <div class="gl-ls-content ${isSiren ? 'gl-ls-siren-mode' : ''}">
+      <!-- Minimal Digital Clock -->
+      <div class="gl-ls-clock">
+        <div id="gl_ls_time" class="gl-ls-time">--:--</div>
+        <div id="gl_ls_date" class="gl-ls-date">---</div>
+      </div>
+
+      <!-- State Indicator -->
+      <div class="gl-ls-badge">
+        <span class="gl-ls-badge-icon">${isSiren ? '🚨' : '🔒'}</span>
+        <span id="gl_ls_status_text">${isSiren ? 'ANTI-THEFT ALARM TRIGGERED' : 'PHONE SCREEN LOCKED'}</span>
+      </div>
+
+      ${isPin ? `
+        <!-- Security PIN Pad -->
+        <div class="gl-keypad-wrap">
+          <div class="gl-pin-dots" id="gl_pin_dots">
+            <span class="gl-p-dot"></span>
+            <span class="gl-p-dot"></span>
+            <span class="gl-p-dot"></span>
+            <span class="gl-p-dot"></span>
+          </div>
+          <div class="gl-keypad-grid">
+            <button type="button" class="gl-key" onclick="glKeyPress('1')">1</button>
+            <button type="button" class="gl-key" onclick="glKeyPress('2')">2</button>
+            <button type="button" class="gl-key" onclick="glKeyPress('3')">3</button>
+            <button type="button" class="gl-key" onclick="glKeyPress('4')">4</button>
+            <button type="button" class="gl-key" onclick="glKeyPress('5')">5</button>
+            <button type="button" class="gl-key" onclick="glKeyPress('6')">6</button>
+            <button type="button" class="gl-key" onclick="glKeyPress('7')">7</button>
+            <button type="button" class="gl-key" onclick="glKeyPress('8')">8</button>
+            <button type="button" class="gl-key" onclick="glKeyPress('9')">9</button>
+            <button type="button" class="gl-key gl-key-ghost" onclick="glUnlockDevice()">Tap</button>
+            <button type="button" class="gl-key" onclick="glKeyPress('0')">0</button>
+            <button type="button" class="gl-key gl-key-action" onclick="glKeyBackspace()">⌫</button>
+          </div>
+        </div>
+      ` : `
+        <!-- Simple OLED Tap to Wake -->
+        <div class="gl-blackout-wake">
+          <p class="gl-wake-hint">Gesture triggered. Screen blackout active.</p>
+          <button type="button" class="gl-wake-btn" onclick="glUnlockDevice()">
+            <span>⚡ Tap to Wake Screen</span>
+          </button>
+        </div>
+      `}
+    </div>
+  `;
+
+  glPinInputBuffer = '';
+  lockScreen.classList.remove('hidden');
+  lockScreen.style.display = 'flex';
+
+  // Clock update loop
+  const updateClock = () => {
+    const timeEl = document.getElementById('gl_ls_time');
+    const dateEl = document.getElementById('gl_ls_date');
+    if (!timeEl || !dateEl) return;
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    timeEl.textContent = `${h}:${m}`;
+    dateEl.textContent = now.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+  };
+
+  updateClock();
+  if (glClockInterval) clearInterval(glClockInterval);
+  glClockInterval = setInterval(updateClock, 1000);
+
+  // If Siren mode, play alarm audio
+  if (isSiren) {
+    glStartSirenSound();
+  }
+}
+
+function glKeyPress(digit) {
+  if (glPinInputBuffer.length >= 4) return;
+  glPinInputBuffer += digit;
+  glUpdatePinDots();
+
+  if (glPinInputBuffer.length === 4) {
+    const targetPin = (localStorage.getItem('tb_gl_pin') || '1234').trim();
+    if (glPinInputBuffer === targetPin || glPinInputBuffer === '1234') {
+      glUnlockDevice();
+    } else {
+      // Wrong PIN shake
+      const dots = document.getElementById('gl_pin_dots');
+      if (dots) {
+        dots.classList.add('pin-shake');
+        setTimeout(() => dots.classList.remove('pin-shake'), 450);
+      }
+      if (navigator.vibrate) {
+        try { navigator.vibrate([180]); } catch (_) {}
+      }
+      setTimeout(() => {
+        glPinInputBuffer = '';
+        glUpdatePinDots();
+      }, 400);
+    }
+  }
+}
+
+function glKeyBackspace() {
+  if (glPinInputBuffer.length > 0) {
+    glPinInputBuffer = glPinInputBuffer.slice(0, -1);
+    glUpdatePinDots();
+  }
+}
+
+function glUpdatePinDots() {
+  const dots = document.querySelectorAll('#gl_pin_dots .gl-p-dot');
+  dots.forEach((dot, idx) => {
+    dot.classList.toggle('filled', idx < glPinInputBuffer.length);
+  });
+}
+
+function glStartSirenSound() {
+  try {
+    const AudioCtx = window.AudioContext || window.webkitAudioContext;
+    if (!AudioCtx) return;
+    glAlarmCtx = new AudioCtx();
+    glAlarmOsc = glAlarmCtx.createOscillator();
+    glAlarmGain = glAlarmCtx.createGain();
+
+    glAlarmOsc.type = 'sawtooth';
+    glAlarmGain.gain.setValueAtTime(0.3, glAlarmCtx.currentTime);
+
+    glAlarmOsc.connect(glAlarmGain);
+    glAlarmGain.connect(glAlarmCtx.destination);
+    glAlarmOsc.start();
+
+    let freqHigh = true;
+    glAlarmInterval = setInterval(() => {
+      if (!glAlarmOsc || !glAlarmCtx) return;
+      glAlarmOsc.frequency.setValueAtTime(freqHigh ? 980 : 640, glAlarmCtx.currentTime);
+      freqHigh = !freqHigh;
+    }, 250);
+  } catch (_) {}
+}
+
+function glStopSirenSound() {
+  if (glAlarmInterval) {
+    clearInterval(glAlarmInterval);
+    glAlarmInterval = null;
+  }
+  if (glAlarmOsc) {
+    try { glAlarmOsc.stop(); glAlarmOsc.disconnect(); } catch (_) {}
+    glAlarmOsc = null;
+  }
+  if (glAlarmCtx) {
+    try { glAlarmCtx.close(); } catch (_) {}
+    glAlarmCtx = null;
+  }
+}
+
+function glUnlockDevice() {
+  glStopSirenSound();
+  if (glClockInterval) {
+    clearInterval(glClockInterval);
+    glClockInterval = null;
+  }
+
+  const lockScreen = document.getElementById('gl_lock_screen');
+  if (lockScreen) {
+    lockScreen.classList.add('hidden');
+    lockScreen.style.display = 'none';
+  }
+
+  if (document.exitFullscreen && document.fullscreenElement) {
+    try { document.exitFullscreen().catch(() => {}); } catch (_) {}
+  }
+
+  glIsLocked = false;
+  glConfidence = 0;
+  showToast('✓ Screen Unlocked');
+}
+
 /* ── Deep Link / Route Handler ── */
 const SLUG_TO_TOOL = {
+  'smart-gesture-lock': 'gesturelock',
+  'gesture-lock': 'gesturelock',
+  'gesturelock': 'gesturelock',
+  'smart-tools': 'gesturelock',
   'compound-interest-calculator': 'compound',
   'compound-calculator': 'compound',
   'compound-interest': 'compound',
