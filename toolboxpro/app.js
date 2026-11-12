@@ -7936,8 +7936,8 @@ function pcDownload() {
 /* ─────────────────────────────────────────
    PWA Service Worker Registration, Live Update Engine & Native App Install
 ───────────────────────────────────────── */
-const APP_VERSION = 'v57.1';
-const APP_BUILD_NUM = '58';
+const APP_VERSION = 'v57.2';
+const APP_BUILD_NUM = '59';
 
 let deferredInstallPrompt = null;
 let swRegistration = null;
@@ -8768,51 +8768,41 @@ function initHeroCarousel() {
     requestAnimationFrame(animationLoop);
   }
 
-  // ── Drag & Isolated Swipe Functionality ──
+  // ── Drag & Swipe Functionality (Natural Horizontal Swipe, Non-blocking Vertical Scroll) ──
   let isDragging = false;
   let startY = 0;
   let startX = 0;
   let startContinuousPos = 0;
   let hasDragged = false;
-  let touchScrollLock = false; // true when gesture is confirmed vertical and handled by carousel
 
   function onPointerDown(e) {
     if (e.pointerType === 'mouse' && e.button !== 0) return;
     initAudio();
     isDragging = true;
     hasDragged = false;
-    touchScrollLock = false;
     isPaused = true;
     isTransitioning = false;
     clearTimeout(timerId);
     startY = e.clientY;
     startX = e.clientX;
     startContinuousPos = currentContinuousPos;
-    try { showcase.setPointerCapture(e.pointerId); } catch (_) {}
   }
 
   function onPointerMove(e) {
     if (!isDragging) return;
-    const deltaY = e.clientY - startY;
     const deltaX = e.clientX - startX;
+    const deltaY = e.clientY - startY;
 
-    // Detect if this is a deliberate vertical gesture
-    if (Math.abs(deltaY) > 6 && Math.abs(deltaY) > Math.abs(deltaX)) {
-      hasDragged = true;
-      touchScrollLock = true;
-    }
-
-    if (hasDragged) {
-      const stepDelta = -deltaY / 65;
-      let nextPos = startContinuousPos + stepDelta;
-      
-      // Enforce boundary limits [0, totalTools - 1] to avoid trapping user
-      if (nextPos < 0) {
-        nextPos = 0;
-      } else if (nextPos > totalTools - 1) {
-        nextPos = totalTools - 1;
+    // Detect if this is an intentional horizontal carousel swipe
+    if (Math.abs(deltaX) > 10 && Math.abs(deltaX) > Math.abs(deltaY)) {
+      if (!hasDragged) {
+        hasDragged = true;
+        try { showcase.setPointerCapture(e.pointerId); } catch (_) {}
       }
-
+      const stepDelta = -deltaX / 80;
+      let nextPos = startContinuousPos + stepDelta;
+      if (nextPos < 0) nextPos = 0;
+      else if (nextPos > totalTools - 1) nextPos = totalTools - 1;
       currentContinuousPos = nextPos;
       renderCarousel(currentContinuousPos);
     }
@@ -8821,14 +8811,15 @@ function initHeroCarousel() {
   function onPointerUp(e) {
     if (!isDragging) return;
     isDragging = false;
-    touchScrollLock = false;
     try { showcase.releasePointerCapture(e.pointerId); } catch (_) {}
 
-    const nearestStep = Math.max(0, Math.min(totalTools - 1, Math.round(currentContinuousPos)));
-    currentStep = nearestStep;
-    targetStep = currentStep;
-    isTransitioning = true;
-    transitionStart = performance.now();
+    if (hasDragged) {
+      const nearestStep = Math.max(0, Math.min(totalTools - 1, Math.round(currentContinuousPos)));
+      currentStep = nearestStep;
+      targetStep = currentStep;
+      isTransitioning = true;
+      transitionStart = performance.now();
+    }
 
     setTimeout(() => {
       hasDragged = false;
@@ -8842,83 +8833,27 @@ function initHeroCarousel() {
   showcase.addEventListener('pointerup', onPointerUp);
   showcase.addEventListener('pointercancel', onPointerUp);
 
-  // ── Touch Gesture Interceptor: Only cancel native scroll when active inside carousel bounds ──
-  showcase.addEventListener('touchmove', (e) => {
-    if (!touchScrollLock || !e.cancelable) return;
-
-    if (e.touches && e.touches.length > 0) {
-      const currentTouchY = e.touches[0].clientY;
-      const touchDeltaY = currentTouchY - startY;
-
-      // When dragging down at top boundary (first item), or dragging up at bottom boundary (last item),
-      // allow normal page scrolling instead of trapping the user.
-      if (currentContinuousPos <= 0.05 && touchDeltaY > 0) {
-        return; // Allow page to scroll down
-      }
-      if (currentContinuousPos >= totalTools - 1 - 0.05 && touchDeltaY < 0) {
-        return; // Allow page to scroll up
-      }
-    }
-
-    // Carousel is actively consuming vertical swipe: keep page stationary
-    e.preventDefault();
-  }, { passive: false });
-
-  // ── Isolated Scrolling: Wheel & Trackpad Interceptor ──
-  // ONLY the tools carousel scrolls when cursor/pointer is inside this area.
-  // When carousel reaches the first or last tool, allow normal page scrolling in that direction.
-  let wheelAccumulator = 0;
-  let wheelSnapTimer = null;
-
+  // Allow horizontal trackpad scrolling without blocking vertical page scroll
   showcase.addEventListener('wheel', (e) => {
-    const delta = e.deltaY !== undefined ? e.deltaY : e.detail;
-    if (!delta) return;
-
-    // Boundary check:
-    // If scrolling up (delta < 0) and already at the first item (<= 0.05), allow outer page to scroll up.
-    if (delta < 0 && currentContinuousPos <= 0.05) {
-      return;
-    }
-    // If scrolling down (delta > 0) and already at the last item (>= totalTools - 1 - 0.05), allow outer page to scroll down.
-    if (delta > 0 && currentContinuousPos >= totalTools - 1 - 0.05) {
-      return;
-    }
-
-    // Carousel consumes the wheel event: keep main webpage stationary
-    e.preventDefault();
-    e.stopPropagation();
-    initAudio();
-
-    isPaused = true;
-    isTransitioning = false;
-    clearTimeout(timerId);
-    clearTimeout(wheelSnapTimer);
-
-    wheelAccumulator += delta;
-
-    // Smooth movement mapping
-    const stepDelta = (delta / 120) * 0.45;
-    let nextPos = currentContinuousPos + stepDelta;
-    if (nextPos < 0) nextPos = 0;
-    if (nextPos > totalTools - 1) nextPos = totalTools - 1;
-    currentContinuousPos = nextPos;
-    renderCarousel(currentContinuousPos);
-
-    // Debounce snap to closest tool
-    wheelSnapTimer = setTimeout(() => {
-      const nearestStep = Math.max(0, Math.min(totalTools - 1, Math.round(currentContinuousPos)));
-      currentStep = nearestStep;
-      targetStep = currentStep;
-      isTransitioning = true;
-      transitionStart = performance.now();
-      wheelAccumulator = 0;
-
+    // Only respond to horizontal trackpad wheel gestures (deltaX)
+    if (Math.abs(e.deltaX) > Math.abs(e.deltaY) && Math.abs(e.deltaX) > 5) {
+      initAudio();
+      isPaused = true;
+      isTransitioning = false;
+      clearTimeout(timerId);
+      const stepDelta = (e.deltaX / 100) * 0.4;
+      let nextPos = currentContinuousPos + stepDelta;
+      if (nextPos < 0) nextPos = 0;
+      if (nextPos > totalTools - 1) nextPos = totalTools - 1;
+      currentContinuousPos = nextPos;
+      renderCarousel(currentContinuousPos);
       setTimeout(() => {
         isPaused = false;
         scheduleNext(INTERVAL_MS);
       }, 300);
-    }, 120);
-  }, { passive: false });
+    }
+    // Vertical wheel events are NEVER blocked, allowing page scrolling to flow naturally
+  }, { passive: true });
 
   // prefers-reduced-motion check
   const prefersReducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -11789,24 +11724,22 @@ function initUniqueBackground() {
     }
   });
 
-  // Mobile Scroll Throttling: Pause canvas execution during touch scrolling
+  // Scroll Performance Optimization: Pause canvas rendering while scrolling on all devices
   let isScrolling = false;
   let scrollDebounce = null;
   window.addEventListener('scroll', () => {
-    if (isMobile) {
-      isScrolling = true;
-      clearTimeout(scrollDebounce);
-      scrollDebounce = setTimeout(() => {
-        isScrolling = false;
-        lastTime = performance.now();
-      }, 90);
-    }
+    isScrolling = true;
+    clearTimeout(scrollDebounce);
+    scrollDebounce = setTimeout(() => {
+      isScrolling = false;
+      lastTime = performance.now();
+    }, 80);
   }, { passive: true });
 
   function render(now) {
     if (!isRunning) return;
 
-    if (isScrolling && isMobile) {
+    if (isScrolling) {
       animationFrameId = requestAnimationFrame(render);
       return;
     }

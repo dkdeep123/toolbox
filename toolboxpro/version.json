@@ -1,7 +1,7 @@
 {
-  "version": "v57.1",
-  "build": 58,
-  "sha": "camera-native-fix",
-  "timestamp": 1731412000000,
-  "deployedAt": "2026-11-12T11:58:00Z"
+  "version": "v57.2",
+  "build": 59,
+  "sha": "smooth-scroll-fix",
+  "timestamp": 1731413000000,
+  "deployedAt": "2026-11-12T12:10:00Z"
 }

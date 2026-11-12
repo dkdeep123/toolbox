@@ -40,12 +40,8 @@
 html {
   -webkit-text-size-adjust: 100%;
   overflow-x: hidden;
+  scroll-behavior: smooth;
   -webkit-overflow-scrolling: touch;
-}
-@media (min-width: 769px) {
-  html {
-    scroll-behavior: smooth;
-  }
 }
 body {
   background: var(--bg);
@@ -56,11 +52,10 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   position: relative;
-  overflow-x: hidden;
+  overflow-x: clip; /* Clip horizontal overflow without detaching native root compositor scrolling */
   width: 100%;
   max-width: 100%;
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: auto;
 }
 body.mobile-drawer-open,
 body.modal-open {
@@ -72,29 +67,19 @@ body.modal-open {
   .desktop-only { display: none !important; }
 
   html {
-    scroll-behavior: auto !important; /* Critical for native 120Hz touch fling physics */
-    -webkit-overflow-scrolling: touch !important;
+    scroll-behavior: auto; /* Natural high-refresh-rate 120Hz fling physics on touch screens */
+    -webkit-overflow-scrolling: touch;
   }
   body {
-    -webkit-overflow-scrolling: touch !important;
-    overscroll-behavior-y: auto !important;
+    -webkit-overflow-scrolling: touch;
   }
-  /* Eliminate heavy 90px multi-pass blur and continuous keyframe recalculation on mobile */
+  /* Eliminate heavy multi-pass blur and continuous keyframe recalculation on mobile */
   .bg-aurora-orb {
     filter: blur(24px) !important;
     -webkit-filter: blur(24px) !important;
     animation: none !important;
     opacity: 0.16 !important;
     transform: none !important;
-  }
-  /* Content visibility allows mobile browser to skip offscreen layout during scrolling */
-  .category-block {
-    content-visibility: auto;
-    contain-intrinsic-size: 0 420px;
-  }
-  .tool {
-    transform: translateZ(0);
-    backface-visibility: hidden;
   }
 }
 
@@ -2967,7 +2952,6 @@ body.dark .info-note { background: var(--surface-subtle); border-color: var(--li
 /* Base reveal state for below-the-fold scroll elements */
 .reveal {
   opacity: 0;
-  will-change: transform, opacity;
   transition:
     opacity var(--reveal-duration) var(--reveal-ease),
     transform var(--reveal-duration) var(--reveal-ease);
