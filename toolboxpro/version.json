@@ -1,7 +1,7 @@
 {
-  "version": "v57.2",
-  "build": 59,
-  "sha": "smooth-scroll-fix",
-  "timestamp": 1731413000000,
-  "deployedAt": "2026-11-12T12:10:00Z"
+  "version": "v57.3",
+  "build": 60,
+  "sha": "camera-permission-fix",
+  "timestamp": 1731415000000,
+  "deployedAt": "2026-11-12T12:35:00Z"
 }

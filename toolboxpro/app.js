@@ -3048,7 +3048,7 @@ function buildForm(id) {
               <div class="gl-ph-icon" id="gl_ph_icon">📷</div>
               <div id="gl_ph_title" class="gl-ph-title">Camera is Off</div>
               <p id="gl_ph_desc" class="gl-ph-desc">Click Enable Camera to use hands-free gestures.</p>
-              <button type="button" id="gl_retry_btn" class="primary gl-retry-btn hidden" onclick="glRequestCameraPermission()">Retry</button>
+              <button type="button" id="gl_retry_btn" class="primary gl-retry-btn hidden" onclick="glRequestCameraPermission(false)">Retry</button>
             </div>
 
             <video id="gl_video" class="gl-video hidden" autoplay playsinline muted></video>
@@ -10374,29 +10374,15 @@ function initGestureLockTool() {
     if (phDesc) phDesc.textContent = 'Click Enable Camera to use hands-free gestures.';
     if (retryBtn) retryBtn.classList.add('hidden');
 
-    // If permission was previously granted, start the camera without asking again
+    // If permission was previously granted, attempt silent connection without prompting
     if (navigator.permissions && navigator.permissions.query) {
-      navigator.permissions.query({ name: 'camera' }).then(perm => {
-        if (perm.state === 'granted' && !glStream) {
-          glRequestCameraPermission();
-        } else if (perm.state === 'denied') {
-          // Provide instructions to change browser/site permissions instead of repeatedly requesting access
-          if (statusBadge) {
-            statusBadge.textContent = '● Camera Blocked';
-            statusBadge.className = 'gl-status-badge gl-status-denied';
+      try {
+        navigator.permissions.query({ name: 'camera' }).then(perm => {
+          if (perm && perm.state === 'granted' && !glStream) {
+            glRequestCameraPermission(true).catch(() => {});
           }
-          if (phTitle) phTitle.textContent = 'Camera Access Blocked';
-          if (phDesc) {
-            phDesc.textContent = 'Camera access blocked. Please allow camera access in site settings.';
-          }
-          if (retryBtn) retryBtn.classList.remove('hidden');
-          if (toggleBtn) {
-            toggleBtn.innerHTML = '<span>🔄 Retry</span>';
-            toggleBtn.className = 'primary gl-sensor-btn';
-            toggleBtn.onclick = glRequestCameraPermission;
-          }
-        }
-      }).catch(() => {});
+        }).catch(() => {});
+      } catch (_) {}
     }
   }
 }
@@ -10458,6 +10444,9 @@ function glSelectGesture(gesture, persist = true) {
 
   if (persist) {
     try { localStorage.setItem('tb_gl_gesture', gesture); } catch (_) {}
+    if (!glStream) {
+      glRequestCameraPermission(false);
+    }
   }
 }
 
@@ -10477,6 +10466,9 @@ function glSelectMode(mode, persist = true) {
 
   if (persist) {
     try { localStorage.setItem('tb_gl_mode', mode); } catch (_) {}
+    if (!glStream) {
+      glRequestCameraPermission(false);
+    }
   }
 }
 
@@ -10484,18 +10476,38 @@ function glToggleSensor() {
   if (glStream) {
     glTurnSensorOff();
   } else {
-    glRequestCameraPermission();
+    glRequestCameraPermission(false);
   }
 }
 
 function glTurnSensorOff() {
   stopGestureLockCamera();
+  const statusBadge = document.getElementById('gl_cam_status');
+  const toggleBtn = document.getElementById('gl_sensor_toggle_btn');
+  const phTitle = document.getElementById('gl_ph_title');
+  const phDesc = document.getElementById('gl_ph_desc');
+  const retryBtn = document.getElementById('gl_retry_btn');
+
+  if (statusBadge) {
+    statusBadge.textContent = '● Camera Off';
+    statusBadge.className = 'gl-status-badge gl-status-off';
+  }
+  if (toggleBtn) {
+    toggleBtn.disabled = false;
+    toggleBtn.innerHTML = '<span>📷 Enable Camera</span>';
+    toggleBtn.className = 'primary gl-sensor-btn';
+    toggleBtn.onclick = glToggleSensor;
+  }
+  if (phTitle) phTitle.textContent = 'Camera is Off';
+  if (phDesc) phDesc.textContent = 'Click Enable Camera to use hands-free gestures.';
+  if (retryBtn) retryBtn.classList.add('hidden');
+
   showToast('Camera turned off');
 }
 
 let glCameraRequestPending = false;
 
-async function glRequestCameraPermission() {
+async function glRequestCameraPermission(isSilentBg = false) {
   if (glCameraRequestPending) return;
 
   const video = document.getElementById('gl_video');
@@ -10507,16 +10519,50 @@ async function glRequestCameraPermission() {
   const phTitle = document.getElementById('gl_ph_title');
   const phDesc = document.getElementById('gl_ph_desc');
 
-  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    showToast('⚠️ Camera access not supported on this browser or device.');
+  // Secure context check: WebRTC getUserMedia requires HTTPS or localhost
+  if (!window.isSecureContext && location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+    if (!isSilentBg) {
+      if (statusBadge) {
+        statusBadge.textContent = '● HTTPS Required';
+        statusBadge.className = 'gl-status-badge gl-status-denied';
+      }
+      if (phTitle) phTitle.textContent = 'HTTPS Connection Required';
+      if (phDesc) {
+        phDesc.textContent = 'Device camera access is only permitted by modern browsers over a secure HTTPS connection. Please access ToolBoxPro via https://toolboxpro.in';
+      }
+      if (retryBtn) retryBtn.classList.add('hidden');
+      showToast('⚠️ Camera requires a secure HTTPS connection.');
+    }
+    return;
+  }
+
+  const hasMediaDevices = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
+  const legacyGetUserMedia = navigator.getUserMedia ||
+    navigator.webkitGetUserMedia ||
+    navigator.mozGetUserMedia ||
+    navigator.msGetUserMedia;
+
+  if (!hasMediaDevices && !legacyGetUserMedia) {
+    if (!isSilentBg) {
+      if (statusBadge) {
+        statusBadge.textContent = '● Not Supported';
+        statusBadge.className = 'gl-status-badge gl-status-denied';
+      }
+      if (phTitle) phTitle.textContent = 'Camera Not Supported';
+      if (phDesc) {
+        phDesc.textContent = 'Your device or browser does not support WebRTC camera capture. Please try latest Chrome, Edge, or Safari.';
+      }
+      if (retryBtn) retryBtn.classList.add('hidden');
+      showToast('⚠️ Camera access not supported on this browser or device.');
+    }
     return;
   }
 
   glCameraRequestPending = true;
 
-  try {
+  if (!isSilentBg) {
     if (statusBadge) {
-      statusBadge.textContent = '● Connecting...';
+      statusBadge.textContent = '● Requesting...';
       statusBadge.className = 'gl-status-badge gl-status-requesting';
     }
     if (toggleBtn) {
@@ -10524,29 +10570,56 @@ async function glRequestCameraPermission() {
       toggleBtn.innerHTML = '<span>⏳ Requesting Camera...</span>';
     }
     if (retryBtn) retryBtn.classList.add('hidden');
+  }
+
+  try {
+    const callGUM = (constraints) => {
+      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        return navigator.mediaDevices.getUserMedia(constraints);
+      }
+      return new Promise((resolve, reject) => {
+        legacyGetUserMedia.call(navigator, constraints, resolve, reject);
+      });
+    };
+
+    let stream = null;
 
     // Use native camera permission API: navigator.mediaDevices.getUserMedia({ video: true })
-    // On mobile devices (Android Chrome / iOS Safari), try user-facing camera first, fallback to video: true
-    let stream;
+    // We try ideal front camera first. If any hardware/constraint error occurs, fall back to universal { video: true }
     try {
-      stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'user' },
+      stream = await callGUM({
+        video: {
+          facingMode: { ideal: 'user' },
+          width: { ideal: 640 },
+          height: { ideal: 480 }
+        },
         audio: false
       });
-    } catch (constraintErr) {
-      if (constraintErr.name === 'OverconstrainedError' || constraintErr.name === 'ConstraintNotSatisfiedError') {
-        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
-      } else {
-        throw constraintErr;
+    } catch (idealErr) {
+      // If user actively blocked / denied the browser prompt, do NOT retry other constraints
+      if (idealErr && (idealErr.name === 'NotAllowedError' || idealErr.name === 'PermissionDeniedError')) {
+        throw idealErr;
       }
+      // Fallback: Simplest native constraint (ensures prompt appears on all Android & desktop devices)
+      stream = await callGUM({ video: true, audio: false });
+    }
+
+    if (!stream) {
+      throw new Error('No camera stream received');
     }
 
     glStream = stream;
 
     if (video) {
       video.srcObject = glStream;
+      video.setAttribute('playsinline', 'true');
+      video.setAttribute('autoplay', 'true');
+      video.setAttribute('muted', 'true');
+      video.muted = true;
       video.classList.remove('hidden');
-      await video.play().catch(() => {});
+      try {
+        await video.play();
+      } catch (_) {}
     }
 
     if (placeholder) placeholder.classList.add('hidden');
@@ -10566,29 +10639,37 @@ async function glRequestCameraPermission() {
 
     glConfidence = 0;
     glCentroidHistory = [];
-    showToast('✓ Camera Connected');
+    if (!isSilentBg) {
+      showToast('✓ Camera Connected');
+    }
     glProcessFrame();
   } catch (err) {
     stopGestureLockCamera();
 
-    if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')) {
+    if (isSilentBg) {
+      return;
+    }
+
+    const isDenied = err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError');
+
+    if (isDenied) {
       if (statusBadge) {
         statusBadge.textContent = '● Camera Blocked';
         statusBadge.className = 'gl-status-badge gl-status-denied';
       }
       if (phTitle) phTitle.textContent = 'Camera Access Blocked';
       if (phDesc) {
-        phDesc.textContent = 'Camera access blocked. Please allow camera access in site settings.';
+        phDesc.textContent = 'Camera access blocked in browser settings. Tap the 🔒 or 🎚️ icon in the address bar, allow Camera access, and tap Retry.';
       }
       if (retryBtn) {
         retryBtn.classList.remove('hidden');
-        retryBtn.onclick = glRequestCameraPermission;
+        retryBtn.onclick = () => { glRequestCameraPermission(false); };
       }
       if (toggleBtn) {
         toggleBtn.disabled = false;
         toggleBtn.innerHTML = '<span>🔄 Retry</span>';
         toggleBtn.className = 'primary gl-sensor-btn';
-        toggleBtn.onclick = glRequestCameraPermission;
+        toggleBtn.onclick = () => { glRequestCameraPermission(false); };
       }
       showToast('Camera access blocked. Please allow camera access in site settings.');
     } else {
@@ -10597,16 +10678,18 @@ async function glRequestCameraPermission() {
         statusBadge.className = 'gl-status-badge gl-status-denied';
       }
       if (phTitle) phTitle.textContent = 'Camera Unavailable';
-      if (phDesc) phDesc.textContent = err.message || 'Unable to access device camera. Please close other camera apps and retry.';
+      if (phDesc) {
+        phDesc.textContent = err.message || 'Unable to access device camera. Please close other camera apps and retry.';
+      }
       if (retryBtn) {
         retryBtn.classList.remove('hidden');
-        retryBtn.onclick = glRequestCameraPermission;
+        retryBtn.onclick = () => { glRequestCameraPermission(false); };
       }
       if (toggleBtn) {
         toggleBtn.disabled = false;
         toggleBtn.innerHTML = '<span>🔄 Retry</span>';
         toggleBtn.className = 'primary gl-sensor-btn';
-        toggleBtn.onclick = glRequestCameraPermission;
+        toggleBtn.onclick = () => { glRequestCameraPermission(false); };
       }
       showToast('⚠️ Unable to access camera.');
     }
