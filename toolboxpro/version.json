@@ -1,7 +1,7 @@
 {
-  "version": "v57.0",
-  "build": 57,
-  "sha": "gesturelock-v57",
-  "timestamp": 1731411000000,
-  "deployedAt": "2026-11-12T11:45:00Z"
+  "version": "v57.1",
+  "build": 58,
+  "sha": "camera-native-fix",
+  "timestamp": 1731412000000,
+  "deployedAt": "2026-11-12T11:58:00Z"
 }

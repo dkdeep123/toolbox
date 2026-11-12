@@ -3036,40 +3036,40 @@ function buildForm(id) {
           </div>
         </div>
 
-        <!-- 3. Camera Sensor -->
+        <!-- 3. Camera Preview -->
         <div class="gl-section">
           <div class="gl-cam-header">
-            <div class="gl-section-title" style="margin:0;">Camera Sensor</div>
-            <span id="gl_cam_status" class="gl-status-badge gl-status-off">● SENSOR OFF</span>
+            <div class="gl-section-title" style="margin:0;">Camera Preview</div>
+            <span id="gl_cam_status" class="gl-status-badge gl-status-off">● Camera Off</span>
           </div>
 
           <div class="gl-viewport-wrap">
             <div id="gl_placeholder" class="gl-viewport-placeholder">
               <div class="gl-ph-icon" id="gl_ph_icon">📷</div>
-              <div id="gl_ph_title" class="gl-ph-title">Camera Sensor is OFF</div>
-              <p id="gl_ph_desc" class="gl-ph-desc">Tap "Turn On Sensor" to start real-time gesture detection.</p>
+              <div id="gl_ph_title" class="gl-ph-title">Camera is Off</div>
+              <p id="gl_ph_desc" class="gl-ph-desc">Click Enable Camera to use hands-free gestures.</p>
+              <button type="button" id="gl_retry_btn" class="primary gl-retry-btn hidden" onclick="glRequestCameraPermission()">Retry</button>
             </div>
 
             <video id="gl_video" class="gl-video hidden" autoplay playsinline muted></video>
             <canvas id="gl_canvas" width="80" height="60" class="gl-hidden-canvas"></canvas>
 
-            <!-- Cyber HUD Overlay -->
+            <!-- Clean Feedback HUD -->
             <div id="gl_hud" class="gl-hud hidden">
               <div class="gl-hud-reticle">
                 <span class="gl-corner gl-tl"></span>
                 <span class="gl-corner gl-tr"></span>
                 <span class="gl-corner gl-bl"></span>
                 <span class="gl-corner gl-br"></span>
-                <div class="gl-hud-center-dot"></div>
               </div>
               <div class="gl-hud-info">
                 <div class="gl-hud-row">
-                  <span class="gl-hud-label">TARGET:</span>
-                  <span id="gl_hud_target" class="gl-hud-val">✊ FIST</span>
+                  <span class="gl-hud-label">Target:</span>
+                  <span id="gl_hud_target" class="gl-hud-val">✊ Fist</span>
                 </div>
                 <div class="gl-hud-row">
-                  <span class="gl-hud-label">DETECTED:</span>
-                  <span id="gl_hud_detected" class="gl-hud-val">SEARCHING...</span>
+                  <span class="gl-hud-label">Detected:</span>
+                  <span id="gl_hud_detected" class="gl-hud-val">Searching...</span>
                 </div>
               </div>
               <!-- Live Confidence Bar -->
@@ -3078,17 +3078,17 @@ function buildForm(id) {
                   <div id="gl_conf_fill" class="gl-conf-fill" style="width:0%;"></div>
                 </div>
                 <div class="gl-conf-meta">
-                  <span>CONFIDENCE</span>
+                  <span>Match</span>
                   <span id="gl_conf_pct">0%</span>
                 </div>
               </div>
             </div>
           </div>
 
-          <!-- Sensor Controls -->
+          <!-- Controls -->
           <div class="gl-controls">
             <button type="button" class="primary gl-sensor-btn" id="gl_sensor_toggle_btn" onclick="glToggleSensor()">
-              <span>▶️ Turn On Sensor</span>
+              <span>📷 Enable Camera</span>
             </button>
             <button type="button" class="preset-chip gl-test-btn" onclick="glTriggerLockTest()">
               <span>⚡ Test Action</span>
@@ -7936,8 +7936,8 @@ function pcDownload() {
 /* ─────────────────────────────────────────
    PWA Service Worker Registration, Live Update Engine & Native App Install
 ───────────────────────────────────────── */
-const APP_VERSION = 'v57.0';
-const APP_BUILD_NUM = '57';
+const APP_VERSION = 'v57.1';
+const APP_BUILD_NUM = '58';
 
 let deferredInstallPrompt = null;
 let swRegistration = null;
@@ -10407,28 +10407,61 @@ function initGestureLockTool() {
     if (savedP && pinEl) pinEl.value = savedP;
   } catch (_) {}
 
-  // Sync sensor button and status badge
+  // Sync controls with current state
   const statusBadge = document.getElementById('gl_cam_status');
   const toggleBtn = document.getElementById('gl_sensor_toggle_btn');
+  const phTitle = document.getElementById('gl_ph_title');
+  const phDesc = document.getElementById('gl_ph_desc');
+  const retryBtn = document.getElementById('gl_retry_btn');
+
   if (glStream) {
     if (statusBadge) {
-      statusBadge.textContent = '● SENSOR ON';
+      statusBadge.textContent = '● Camera Connected';
       statusBadge.className = 'gl-status-badge gl-status-on';
     }
     if (toggleBtn) {
-      toggleBtn.innerHTML = '<span>⏹️ Turn OFF Sensor</span>';
-      toggleBtn.className = 'gl-sensor-btn gl-btn-off';
+      toggleBtn.innerHTML = '<span>⏹️ Disable Camera</span>';
+      toggleBtn.className = 'preset-chip gl-sensor-btn';
       toggleBtn.onclick = glToggleSensor;
     }
   } else {
+    // Initial state: Never show "Permission Denied" before requesting
     if (statusBadge) {
-      statusBadge.textContent = '● SENSOR OFF';
+      statusBadge.textContent = '● Camera Off';
       statusBadge.className = 'gl-status-badge gl-status-off';
     }
     if (toggleBtn) {
-      toggleBtn.innerHTML = '<span>▶️ Turn On Sensor</span>';
+      toggleBtn.innerHTML = '<span>📷 Enable Camera</span>';
       toggleBtn.className = 'primary gl-sensor-btn';
       toggleBtn.onclick = glToggleSensor;
+    }
+    if (phTitle) phTitle.textContent = 'Camera is Off';
+    if (phDesc) phDesc.textContent = 'Click Enable Camera to use hands-free gestures.';
+    if (retryBtn) retryBtn.classList.add('hidden');
+
+    // If permission was previously granted, start the camera without asking again
+    if (navigator.permissions && navigator.permissions.query) {
+      navigator.permissions.query({ name: 'camera' }).then(perm => {
+        if (perm.state === 'granted' && !glStream) {
+          glRequestCameraPermission();
+        } else if (perm.state === 'denied') {
+          // Provide instructions to change browser/site permissions instead of repeatedly requesting access
+          if (statusBadge) {
+            statusBadge.textContent = '● Camera Blocked';
+            statusBadge.className = 'gl-status-badge gl-status-denied';
+          }
+          if (phTitle) phTitle.textContent = 'Camera Access Blocked';
+          if (phDesc) {
+            phDesc.textContent = 'Camera access blocked. Please allow camera access in site settings.';
+          }
+          if (retryBtn) retryBtn.classList.remove('hidden');
+          if (toggleBtn) {
+            toggleBtn.innerHTML = '<span>🔄 Retry</span>';
+            toggleBtn.className = 'primary gl-sensor-btn';
+            toggleBtn.onclick = glRequestCameraPermission;
+          }
+        }
+      }).catch(() => {});
     }
   }
 }
@@ -10440,7 +10473,7 @@ function glTriggerInstall() {
       if (res && res.outcome === 'accepted') {
         try { localStorage.setItem('tb_pwa_installed', 'true'); } catch (_) {}
         initGestureLockTool();
-        showToast('✓ ToolBoxPro Installed! You can now activate the sensor.');
+        showToast('✓ ToolBoxPro Installed! You can now enable the camera.');
       } else {
         showToast('⚠️ App install required to use Smart Gesture Lock.');
       }
@@ -10463,7 +10496,7 @@ function glTriggerInstall() {
 function glCheckInstalledStatus() {
   try { localStorage.setItem('tb_pwa_installed', 'true'); } catch (_) {}
   initGestureLockTool();
-  showToast('✓ App verified! You can now turn on the sensor.');
+  showToast('✓ App verified! You can now enable the camera.');
 }
 
 function glSelectGesture(gesture, persist = true) {
@@ -10479,13 +10512,13 @@ function glSelectGesture(gesture, persist = true) {
   const targetEl = document.getElementById('gl_hud_target');
   if (targetEl) {
     const names = {
-      fist: '✊ FIST',
-      palm: '✋ PALM',
-      peace: '✌️ PEACE',
-      wave: '👋 WAVE',
-      cover: '🌑 COVER'
+      fist: '✊ Fist',
+      palm: '✋ Palm',
+      peace: '✌️ Peace',
+      wave: '👋 Wave',
+      cover: '🌑 Cover'
     };
-    targetEl.textContent = names[gesture] || gesture.toUpperCase();
+    targetEl.textContent = names[gesture] || gesture;
   }
 
   if (persist) {
@@ -10516,107 +10549,134 @@ function glToggleSensor() {
   if (glStream) {
     glTurnSensorOff();
   } else {
-    glActivateSensor();
+    glRequestCameraPermission();
   }
 }
 
 function glTurnSensorOff() {
   stopGestureLockCamera();
-  showToast('⚪ Camera Sensor turned OFF');
+  showToast('Camera turned off');
 }
 
-async function glActivateSensor() {
+let glCameraRequestPending = false;
+
+async function glRequestCameraPermission() {
+  if (glCameraRequestPending) return;
+
   const video = document.getElementById('gl_video');
   const placeholder = document.getElementById('gl_placeholder');
   const hud = document.getElementById('gl_hud');
   const statusBadge = document.getElementById('gl_cam_status');
   const toggleBtn = document.getElementById('gl_sensor_toggle_btn');
+  const retryBtn = document.getElementById('gl_retry_btn');
   const phTitle = document.getElementById('gl_ph_title');
   const phDesc = document.getElementById('gl_ph_desc');
 
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    showToast('⚠️ Camera access not supported on this device/browser.');
+    showToast('⚠️ Camera access not supported on this browser or device.');
     return;
   }
 
+  glCameraRequestPending = true;
+
   try {
     if (statusBadge) {
-      statusBadge.textContent = '● ASKING PERMISSION...';
+      statusBadge.textContent = '● Connecting...';
       statusBadge.className = 'gl-status-badge gl-status-requesting';
     }
-    if (phTitle) phTitle.textContent = 'Requesting Camera Access...';
-    if (phDesc) phDesc.textContent = 'Please tap "Allow" in your device prompt to start gesture detection.';
     if (toggleBtn) {
       toggleBtn.disabled = true;
-      toggleBtn.innerHTML = '<span>⏳ Requesting Permission...</span>';
+      toggleBtn.innerHTML = '<span>⏳ Requesting Camera...</span>';
+    }
+    if (retryBtn) retryBtn.classList.add('hidden');
+
+    // Use native camera permission API: navigator.mediaDevices.getUserMedia({ video: true })
+    // On mobile devices (Android Chrome / iOS Safari), try user-facing camera first, fallback to video: true
+    let stream;
+    try {
+      stream = await navigator.mediaDevices.getUserMedia({
+        video: { facingMode: 'user' },
+        audio: false
+      });
+    } catch (constraintErr) {
+      if (constraintErr.name === 'OverconstrainedError' || constraintErr.name === 'ConstraintNotSatisfiedError') {
+        stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+      } else {
+        throw constraintErr;
+      }
     }
 
-    // Direct browser prompt for native camera permission
-    glStream = await navigator.mediaDevices.getUserMedia({
-      video: {
-        facingMode: 'user',
-        width: { ideal: 320 },
-        height: { ideal: 240 }
-      },
-      audio: false
-    });
+    glStream = stream;
 
     if (video) {
       video.srcObject = glStream;
       video.classList.remove('hidden');
-      await video.play();
+      await video.play().catch(() => {});
     }
 
     if (placeholder) placeholder.classList.add('hidden');
     if (hud) hud.classList.remove('hidden');
 
     if (statusBadge) {
-      statusBadge.textContent = '● SENSOR ON';
+      statusBadge.textContent = '● Camera Connected';
       statusBadge.className = 'gl-status-badge gl-status-on';
     }
 
     if (toggleBtn) {
       toggleBtn.disabled = false;
-      toggleBtn.innerHTML = '<span>⏹️ Turn OFF Sensor</span>';
-      toggleBtn.className = 'gl-sensor-btn gl-btn-off';
+      toggleBtn.innerHTML = '<span>⏹️ Disable Camera</span>';
+      toggleBtn.className = 'preset-chip gl-sensor-btn';
       toggleBtn.onclick = glToggleSensor;
     }
 
     glConfidence = 0;
     glCentroidHistory = [];
-    showToast('✓ Camera Sensor Active');
+    showToast('✓ Camera Connected');
     glProcessFrame();
   } catch (err) {
     stopGestureLockCamera();
-    if (toggleBtn) toggleBtn.disabled = false;
 
     if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')) {
-      showToast('⚠️ Camera permission denied. Allow camera in browser settings.');
       if (statusBadge) {
-        statusBadge.textContent = '⚠️ PERMISSION DENIED';
+        statusBadge.textContent = '● Camera Blocked';
         statusBadge.className = 'gl-status-badge gl-status-denied';
       }
-      if (phTitle) phTitle.textContent = 'Camera Permission Denied';
-      if (phDesc) phDesc.textContent = 'Camera access was blocked. Tap the browser lock icon 🔒 or site settings to Allow camera, then retry.';
-      if (toggleBtn) {
-        toggleBtn.innerHTML = '<span>🔄 Retry Camera Permission</span>';
-        toggleBtn.className = 'primary gl-sensor-btn gl-btn-retry';
-        toggleBtn.onclick = glActivateSensor;
+      if (phTitle) phTitle.textContent = 'Camera Access Blocked';
+      if (phDesc) {
+        phDesc.textContent = 'Camera access blocked. Please allow camera access in site settings.';
       }
-    } else {
-      showToast('⚠️ Camera unavailable or in use by another application.');
-      if (statusBadge) {
-        statusBadge.textContent = '⚠️ SENSOR ERROR';
-        statusBadge.className = 'gl-status-badge gl-status-denied';
+      if (retryBtn) {
+        retryBtn.classList.remove('hidden');
+        retryBtn.onclick = glRequestCameraPermission;
       }
-      if (phTitle) phTitle.textContent = 'Camera Sensor Error';
-      if (phDesc) phDesc.textContent = 'Camera could not be accessed. Ensure no other application is using it.';
       if (toggleBtn) {
+        toggleBtn.disabled = false;
         toggleBtn.innerHTML = '<span>🔄 Retry</span>';
         toggleBtn.className = 'primary gl-sensor-btn';
-        toggleBtn.onclick = glActivateSensor;
+        toggleBtn.onclick = glRequestCameraPermission;
       }
+      showToast('Camera access blocked. Please allow camera access in site settings.');
+    } else {
+      if (statusBadge) {
+        statusBadge.textContent = '● Camera Error';
+        statusBadge.className = 'gl-status-badge gl-status-denied';
+      }
+      if (phTitle) phTitle.textContent = 'Camera Unavailable';
+      if (phDesc) phDesc.textContent = err.message || 'Unable to access device camera. Please close other camera apps and retry.';
+      if (retryBtn) {
+        retryBtn.classList.remove('hidden');
+        retryBtn.onclick = glRequestCameraPermission;
+      }
+      if (toggleBtn) {
+        toggleBtn.disabled = false;
+        toggleBtn.innerHTML = '<span>🔄 Retry</span>';
+        toggleBtn.className = 'primary gl-sensor-btn';
+        toggleBtn.onclick = glRequestCameraPermission;
+      }
+      showToast('⚠️ Unable to access camera.');
     }
+  } finally {
+    glCameraRequestPending = false;
   }
 }
 
@@ -10628,7 +10688,9 @@ function stopGestureLockCamera() {
         track.applyConstraints({ advanced: [{ torch: false }] }).catch(() => {});
       }
     } catch (_) {}
-    glStream.getTracks().forEach(t => t.stop());
+    glStream.getTracks().forEach(t => {
+      try { t.stop(); } catch (_) {}
+    });
     glStream = null;
   }
   if (glAnimFrameId) {
@@ -10641,6 +10703,7 @@ function stopGestureLockCamera() {
   const hud = document.getElementById('gl_hud');
   const statusBadge = document.getElementById('gl_cam_status');
   const toggleBtn = document.getElementById('gl_sensor_toggle_btn');
+  const retryBtn = document.getElementById('gl_retry_btn');
   const phTitle = document.getElementById('gl_ph_title');
   const phDesc = document.getElementById('gl_ph_desc');
   const fill = document.getElementById('gl_conf_fill');
@@ -10653,20 +10716,29 @@ function stopGestureLockCamera() {
   if (placeholder) placeholder.classList.remove('hidden');
   if (hud) hud.classList.add('hidden');
 
-  if (statusBadge) {
-    statusBadge.textContent = '● SENSOR OFF';
+  const isBlocked = statusBadge && statusBadge.textContent === '● Camera Blocked';
+
+  if (statusBadge && !isBlocked) {
+    statusBadge.textContent = '● Camera Off';
     statusBadge.className = 'gl-status-badge gl-status-off';
   }
 
-  if (toggleBtn) {
+  if (toggleBtn && !isBlocked) {
     toggleBtn.disabled = false;
-    toggleBtn.innerHTML = '<span>▶️ Turn On Sensor</span>';
+    toggleBtn.innerHTML = '<span>📷 Enable Camera</span>';
     toggleBtn.className = 'primary gl-sensor-btn';
     toggleBtn.onclick = glToggleSensor;
   }
 
-  if (phTitle) phTitle.textContent = 'Camera Sensor is OFF';
-  if (phDesc) phDesc.textContent = 'Tap "Turn On Sensor" to start real-time gesture detection.';
+  if (phTitle && !isBlocked) {
+    phTitle.textContent = 'Camera is Off';
+  }
+  if (phDesc && !isBlocked) {
+    phDesc.textContent = 'Click Enable Camera to use hands-free gestures.';
+  }
+  if (retryBtn && !isBlocked) {
+    retryBtn.classList.add('hidden');
+  }
 
   if (fill) fill.style.width = '0%';
   if (pct) pct.textContent = '0%';
@@ -10674,9 +10746,9 @@ function stopGestureLockCamera() {
 }
 
 // Backward compatibility aliases
+const glActivateSensor = glRequestCameraPermission;
 const glToggleCamera = glToggleSensor;
-const glStartCamera = glActivateSensor;
-const glRequestCameraPermission = glActivateSensor;
+const glStartCamera = glRequestCameraPermission;
 
 function glProcessFrame() {
   if (!glStream) return;

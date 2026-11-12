@@ -6132,31 +6132,31 @@ body.dark .gl-install-help {
   background: rgba(255, 255, 255, 0.05);
 }
 
-/* Smart Gesture Dashboard - Modern Dark Blue & Black Theme */
+/* Smart Gesture Dashboard - Native Theme System */
 .gl-dashboard {
   display: flex;
   flex-direction: column;
   gap: 16px;
-  margin-top: 6px;
+  margin-top: 4px;
   max-width: 640px;
   margin-left: auto;
   margin-right: auto;
 }
 
 .gl-section {
-  background: #0b0f19;
-  border: 1px solid #1e293b;
-  border-radius: 14px;
-  padding: 14px 16px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow-xs);
 }
 
 .gl-section-title {
-  font-size: 11.5px;
+  font-size: 12.5px;
   font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.8px;
-  color: #60a5fa;
+  letter-spacing: 0.6px;
+  color: var(--muted);
   margin-bottom: 10px;
 }
 
@@ -6179,25 +6179,25 @@ body.dark .gl-install-help {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 10px 4px;
-  background: #0f172a;
-  border: 1.5px solid #1e293b;
-  border-radius: 10px;
+  padding: 12px 6px;
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
   cursor: pointer;
-  transition: all 0.18s ease;
+  transition: var(--transition);
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 
 .gl-gesture-card:hover {
-  border-color: #3b82f6;
-  background: #131d36;
+  border-color: var(--accent);
+  background: var(--surface-hover);
 }
 
 .gl-gesture-card.active {
-  background: rgba(59, 130, 246, 0.18);
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 1px #3b82f6, 0 4px 12px rgba(59, 130, 246, 0.25);
+  background: var(--accent-tint);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
 }
 
 .gl-g-icon {
@@ -6207,14 +6207,14 @@ body.dark .gl-install-help {
 }
 
 .gl-g-name {
-  font-size: 11.5px;
+  font-size: 12px;
   font-weight: 600;
-  color: #f1f5f9;
+  color: var(--text);
   line-height: 1.2;
 }
 
 .gl-gesture-card.active .gl-g-name {
-  color: #60a5fa;
+  color: var(--accent);
 }
 
 /* 2. Lock Actions */
@@ -6235,26 +6235,26 @@ body.dark .gl-install-help {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 9px 12px;
-  background: #0f172a;
-  border: 1.5px solid #1e293b;
-  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-sm);
   cursor: pointer;
   text-align: left;
-  transition: all 0.18s ease;
+  transition: var(--transition);
   user-select: none;
   -webkit-tap-highlight-color: transparent;
 }
 
 .gl-mode-btn:hover {
-  border-color: #3b82f6;
-  background: #131d36;
+  border-color: var(--accent);
+  background: var(--surface-hover);
 }
 
 .gl-mode-btn.active {
-  background: rgba(59, 130, 246, 0.18);
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 1px #3b82f6, 0 4px 12px rgba(59, 130, 246, 0.2);
+  background: var(--accent-tint);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent);
 }
 
 .gl-m-icon {
@@ -6265,23 +6265,23 @@ body.dark .gl-install-help {
 
 .gl-m-text strong {
   display: block;
-  font-size: 12px;
+  font-size: 12.5px;
   font-weight: 600;
-  color: #f1f5f9;
+  color: var(--text);
   line-height: 1.2;
 }
 
 .gl-mode-btn.active .gl-m-text strong {
-  color: #60a5fa;
+  color: var(--accent);
 }
 
 /* PIN Setup */
 .gl-pin-config {
   margin-top: 10px;
   padding: 10px 14px;
-  background: #090d16;
-  border: 1px solid #1e293b;
-  border-radius: 10px;
+  background: var(--surface-subtle);
+  border: 1px dashed var(--line);
+  border-radius: var(--radius-sm);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -6292,7 +6292,7 @@ body.dark .gl-install-help {
 .gl-pin-label {
   font-size: 12px;
   font-weight: 600;
-  color: #94a3b8;
+  color: var(--text-secondary);
   margin: 0;
 }
 
@@ -6309,23 +6309,24 @@ body.dark .gl-install-help {
   font-weight: 700;
   letter-spacing: 4px;
   text-align: center;
-  background: #0f172a;
-  border: 1.5px solid #3b82f6;
-  border-radius: 8px;
-  color: #ffffff;
+  background: var(--surface);
+  border: 1.5px solid var(--line);
+  border-radius: var(--radius-xs);
+  color: var(--text);
 }
 
 .gl-pin-field:focus {
   outline: none;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px var(--accent-glow);
 }
 
 .gl-pin-hint {
-  font-size: 11px;
-  color: #64748b;
+  font-size: 11.5px;
+  color: var(--muted);
 }
 
-/* 3. Camera Sensor & HUD */
+/* 3. Camera Preview & Viewfinder */
 .gl-cam-header {
   display: flex;
   justify-content: space-between;
@@ -6335,8 +6336,8 @@ body.dark .gl-install-help {
 
 .gl-status-badge {
   font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.5px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
   padding: 3px 10px;
   border-radius: 999px;
   display: inline-flex;
@@ -6344,44 +6345,37 @@ body.dark .gl-install-help {
 }
 
 .gl-status-off {
-  background: rgba(148, 163, 184, 0.12);
-  color: #94a3b8;
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: var(--surface-subtle);
+  color: var(--muted);
+  border: 1px solid var(--line);
 }
 
 .gl-status-on {
-  background: rgba(16, 185, 129, 0.15);
+  background: rgba(16, 185, 129, 0.12);
   color: #10b981;
-  border: 1px solid rgba(16, 185, 129, 0.35);
-  animation: glPulseGlow 2s infinite ease-in-out;
+  border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
 .gl-status-requesting {
-  background: rgba(234, 179, 8, 0.15);
-  color: #eab308;
-  border: 1px solid rgba(234, 179, 8, 0.35);
-  animation: glPulseGlow 1s infinite alternate;
+  background: rgba(245, 158, 11, 0.12);
+  color: #d97706;
+  border: 1px solid rgba(245, 158, 11, 0.3);
 }
 
 .gl-status-denied {
-  background: rgba(239, 68, 68, 0.15);
+  background: rgba(239, 68, 68, 0.12);
   color: #ef4444;
-  border: 1px solid rgba(239, 68, 68, 0.35);
-}
-
-@keyframes glPulseGlow {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.6; }
+  border: 1px solid rgba(239, 68, 68, 0.3);
 }
 
 .gl-viewport-wrap {
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
-  max-height: 240px;
-  background: #070a12;
-  border: 1px solid #1e293b;
-  border-radius: 12px;
+  max-height: 250px;
+  background: #000000;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
   overflow: hidden;
   display: flex;
   align-items: center;
@@ -6393,29 +6387,41 @@ body.dark .gl-install-help {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 16px;
+  padding: 20px;
   text-align: center;
+  background: var(--surface-subtle);
+  width: 100%;
+  height: 100%;
 }
 
 .gl-ph-icon {
-  font-size: 34px;
+  font-size: 32px;
   margin-bottom: 6px;
   opacity: 0.85;
 }
 
 .gl-ph-title {
-  font-size: 14px;
-  font-weight: 700;
-  color: #f1f5f9;
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--text);
   margin-bottom: 4px;
 }
 
 .gl-ph-desc {
-  font-size: 11.5px;
-  max-width: 270px;
+  font-size: 12.5px;
+  max-width: 300px;
   margin: 0;
-  line-height: 1.4;
-  color: #94a3b8;
+  line-height: 1.45;
+  color: var(--muted);
+}
+
+.gl-retry-btn {
+  margin-top: 10px;
+  padding: 6px 16px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
 }
 
 .gl-video {
@@ -6429,7 +6435,7 @@ body.dark .gl-install-help {
   display: none !important;
 }
 
-/* Cyber HUD */
+/* Reticle & Feedback Overlay */
 .gl-hud {
   position: absolute;
   inset: 0;
@@ -6448,7 +6454,7 @@ body.dark .gl-install-help {
   transform: translate(-50%, -50%);
   width: 80px;
   height: 80px;
-  border: 1px dashed rgba(59, 130, 246, 0.35);
+  border: 1px dashed rgba(255, 255, 255, 0.4);
   border-radius: 8px;
 }
 
@@ -6456,7 +6462,7 @@ body.dark .gl-install-help {
   position: absolute;
   width: 10px;
   height: 10px;
-  border-color: #60a5fa;
+  border-color: #ffffff;
   border-style: solid;
 }
 
@@ -6465,27 +6471,15 @@ body.dark .gl-install-help {
 .gl-bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
 .gl-br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
 
-.gl-hud-center-dot {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 4px;
-  height: 4px;
-  background: #60a5fa;
-  border-radius: 50%;
-}
-
 .gl-hud-info {
-  background: rgba(11, 15, 25, 0.85);
-  backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
   padding: 5px 8px;
   border-radius: 6px;
   align-self: flex-start;
-  font-family: monospace;
-  font-size: 10.5px;
-  color: #f1f5f9;
-  border: 1px solid rgba(59, 130, 246, 0.25);
+  font-family: system-ui, -apple-system, sans-serif;
+  font-size: 11px;
+  color: #ffffff;
 }
 
 .gl-hud-row {
@@ -6495,26 +6489,25 @@ body.dark .gl-install-help {
 }
 
 .gl-hud-label {
-  color: #94a3b8;
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .gl-hud-val {
-  font-weight: 700;
-  color: #60a5fa;
+  font-weight: 600;
+  color: #ffffff;
 }
 
 .gl-confidence-wrap {
-  background: rgba(11, 15, 25, 0.85);
-  backdrop-filter: blur(6px);
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(4px);
   padding: 6px 10px;
   border-radius: 6px;
-  border: 1px solid rgba(59, 130, 246, 0.25);
 }
 
 .gl-confidence-bar {
   width: 100%;
-  height: 6px;
-  background: rgba(255, 255, 255, 0.12);
+  height: 5px;
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 999px;
   overflow: hidden;
   margin-bottom: 4px;
@@ -6522,20 +6515,19 @@ body.dark .gl-install-help {
 
 .gl-conf-fill {
   height: 100%;
-  background: linear-gradient(90deg, #3b82f6, #10b981);
+  background: var(--success);
   transition: width 0.1s linear;
 }
 
 .gl-conf-meta {
   display: flex;
   justify-content: space-between;
-  font-size: 9.5px;
-  font-family: monospace;
-  color: #94a3b8;
+  font-size: 10px;
+  color: rgba(255, 255, 255, 0.8);
   font-weight: 600;
 }
 
-/* Sensor Controls */
+/* Controls */
 .gl-controls {
   display: flex;
   gap: 8px;
@@ -6544,64 +6536,30 @@ body.dark .gl-install-help {
 
 .gl-sensor-btn {
   flex: 2;
-  padding: 11px 16px;
+  padding: 10px 16px;
   font-size: 13.5px;
   font-weight: 600;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 6px;
-  transition: all 0.2s ease;
-  background: #3b82f6;
-  color: #ffffff;
-  border: 1.5px solid #3b82f6;
-}
-
-.gl-sensor-btn:hover {
-  background: #2563eb;
-  border-color: #2563eb;
-}
-
-.gl-btn-off {
-  background: rgba(239, 68, 68, 0.15) !important;
-  color: #ef4444 !important;
-  border: 1.5px solid #ef4444 !important;
-}
-
-.gl-btn-off:hover {
-  background: #ef4444 !important;
-  color: #ffffff !important;
-}
-
-.gl-btn-retry {
-  background: #f59e0b !important;
-  color: #0b0f19 !important;
-  border: 1.5px solid #f59e0b !important;
-  font-weight: 700 !important;
+  transition: var(--transition);
 }
 
 .gl-test-btn {
   flex: 1;
-  padding: 11px 12px;
-  font-size: 12.5px;
+  padding: 10px 12px;
+  font-size: 13px;
   font-weight: 600;
-  border-radius: 10px;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 4px;
-  background: #0f172a;
-  color: #e2e8f0;
-  border: 1px solid #1e293b;
-  transition: all 0.2s ease;
-}
-
-.gl-test-btn:hover {
-  border-color: #3b82f6;
-  background: #131d36;
+  transition: var(--transition);
 }
 
 /* ─────────────────────────────────────────
