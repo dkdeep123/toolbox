@@ -8,15 +8,15 @@
    ─ Falls back to offline page on error
 ───────────────────────────────────────── */
 
-const CACHE_NAME = 'toolboxpro-v60';
+const CACHE_NAME = 'toolboxpro-v61';
 
 /** Trusted, explicitly-listed assets to pre-cache on install. */
 const PRECACHE_ASSETS = [
   '/',
   '/index.html',
   '/404.html',
-  '/styles.css?v=60',
-  '/app.js?v=60',
+  '/styles.css?v=61',
+  '/app.js?v=61',
   '/logo.svg',
   '/og-image.png',
   '/manifest.json',
@@ -103,8 +103,9 @@ function isStorableResponse(response) {
   );
 }
 
-/* ── Install: pre-cache known-good assets ── */
+/* ── Install: pre-cache known-good assets & skip waiting ── */
 self.addEventListener('install', (event) => {
+  self.skipWaiting();
   event.waitUntil(
     caches
       .open(CACHE_NAME)

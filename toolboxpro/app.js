@@ -10585,23 +10585,15 @@ async function glRequestCameraPermission(isSilentBg = false) {
     let stream = null;
 
     // Use native camera permission API: navigator.mediaDevices.getUserMedia({ video: true })
-    // We try ideal front camera first. If any hardware/constraint error occurs, fall back to universal { video: true }
+    // Direct unconstrained video request guarantees the native OS / browser permission prompt appears
     try {
-      stream = await callGUM({
-        video: {
-          facingMode: { ideal: 'user' },
-          width: { ideal: 640 },
-          height: { ideal: 480 }
-        },
-        audio: false
-      });
-    } catch (idealErr) {
-      // If user actively blocked / denied the browser prompt, do NOT retry other constraints
-      if (idealErr && (idealErr.name === 'NotAllowedError' || idealErr.name === 'PermissionDeniedError')) {
-        throw idealErr;
+      stream = await callGUM({ video: true });
+    } catch (gumErr) {
+      if (gumErr && (gumErr.name === 'NotAllowedError' || gumErr.name === 'PermissionDeniedError')) {
+        throw gumErr;
       }
-      // Fallback: Simplest native constraint (ensures prompt appears on all Android & desktop devices)
-      stream = await callGUM({ video: true, audio: false });
+      // Fallback attempt with facingMode: user
+      stream = await callGUM({ video: { facingMode: 'user' } });
     }
 
     if (!stream) {
@@ -10659,7 +10651,7 @@ async function glRequestCameraPermission(isSilentBg = false) {
       }
       if (phTitle) phTitle.textContent = 'Camera Access Blocked';
       if (phDesc) {
-        phDesc.textContent = 'Camera access blocked in browser settings. Tap the 🔒 or 🎚️ icon in the address bar, allow Camera access, and tap Retry.';
+        phDesc.innerHTML = 'Camera access blocked.<br/>• <strong>Browser:</strong> Tap 🔒 icon in address bar → Permissions → Allow Camera.<br/>• <strong>Installed App:</strong> Long-press app icon on home screen → App Info (ⓘ) → Permissions → Camera → Allow.<br/>• <strong>Settings:</strong> Phone Settings → Apps → Chrome / ToolBoxPro → Permissions → Camera → Allow.';
       }
       if (retryBtn) {
         retryBtn.classList.remove('hidden');
