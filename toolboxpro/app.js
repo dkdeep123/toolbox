@@ -2961,39 +2961,25 @@ function buildForm(id) {
       </div>`,
 
     gesturelock: `
-      <h2>🤖 Smart Gesture</h2>
-
-      <!-- PWA Install Gate Notice -->
-      <div id="gl_pwa_gate" class="gl-pwa-gate">
-        <div class="gl-gate-badge">🔒 App Required</div>
-        <h3 class="gl-gate-title">Install App to Use Smart Gesture</h3>
-        <div class="gl-gate-actions">
-          <button type="button" class="primary gl-gate-install-btn" onclick="glTriggerInstall()">
-            <span>📲 Install App</span>
-          </button>
-          <button type="button" class="preset-chip gl-gate-verify-btn" onclick="glCheckInstalledStatus()">
-            <span>✓ Already Installed</span>
-          </button>
-        </div>
-      </div>
+      <h2>🤖 Smart Gesture Lock</h2>
 
       <!-- Main Gesture Dashboard -->
       <div id="gl_dashboard" class="gl-dashboard">
-        <!-- 1. Gesture Selector -->
+        <!-- 1. Gesture Options -->
         <div class="gl-section">
-          <label class="gl-section-label">1. Gesture</label>
+          <div class="gl-section-title">Trigger Gesture</div>
           <div class="gl-gesture-grid" role="radiogroup" aria-label="Trigger Gesture Selection">
             <button type="button" class="gl-gesture-card active" data-gesture="fist" onclick="glSelectGesture('fist')">
               <span class="gl-g-icon">✊</span>
-              <span class="gl-g-name">Closed Fist</span>
+              <span class="gl-g-name">Fist</span>
             </button>
             <button type="button" class="gl-gesture-card" data-gesture="palm" onclick="glSelectGesture('palm')">
               <span class="gl-g-icon">✋</span>
-              <span class="gl-g-name">Open Palm</span>
+              <span class="gl-g-name">Palm</span>
             </button>
             <button type="button" class="gl-gesture-card" data-gesture="peace" onclick="glSelectGesture('peace')">
               <span class="gl-g-icon">✌️</span>
-              <span class="gl-g-name">Peace Sign</span>
+              <span class="gl-g-name">Peace</span>
             </button>
             <button type="button" class="gl-gesture-card" data-gesture="wave" onclick="glSelectGesture('wave')">
               <span class="gl-g-icon">👋</span>
@@ -3006,46 +2992,46 @@ function buildForm(id) {
           </div>
         </div>
 
-        <!-- 2. Action Selector -->
+        <!-- 2. Lock Action Options -->
         <div class="gl-section">
-          <label class="gl-section-label">2. Action</label>
+          <div class="gl-section-title">Lock Action</div>
           <div class="gl-mode-selector" role="radiogroup" aria-label="Smart Action Selection">
             <button type="button" class="gl-mode-btn active" data-mode="blackout" onclick="glSelectMode('blackout')">
               <span class="gl-m-icon">📱</span>
-              <span class="gl-m-text"><strong>Blackout</strong><small>OLED pitch black</small></span>
+              <span class="gl-m-text"><strong>Blackout</strong></span>
             </button>
             <button type="button" class="gl-mode-btn" data-mode="pin" onclick="glSelectMode('pin')">
               <span class="gl-m-icon">🔒</span>
-              <span class="gl-m-text"><strong>PIN Lock</strong><small>4-digit code</small></span>
+              <span class="gl-m-text"><strong>Security PIN</strong></span>
             </button>
             <button type="button" class="gl-mode-btn" data-mode="siren" onclick="glSelectMode('siren')">
               <span class="gl-m-icon">🚨</span>
-              <span class="gl-m-text"><strong>Siren</strong><small>Loud alarm</small></span>
+              <span class="gl-m-text"><strong>Siren</strong></span>
             </button>
             <button type="button" class="gl-mode-btn" data-mode="flashlight" onclick="glSelectMode('flashlight')">
               <span class="gl-m-icon">🔦</span>
-              <span class="gl-m-text"><strong>Torch</strong><small>Screen / LED</small></span>
+              <span class="gl-m-text"><strong>Torch</strong></span>
             </button>
             <button type="button" class="gl-mode-btn" data-mode="sos" onclick="glSelectMode('sos')">
               <span class="gl-m-icon">🆘</span>
-              <span class="gl-m-text"><strong>SOS</strong><small>Emergency strobe</small></span>
+              <span class="gl-m-text"><strong>SOS</strong></span>
             </button>
             <button type="button" class="gl-mode-btn" data-mode="stealth" onclick="glSelectMode('stealth')">
               <span class="gl-m-icon">🧮</span>
-              <span class="gl-m-text"><strong>Calculator</strong><small>Stealth decoy</small></span>
+              <span class="gl-m-text"><strong>Calculator</strong></span>
             </button>
             <button type="button" class="gl-mode-btn" data-mode="snapshot" onclick="glSelectMode('snapshot')">
               <span class="gl-m-icon">📸</span>
-              <span class="gl-m-text"><strong>Photo Snap</strong><small>Intruder photo</small></span>
+              <span class="gl-m-text"><strong>Photo Snap</strong></span>
             </button>
           </div>
 
-          <!-- PIN setting -->
+          <!-- PIN Setup (shown when Security PIN is selected) -->
           <div id="gl_pin_config" class="gl-pin-config hidden">
-            <label for="gl_user_pin">Set 4-Digit PIN:</label>
-            <div style="display:flex; gap:8px; align-items:center;">
-              <input id="gl_user_pin" type="password" maxlength="4" pattern="[0-9]*" inputmode="numeric" value="1234" style="max-width:110px; font-size:18px; letter-spacing:4px; text-align:center;" />
-              <small style="color:var(--text-secondary);">(Default: 1234)</small>
+            <label for="gl_user_pin" class="gl-pin-label">Set 4-Digit Security PIN:</label>
+            <div class="gl-pin-row">
+              <input id="gl_user_pin" type="password" maxlength="4" pattern="[0-9]*" inputmode="numeric" value="1234" class="gl-pin-field" />
+              <span class="gl-pin-hint">(Default: 1234)</span>
             </div>
           </div>
         </div>
@@ -3053,14 +3039,15 @@ function buildForm(id) {
         <!-- 3. Camera Sensor -->
         <div class="gl-section">
           <div class="gl-cam-header">
-            <label class="gl-section-label" style="margin:0;">3. Camera Sensor</label>
-            <span id="gl_cam_status" class="gl-status-badge gl-status-off">⚪ OFF</span>
+            <div class="gl-section-title" style="margin:0;">Camera Sensor</div>
+            <span id="gl_cam_status" class="gl-status-badge gl-status-off">● SENSOR OFF</span>
           </div>
 
           <div class="gl-viewport-wrap">
             <div id="gl_placeholder" class="gl-viewport-placeholder">
-              <div class="gl-ph-icon">📷</div>
-              <div id="gl_ph_title" class="gl-ph-title">Camera Permission Needed</div>
+              <div class="gl-ph-icon" id="gl_ph_icon">📷</div>
+              <div id="gl_ph_title" class="gl-ph-title">Camera Sensor is OFF</div>
+              <p id="gl_ph_desc" class="gl-ph-desc">Tap "Turn On Sensor" to start real-time gesture detection.</p>
             </div>
 
             <video id="gl_video" class="gl-video hidden" autoplay playsinline muted></video>
@@ -3078,7 +3065,7 @@ function buildForm(id) {
               <div class="gl-hud-info">
                 <div class="gl-hud-row">
                   <span class="gl-hud-label">TARGET:</span>
-                  <span id="gl_hud_target" class="gl-hud-val">✊ CLOSED FIST</span>
+                  <span id="gl_hud_target" class="gl-hud-val">✊ FIST</span>
                 </div>
                 <div class="gl-hud-row">
                   <span class="gl-hud-label">DETECTED:</span>
@@ -3098,12 +3085,12 @@ function buildForm(id) {
             </div>
           </div>
 
-          <!-- Controls -->
+          <!-- Sensor Controls -->
           <div class="gl-controls">
-            <button type="button" class="primary" id="gl_cam_main_btn" onclick="glRequestCameraPermission()">
-              <span>📷 Allow Camera Permission</span>
+            <button type="button" class="primary gl-sensor-btn" id="gl_sensor_toggle_btn" onclick="glToggleSensor()">
+              <span>▶️ Turn On Sensor</span>
             </button>
-            <button type="button" class="preset-chip" onclick="glTriggerLockTest()">
+            <button type="button" class="preset-chip gl-test-btn" onclick="glTriggerLockTest()">
               <span>⚡ Test Action</span>
             </button>
           </div>
@@ -7949,8 +7936,8 @@ function pcDownload() {
 /* ─────────────────────────────────────────
    PWA Service Worker Registration, Live Update Engine & Native App Install
 ───────────────────────────────────────── */
-const APP_VERSION = 'v56.0';
-const APP_BUILD_NUM = '56';
+const APP_VERSION = 'v57.0';
+const APP_BUILD_NUM = '57';
 
 let deferredInstallPrompt = null;
 let swRegistration = null;
@@ -10404,31 +10391,46 @@ function isGestureLockInstalled() {
 }
 
 function initGestureLockTool() {
-  const isInstalled = isGestureLockInstalled();
-  const gate = document.getElementById('gl_pwa_gate');
   const dash = document.getElementById('gl_dashboard');
-
-  if (gate && dash) {
-    if (isInstalled) {
-      gate.classList.add('hidden');
-      dash.classList.remove('hidden');
-    } else {
-      gate.classList.remove('hidden');
-      dash.classList.add('hidden');
-      stopGestureLockCamera();
-    }
+  if (dash) {
+    dash.classList.remove('hidden');
   }
 
-  // Restore saved preferences without triggering auto camera request on initial load
+  // Restore saved preferences without triggering camera permission
   try {
-    const savedG = localStorage.getItem('tb_gl_gesture');
-    if (savedG) glSelectGesture(savedG, false, false);
-    const savedM = localStorage.getItem('tb_gl_mode');
-    if (savedM) glSelectMode(savedM, false, false);
+    const savedG = localStorage.getItem('tb_gl_gesture') || 'fist';
+    glSelectGesture(savedG, false);
+    const savedM = localStorage.getItem('tb_gl_mode') || 'blackout';
+    glSelectMode(savedM, false);
     const savedP = localStorage.getItem('tb_gl_pin');
     const pinEl = document.getElementById('gl_user_pin');
     if (savedP && pinEl) pinEl.value = savedP;
   } catch (_) {}
+
+  // Sync sensor button and status badge
+  const statusBadge = document.getElementById('gl_cam_status');
+  const toggleBtn = document.getElementById('gl_sensor_toggle_btn');
+  if (glStream) {
+    if (statusBadge) {
+      statusBadge.textContent = '● SENSOR ON';
+      statusBadge.className = 'gl-status-badge gl-status-on';
+    }
+    if (toggleBtn) {
+      toggleBtn.innerHTML = '<span>⏹️ Turn OFF Sensor</span>';
+      toggleBtn.className = 'gl-sensor-btn gl-btn-off';
+      toggleBtn.onclick = glToggleSensor;
+    }
+  } else {
+    if (statusBadge) {
+      statusBadge.textContent = '● SENSOR OFF';
+      statusBadge.className = 'gl-status-badge gl-status-off';
+    }
+    if (toggleBtn) {
+      toggleBtn.innerHTML = '<span>▶️ Turn On Sensor</span>';
+      toggleBtn.className = 'primary gl-sensor-btn';
+      toggleBtn.onclick = glToggleSensor;
+    }
+  }
 }
 
 function glTriggerInstall() {
@@ -10438,7 +10440,7 @@ function glTriggerInstall() {
       if (res && res.outcome === 'accepted') {
         try { localStorage.setItem('tb_pwa_installed', 'true'); } catch (_) {}
         initGestureLockTool();
-        showToast('✓ ToolBoxPro Installed! You can now allow camera permission.');
+        showToast('✓ ToolBoxPro Installed! You can now activate the sensor.');
       } else {
         showToast('⚠️ App install required to use Smart Gesture Lock.');
       }
@@ -10459,18 +10461,12 @@ function glTriggerInstall() {
 }
 
 function glCheckInstalledStatus() {
-  if (window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true) {
-    try { localStorage.setItem('tb_pwa_installed', 'true'); } catch (_) {}
-    initGestureLockTool();
-    showToast('✓ App detected! Smart Gesture unlocked.');
-  } else {
-    try { localStorage.setItem('tb_pwa_installed', 'true'); } catch (_) {}
-    initGestureLockTool();
-    showToast('✓ App verified! Please allow camera permission.');
-  }
+  try { localStorage.setItem('tb_pwa_installed', 'true'); } catch (_) {}
+  initGestureLockTool();
+  showToast('✓ App verified! You can now turn on the sensor.');
 }
 
-function glSelectGesture(gesture, persist = true, autoStart = true) {
+function glSelectGesture(gesture, persist = true) {
   glSelectedGesture = gesture;
   glConfidence = 0;
   glCentroidHistory = [];
@@ -10483,11 +10479,11 @@ function glSelectGesture(gesture, persist = true, autoStart = true) {
   const targetEl = document.getElementById('gl_hud_target');
   if (targetEl) {
     const names = {
-      fist: '✊ CLOSED FIST',
-      palm: '✋ OPEN PALM',
-      peace: '✌️ PEACE SIGN',
-      wave: '👋 WAVE MOTION',
-      cover: '🌑 COVER SENSOR'
+      fist: '✊ FIST',
+      palm: '✋ PALM',
+      peace: '✌️ PEACE',
+      wave: '👋 WAVE',
+      cover: '🌑 COVER'
     };
     targetEl.textContent = names[gesture] || gesture.toUpperCase();
   }
@@ -10495,69 +10491,51 @@ function glSelectGesture(gesture, persist = true, autoStart = true) {
   if (persist) {
     try { localStorage.setItem('tb_gl_gesture', gesture); } catch (_) {}
   }
-
-  // Automatically ask camera permission from device if camera is off
-  if (autoStart && !glStream) {
-    glRequestCameraPermission();
-  }
 }
 
-function glSelectMode(mode, persist = true, autoStart = true) {
+function glSelectMode(mode, persist = true) {
   glSelectedMode = mode;
   const buttons = document.querySelectorAll('.gl-mode-btn');
   buttons.forEach(b => {
     b.classList.toggle('active', b.dataset.mode === mode);
   });
 
+  // When user selects the second lock action (Security PIN), show the required setup
   const pinConfig = document.getElementById('gl_pin_config');
   if (pinConfig) {
-    const needsPin = ['pin', 'siren', 'snapshot', 'sos'].includes(mode);
+    const needsPin = (mode === 'pin' || mode === 'siren' || mode === 'snapshot');
     pinConfig.classList.toggle('hidden', !needsPin);
   }
 
   if (persist) {
     try { localStorage.setItem('tb_gl_mode', mode); } catch (_) {}
   }
+}
 
-  // Automatically ask camera permission from device if camera is off
-  if (autoStart && !glStream) {
-    glRequestCameraPermission();
+function glToggleSensor() {
+  if (glStream) {
+    glTurnSensorOff();
+  } else {
+    glActivateSensor();
   }
 }
 
 function glTurnSensorOff() {
   stopGestureLockCamera();
-  showToast('⚪ Camera OFF');
+  showToast('⚪ Camera Sensor turned OFF');
 }
 
-function glToggleCamera() {
-  if (glStream) {
-    stopGestureLockCamera();
-  } else {
-    glRequestCameraPermission();
-  }
-}
-
-function glStartCamera() {
-  return glRequestCameraPermission();
-}
-
-async function glRequestCameraPermission() {
-  if (!isGestureLockInstalled()) {
-    showToast('⚠️ App install required to use Smart Gesture.');
-    initGestureLockTool();
-    return;
-  }
-
+async function glActivateSensor() {
   const video = document.getElementById('gl_video');
   const placeholder = document.getElementById('gl_placeholder');
   const hud = document.getElementById('gl_hud');
   const statusBadge = document.getElementById('gl_cam_status');
-  const mainBtn = document.getElementById('gl_cam_main_btn');
+  const toggleBtn = document.getElementById('gl_sensor_toggle_btn');
   const phTitle = document.getElementById('gl_ph_title');
+  const phDesc = document.getElementById('gl_ph_desc');
 
   if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-    showToast('⚠️ Camera access not supported on this device.');
+    showToast('⚠️ Camera access not supported on this device/browser.');
     return;
   }
 
@@ -10566,10 +10544,14 @@ async function glRequestCameraPermission() {
       statusBadge.textContent = '● ASKING PERMISSION...';
       statusBadge.className = 'gl-status-badge gl-status-requesting';
     }
-    if (phTitle) phTitle.textContent = 'Allow Camera on Device...';
-    if (mainBtn) mainBtn.innerHTML = '<span>⏳ Requesting Camera Permission...</span>';
+    if (phTitle) phTitle.textContent = 'Requesting Camera Access...';
+    if (phDesc) phDesc.textContent = 'Please tap "Allow" in your device prompt to start gesture detection.';
+    if (toggleBtn) {
+      toggleBtn.disabled = true;
+      toggleBtn.innerHTML = '<span>⏳ Requesting Permission...</span>';
+    }
 
-    // Direct browser prompt for camera permission
+    // Direct browser prompt for native camera permission
     glStream = await navigator.mediaDevices.getUserMedia({
       video: {
         facingMode: 'user',
@@ -10589,36 +10571,51 @@ async function glRequestCameraPermission() {
     if (hud) hud.classList.remove('hidden');
 
     if (statusBadge) {
-      statusBadge.textContent = '● ACTIVE';
-      statusBadge.className = 'gl-status-badge gl-status-active';
+      statusBadge.textContent = '● SENSOR ON';
+      statusBadge.className = 'gl-status-badge gl-status-on';
     }
 
-    if (mainBtn) {
-      mainBtn.innerHTML = '<span>⏹️ Turn OFF Camera</span>';
-      mainBtn.className = 'gl-sensor-action-btn gl-turn-off-btn';
-      mainBtn.onclick = glTurnSensorOff;
+    if (toggleBtn) {
+      toggleBtn.disabled = false;
+      toggleBtn.innerHTML = '<span>⏹️ Turn OFF Sensor</span>';
+      toggleBtn.className = 'gl-sensor-btn gl-btn-off';
+      toggleBtn.onclick = glToggleSensor;
     }
 
     glConfidence = 0;
     glCentroidHistory = [];
-    showToast('✓ Camera Active');
+    showToast('✓ Camera Sensor Active');
     glProcessFrame();
   } catch (err) {
     stopGestureLockCamera();
+    if (toggleBtn) toggleBtn.disabled = false;
+
     if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')) {
-      showToast('⚠️ Camera permission denied. Allow camera in settings.');
+      showToast('⚠️ Camera permission denied. Allow camera in browser settings.');
       if (statusBadge) {
         statusBadge.textContent = '⚠️ PERMISSION DENIED';
         statusBadge.className = 'gl-status-badge gl-status-denied';
       }
       if (phTitle) phTitle.textContent = 'Camera Permission Denied';
-      if (mainBtn) {
-        mainBtn.innerHTML = '<span>🔄 Retry Camera Permission</span>';
-        mainBtn.className = 'primary';
-        mainBtn.onclick = glRequestCameraPermission;
+      if (phDesc) phDesc.textContent = 'Camera access was blocked. Tap the browser lock icon 🔒 or site settings to Allow camera, then retry.';
+      if (toggleBtn) {
+        toggleBtn.innerHTML = '<span>🔄 Retry Camera Permission</span>';
+        toggleBtn.className = 'primary gl-sensor-btn gl-btn-retry';
+        toggleBtn.onclick = glActivateSensor;
       }
     } else {
-      showToast('⚠️ Camera error or busy.');
+      showToast('⚠️ Camera unavailable or in use by another application.');
+      if (statusBadge) {
+        statusBadge.textContent = '⚠️ SENSOR ERROR';
+        statusBadge.className = 'gl-status-badge gl-status-denied';
+      }
+      if (phTitle) phTitle.textContent = 'Camera Sensor Error';
+      if (phDesc) phDesc.textContent = 'Camera could not be accessed. Ensure no other application is using it.';
+      if (toggleBtn) {
+        toggleBtn.innerHTML = '<span>🔄 Retry</span>';
+        toggleBtn.className = 'primary gl-sensor-btn';
+        toggleBtn.onclick = glActivateSensor;
+      }
     }
   }
 }
@@ -10643,8 +10640,9 @@ function stopGestureLockCamera() {
   const placeholder = document.getElementById('gl_placeholder');
   const hud = document.getElementById('gl_hud');
   const statusBadge = document.getElementById('gl_cam_status');
-  const mainBtn = document.getElementById('gl_cam_main_btn');
+  const toggleBtn = document.getElementById('gl_sensor_toggle_btn');
   const phTitle = document.getElementById('gl_ph_title');
+  const phDesc = document.getElementById('gl_ph_desc');
   const fill = document.getElementById('gl_conf_fill');
   const pct = document.getElementById('gl_conf_pct');
 
@@ -10656,22 +10654,29 @@ function stopGestureLockCamera() {
   if (hud) hud.classList.add('hidden');
 
   if (statusBadge) {
-    statusBadge.textContent = '⚪ OFF';
+    statusBadge.textContent = '● SENSOR OFF';
     statusBadge.className = 'gl-status-badge gl-status-off';
   }
 
-  if (mainBtn) {
-    mainBtn.innerHTML = '<span>📷 Allow Camera Permission</span>';
-    mainBtn.className = 'primary';
-    mainBtn.onclick = glRequestCameraPermission;
+  if (toggleBtn) {
+    toggleBtn.disabled = false;
+    toggleBtn.innerHTML = '<span>▶️ Turn On Sensor</span>';
+    toggleBtn.className = 'primary gl-sensor-btn';
+    toggleBtn.onclick = glToggleSensor;
   }
 
-  if (phTitle) phTitle.textContent = 'Camera Permission Needed';
+  if (phTitle) phTitle.textContent = 'Camera Sensor is OFF';
+  if (phDesc) phDesc.textContent = 'Tap "Turn On Sensor" to start real-time gesture detection.';
 
   if (fill) fill.style.width = '0%';
   if (pct) pct.textContent = '0%';
   glConfidence = 0;
 }
+
+// Backward compatibility aliases
+const glToggleCamera = glToggleSensor;
+const glStartCamera = glActivateSensor;
+const glRequestCameraPermission = glActivateSensor;
 
 function glProcessFrame() {
   if (!glStream) return;
@@ -11476,10 +11481,11 @@ const SLUG_TO_TOOL = {
     }
   }
 
-  // C. Path or Hash (e.g. /video-to-shorts or #photoresize)
+  // C. Path, Hash, or Embedded Tool (e.g. /smart-gesture-lock, #gesturelock, or data-tool="gesturelock")
   const path = window.location.pathname.replace(/^\/|\/$/g, '').replace(/\.html$/, '');
   const hash = window.location.hash.replace('#', '');
-  const toolId = SLUG_TO_TOOL[path] || SLUG_TO_TOOL[hash] || (ALLOWED_TOOL_IDS.has(hash) ? hash : null);
+  const embedded = content && content.dataset ? content.dataset.tool : null;
+  const toolId = SLUG_TO_TOOL[path] || SLUG_TO_TOOL[hash] || (ALLOWED_TOOL_IDS.has(embedded) ? embedded : null) || (ALLOWED_TOOL_IDS.has(hash) ? hash : null);
   if (toolId) {
     openTool(toolId);
   }

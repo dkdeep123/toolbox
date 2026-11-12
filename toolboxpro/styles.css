@@ -6132,231 +6132,243 @@ body.dark .gl-install-help {
   background: rgba(255, 255, 255, 0.05);
 }
 
-/* Sections & Headings */
+/* Smart Gesture Dashboard - Modern Dark Blue & Black Theme */
 .gl-dashboard {
-  margin-top: 10px;
-}
-.gl-section {
-  margin-bottom: 22px;
-}
-.gl-section-label {
-  display: block;
-  font-size: 14px;
-  font-weight: 700;
-  color: var(--text-primary, #0f172a);
-  margin-bottom: 4px;
-}
-body.dark .gl-section-label {
-  color: #f1f5f9;
-}
-.gl-sublabel {
-  font-size: 12.5px;
-  color: var(--text-secondary, #64748b);
-  margin: 0 0 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  margin-top: 6px;
+  max-width: 640px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
-/* 1. Gesture Selector Grid */
+.gl-section {
+  background: #0b0f19;
+  border: 1px solid #1e293b;
+  border-radius: 14px;
+  padding: 14px 16px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.25);
+}
+
+.gl-section-title {
+  font-size: 11.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #60a5fa;
+  margin-bottom: 10px;
+}
+
+/* 1. Gesture Options */
 .gl-gesture-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  grid-template-columns: repeat(5, 1fr);
   gap: 8px;
 }
+
+@media (max-width: 440px) {
+  .gl-gesture-grid {
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+}
+
 .gl-gesture-card {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 12px 8px;
-  border: 1.5px solid var(--border, #e2e8f0);
-  background: var(--card-bg, #ffffff);
+  padding: 10px 4px;
+  background: #0f172a;
+  border: 1.5px solid #1e293b;
   border-radius: 10px;
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-  text-align: center;
-}
-body.dark .gl-gesture-card {
-  background: #1e293b;
-  border-color: #334155;
-}
-.gl-gesture-card:hover {
-  border-color: var(--accent, #3b82f6);
-  transform: translateY(-2px);
-}
-.gl-gesture-card.active {
-  border-color: var(--accent, #3b82f6);
-  background: rgba(59, 130, 246, 0.08);
-  box-shadow: 0 0 0 1.5px var(--accent, #3b82f6);
-}
-body.dark .gl-gesture-card.active {
-  background: rgba(59, 130, 246, 0.18);
-  border-color: #60a5fa;
-  box-shadow: 0 0 0 1.5px #60a5fa;
-}
-.gl-g-icon {
-  font-size: 26px;
-  margin-bottom: 4px;
-  line-height: 1;
-}
-.gl-g-name {
-  font-size: 12px;
-  font-weight: 600;
-  color: var(--text-primary, #0f172a);
-  line-height: 1.2;
-}
-body.dark .gl-g-name {
-  color: #f8fafc;
-}
-.gl-g-hint {
-  font-size: 10.5px;
-  color: var(--text-secondary, #94a3b8);
-  margin-top: 3px;
+  transition: all 0.18s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
-/* 2. Lock Mode Selector */
+.gl-gesture-card:hover {
+  border-color: #3b82f6;
+  background: #131d36;
+}
+
+.gl-gesture-card.active {
+  background: rgba(59, 130, 246, 0.18);
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px #3b82f6, 0 4px 12px rgba(59, 130, 246, 0.25);
+}
+
+.gl-g-icon {
+  font-size: 24px;
+  line-height: 1;
+  margin-bottom: 4px;
+}
+
+.gl-g-name {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #f1f5f9;
+  line-height: 1.2;
+}
+
+.gl-gesture-card.active .gl-g-name {
+  color: #60a5fa;
+}
+
+/* 2. Lock Actions */
 .gl-mode-selector {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(135px, 1fr));
   gap: 8px;
 }
+
+@media (max-width: 480px) {
+  .gl-mode-selector {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 6px;
+  }
+}
+
 .gl-mode-btn {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  border: 1.5px solid var(--border, #e2e8f0);
-  background: var(--card-bg, #ffffff);
+  gap: 8px;
+  padding: 9px 12px;
+  background: #0f172a;
+  border: 1.5px solid #1e293b;
   border-radius: 10px;
   cursor: pointer;
   text-align: left;
-  transition: all 0.2s ease;
+  transition: all 0.18s ease;
+  user-select: none;
+  -webkit-tap-highlight-color: transparent;
 }
-body.dark .gl-mode-btn {
-  background: #1e293b;
-  border-color: #334155;
+
+.gl-mode-btn:hover {
+  border-color: #3b82f6;
+  background: #131d36;
 }
+
 .gl-mode-btn.active {
-  border-color: var(--accent, #3b82f6);
-  background: rgba(59, 130, 246, 0.08);
-  box-shadow: 0 0 0 1px var(--accent, #3b82f6);
-}
-body.dark .gl-mode-btn.active {
   background: rgba(59, 130, 246, 0.18);
-  border-color: #60a5fa;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 1px #3b82f6, 0 4px 12px rgba(59, 130, 246, 0.2);
 }
+
 .gl-m-icon {
-  font-size: 20px;
+  font-size: 18px;
   line-height: 1;
+  flex-shrink: 0;
 }
+
 .gl-m-text strong {
   display: block;
-  font-size: 12.5px;
-  color: var(--text-primary, #0f172a);
+  font-size: 12px;
+  font-weight: 600;
+  color: #f1f5f9;
+  line-height: 1.2;
 }
-body.dark .gl-m-text strong {
-  color: #f8fafc;
+
+.gl-mode-btn.active .gl-m-text strong {
+  color: #60a5fa;
 }
-.gl-m-text small {
-  display: block;
-  font-size: 10.5px;
-  color: var(--text-secondary, #64748b);
-}
-body.dark .gl-m-text small {
-  color: #94a3b8;
-}
+
+/* PIN Setup */
 .gl-pin-config {
   margin-top: 10px;
   padding: 10px 14px;
-  background: rgba(0, 0, 0, 0.02);
-  border-radius: 8px;
-  border: 1px dashed var(--border, #cbd5e1);
-}
-body.dark .gl-pin-config {
-  background: rgba(255, 255, 255, 0.03);
-  border-color: #334155;
+  background: #090d16;
+  border: 1px solid #1e293b;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
-/* 3. Camera Viewport & Cyber HUD */
+.gl-pin-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.gl-pin-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.gl-pin-field {
+  width: 80px;
+  padding: 6px 10px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-align: center;
+  background: #0f172a;
+  border: 1.5px solid #3b82f6;
+  border-radius: 8px;
+  color: #ffffff;
+}
+
+.gl-pin-field:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.4);
+}
+
+.gl-pin-hint {
+  font-size: 11px;
+  color: #64748b;
+}
+
+/* 3. Camera Sensor & HUD */
 .gl-cam-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 8px;
-}
-.gl-auto-start-hint {
-  font-size: 11.5px;
-  color: var(--text-secondary, #64748b);
-  margin-top: 2px;
-}
-body.dark .gl-auto-start-hint {
-  color: #94a3b8;
-}
-.gl-sensor-power-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  padding: 5px 12px;
-  border-radius: 999px;
-  font-size: 11.5px;
-  font-weight: 600;
-  border: 1px solid var(--border, #cbd5e1);
-  background: var(--card-bg, #ffffff);
-  color: var(--text-secondary, #64748b);
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-body.dark .gl-sensor-power-btn {
-  background: #1e293b;
-  border-color: #334155;
-  color: #94a3b8;
-}
-.gl-sensor-power-btn.is-active {
-  background: rgba(239, 68, 68, 0.12);
-  color: #ef4444;
-  border-color: rgba(239, 68, 68, 0.35);
-}
-.gl-sensor-power-btn:hover {
-  transform: scale(1.02);
-}
-.gl-power-icon {
-  font-size: 13px;
-  line-height: 1;
+  margin-bottom: 10px;
 }
 
 .gl-status-badge {
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.5px;
-  padding: 3px 8px;
+  padding: 3px 10px;
   border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
 }
+
 .gl-status-off {
-  background: rgba(100, 116, 139, 0.15);
-  color: #64748b;
-}
-body.dark .gl-status-off {
+  background: rgba(148, 163, 184, 0.12);
   color: #94a3b8;
+  border: 1px solid rgba(148, 163, 184, 0.2);
 }
+
+.gl-status-on {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10b981;
+  border: 1px solid rgba(16, 185, 129, 0.35);
+  animation: glPulseGlow 2s infinite ease-in-out;
+}
+
 .gl-status-requesting {
   background: rgba(234, 179, 8, 0.15);
   color: #eab308;
+  border: 1px solid rgba(234, 179, 8, 0.35);
   animation: glPulseGlow 1s infinite alternate;
 }
+
 .gl-status-denied {
   background: rgba(239, 68, 68, 0.15);
   color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.35);
 }
-.gl-status-idle {
-  background: rgba(148, 163, 184, 0.15);
-  color: #64748b;
-}
-body.dark .gl-status-idle {
-  color: #94a3b8;
-}
-.gl-status-active {
-  background: rgba(16, 185, 129, 0.15);
-  color: #10b981;
-  animation: glPulseGlow 2s infinite ease-in-out;
-}
+
 @keyframes glPulseGlow {
   0%, 100% { opacity: 1; }
   50% { opacity: 0.6; }
@@ -6366,49 +6378,53 @@ body.dark .gl-status-idle {
   position: relative;
   width: 100%;
   aspect-ratio: 4 / 3;
-  max-height: 260px;
-  background: #090d16;
+  max-height: 240px;
+  background: #070a12;
+  border: 1px solid #1e293b;
   border-radius: 12px;
   overflow: hidden;
-  border: 1px solid rgba(59, 130, 246, 0.25);
   display: flex;
   align-items: center;
   justify-content: center;
 }
+
 .gl-viewport-placeholder {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 20px;
+  padding: 16px;
   text-align: center;
-  color: #94a3b8;
 }
+
 .gl-ph-icon {
-  font-size: 38px;
-  margin-bottom: 8px;
-  opacity: 0.8;
+  font-size: 34px;
+  margin-bottom: 6px;
+  opacity: 0.85;
 }
+
 .gl-ph-title {
-  font-size: 15px;
+  font-size: 14px;
   font-weight: 700;
   color: #f1f5f9;
   margin-bottom: 4px;
 }
+
 .gl-ph-desc {
-  font-size: 12px;
-  max-width: 280px;
+  font-size: 11.5px;
+  max-width: 270px;
   margin: 0;
   line-height: 1.4;
-  color: #64748b;
+  color: #94a3b8;
 }
 
 .gl-video {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transform: scaleX(-1); /* mirror */
+  transform: scaleX(-1);
 }
+
 .gl-hidden-canvas {
   display: none !important;
 }
@@ -6421,19 +6437,21 @@ body.dark .gl-status-idle {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  padding: 12px;
+  padding: 10px;
   box-sizing: border-box;
 }
+
 .gl-hud-reticle {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 90px;
-  height: 90px;
+  width: 80px;
+  height: 80px;
   border: 1px dashed rgba(59, 130, 246, 0.35);
   border-radius: 8px;
 }
+
 .gl-corner {
   position: absolute;
   width: 10px;
@@ -6441,10 +6459,12 @@ body.dark .gl-status-idle {
   border-color: #60a5fa;
   border-style: solid;
 }
+
 .gl-tl { top: -1px; left: -1px; border-width: 2px 0 0 2px; }
 .gl-tr { top: -1px; right: -1px; border-width: 2px 2px 0 0; }
 .gl-bl { bottom: -1px; left: -1px; border-width: 0 0 2px 2px; }
 .gl-br { bottom: -1px; right: -1px; border-width: 0 2px 2px 0; }
+
 .gl-hud-center-dot {
   position: absolute;
   top: 50%;
@@ -6457,120 +6477,131 @@ body.dark .gl-status-idle {
 }
 
 .gl-hud-info {
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(4px);
-  padding: 6px 10px;
+  background: rgba(11, 15, 25, 0.85);
+  backdrop-filter: blur(6px);
+  padding: 5px 8px;
   border-radius: 6px;
   align-self: flex-start;
   font-family: monospace;
-  font-size: 11px;
+  font-size: 10.5px;
   color: #f1f5f9;
+  border: 1px solid rgba(59, 130, 246, 0.25);
 }
+
 .gl-hud-row {
   display: flex;
   gap: 6px;
   line-height: 1.4;
 }
+
 .gl-hud-label {
   color: #94a3b8;
 }
+
 .gl-hud-val {
   font-weight: 700;
   color: #60a5fa;
 }
 
 .gl-confidence-wrap {
-  background: rgba(0, 0, 0, 0.7);
-  backdrop-filter: blur(4px);
+  background: rgba(11, 15, 25, 0.85);
+  backdrop-filter: blur(6px);
   padding: 6px 10px;
   border-radius: 6px;
+  border: 1px solid rgba(59, 130, 246, 0.25);
 }
+
 .gl-confidence-bar {
   width: 100%;
   height: 6px;
-  background: rgba(255, 255, 255, 0.15);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: 999px;
   overflow: hidden;
   margin-bottom: 4px;
 }
+
 .gl-conf-fill {
   height: 100%;
   background: linear-gradient(90deg, #3b82f6, #10b981);
   transition: width 0.1s linear;
 }
+
 .gl-conf-meta {
   display: flex;
   justify-content: space-between;
-  font-size: 10px;
+  font-size: 9.5px;
   font-family: monospace;
   color: #94a3b8;
   font-weight: 600;
 }
 
+/* Sensor Controls */
 .gl-controls {
   display: flex;
-  gap: 10px;
+  gap: 8px;
   margin-top: 10px;
 }
-.gl-sensor-action-btn {
-  padding: 10px 18px;
-  border-radius: 8px;
+
+.gl-sensor-btn {
+  flex: 2;
+  padding: 11px 16px;
   font-size: 13.5px;
   font-weight: 600;
+  border-radius: 10px;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 6px;
   transition: all 0.2s ease;
-}
-.gl-turn-off-btn {
-  background: rgba(239, 68, 68, 0.12);
-  color: #ef4444;
-  border: 1.5px solid rgba(239, 68, 68, 0.3);
-}
-.gl-turn-off-btn:hover {
-  background: #ef4444;
+  background: #3b82f6;
   color: #ffffff;
-}
-.gl-turn-on-btn {
-  background: var(--accent, #3b82f6);
-  color: #ffffff;
-  border: 1.5px solid var(--accent, #3b82f6);
-}
-.gl-turn-on-btn:hover {
-  filter: brightness(1.1);
+  border: 1.5px solid #3b82f6;
 }
 
-.gl-privacy-notice {
-  display: flex;
-  gap: 12px;
-  align-items: flex-start;
-  padding: 12px 14px;
-  background: rgba(16, 185, 129, 0.06);
-  border: 1px solid rgba(16, 185, 129, 0.2);
+.gl-sensor-btn:hover {
+  background: #2563eb;
+  border-color: #2563eb;
+}
+
+.gl-btn-off {
+  background: rgba(239, 68, 68, 0.15) !important;
+  color: #ef4444 !important;
+  border: 1.5px solid #ef4444 !important;
+}
+
+.gl-btn-off:hover {
+  background: #ef4444 !important;
+  color: #ffffff !important;
+}
+
+.gl-btn-retry {
+  background: #f59e0b !important;
+  color: #0b0f19 !important;
+  border: 1.5px solid #f59e0b !important;
+  font-weight: 700 !important;
+}
+
+.gl-test-btn {
+  flex: 1;
+  padding: 11px 12px;
+  font-size: 12.5px;
+  font-weight: 600;
   border-radius: 10px;
-  font-size: 12px;
-  margin-top: 14px;
-  line-height: 1.45;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  background: #0f172a;
+  color: #e2e8f0;
+  border: 1px solid #1e293b;
+  transition: all 0.2s ease;
 }
-.gl-priv-icon {
-  font-size: 20px;
-  line-height: 1;
-}
-.gl-privacy-notice strong {
-  display: block;
-  color: #059669;
-  margin-bottom: 2px;
-}
-body.dark .gl-privacy-notice strong {
-  color: #34d399;
-}
-.gl-privacy-notice p {
-  margin: 0;
-  color: var(--text-secondary, #64748b);
-}
-body.dark .gl-privacy-notice p {
-  color: #94a3b8;
+
+.gl-test-btn:hover {
+  border-color: #3b82f6;
+  background: #131d36;
 }
 
 /* ─────────────────────────────────────────
