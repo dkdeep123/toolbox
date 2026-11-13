@@ -10545,13 +10545,7 @@ async function glRequestCameraPermission(isSilentBg = false) {
     return;
   }
 
-  const hasMediaDevices = !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia);
-  const legacyGetUserMedia = navigator.getUserMedia ||
-    navigator.webkitGetUserMedia ||
-    navigator.mozGetUserMedia ||
-    navigator.msGetUserMedia;
-
-  if (!hasMediaDevices && !legacyGetUserMedia) {
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
     if (!isSilentBg) {
       if (statusBadge) {
         statusBadge.textContent = '● Not Supported';
@@ -10559,7 +10553,7 @@ async function glRequestCameraPermission(isSilentBg = false) {
       }
       if (phTitle) phTitle.textContent = 'Camera Not Supported';
       if (phDesc) {
-        phDesc.textContent = 'Your device or browser does not support WebRTC camera capture. Please try latest Chrome, Edge, or Safari.';
+        phDesc.textContent = 'Your device or browser does not support WebRTC camera capture. Please open ToolBoxPro in Google Chrome or Safari.';
       }
       if (retryBtn) retryBtn.classList.add('hidden');
       showToast('⚠️ Camera access not supported on this browser or device.');
@@ -10582,49 +10576,9 @@ async function glRequestCameraPermission(isSilentBg = false) {
   }
 
   try {
-    const callGUM = (constraints) => {
-      if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-        return navigator.mediaDevices.getUserMedia(constraints);
-      }
-      return new Promise((resolve, reject) => {
-        if (legacyGetUserMedia) {
-          legacyGetUserMedia.call(navigator, constraints, resolve, reject);
-        } else {
-          reject(new Error('MediaDevices not supported'));
-        }
-      });
-    };
-
-    // 10-second safety timeout so button NEVER gets stuck
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => {
-        const timeoutErr = new Error('Device camera request timed out.');
-        timeoutErr.name = 'TimeoutError';
-        reject(timeoutErr);
-      }, 10000);
-    });
-
-    let stream = null;
-
-    // Use native camera permission API: navigator.mediaDevices.getUserMedia({ video: true })
-    // Direct unconstrained video request guarantees the native OS / browser permission prompt appears
-    const gumPromise = (async () => {
-      try {
-        return await callGUM({ video: true });
-      } catch (gumErr) {
-        if (gumErr && (gumErr.name === 'NotAllowedError' || gumErr.name === 'PermissionDeniedError')) {
-          throw gumErr;
-        }
-        // Fallback attempt with facingMode: user
-        return await callGUM({ video: { facingMode: 'user' } });
-      }
-    })();
-
-    stream = await Promise.race([gumPromise, timeoutPromise]);
-
-    if (!stream) {
-      throw new Error('No camera stream received');
-    }
+    // DIRECT NATIVE CALL: Triggers the browser's native permission popup immediately
+    // "Allow ToolBoxPro to use your camera? [Allow] [Block]"
+    const stream = await navigator.mediaDevices.getUserMedia({ video: true });
 
     glStream = stream;
 
@@ -10675,21 +10629,29 @@ async function glRequestCameraPermission(isSilentBg = false) {
         statusBadge.textContent = '● Camera Blocked';
         statusBadge.className = 'gl-status-badge gl-status-denied';
       }
-      if (phTitle) phTitle.textContent = 'Camera Access Blocked';
+      if (phTitle) phTitle.textContent = 'Camera Permission Blocked';
       if (phDesc) {
-        phDesc.innerHTML = 'Camera access blocked.<br/>• <strong>Browser:</strong> Tap 🔒 icon in address bar → Permissions → Allow Camera.<br/>• <strong>Installed App:</strong> Long-press app icon on home screen → App Info (ⓘ) → Permissions → Camera → Allow.<br/>• <strong>Settings:</strong> Phone Settings → Apps → Chrome / ToolBoxPro → Permissions → Camera → Allow.';
+        phDesc.innerHTML = '<strong>Permission popup nahi aaya?</strong><br/>' +
+          'Kyunki browser me is site ka camera pehle se Block list me hai.<br/><br/>' +
+          '• <strong>Popup wapas laane ke liye:</strong><br/>' +
+          '1. Upar address bar me <strong>🔒 (Lock icon)</strong> dabayein.<br/>' +
+          '2. <strong>Permissions → Camera</strong> ko <strong>Allow</strong> karein.<br/>' +
+          '3. Niche <strong>Retry</strong> dabayein!';
       }
       if (retryBtn) {
         retryBtn.classList.remove('hidden');
-        retryBtn.onclick = () => { glRequestCameraPermission(false); };
+        retryBtn.onclick = (e) => {
+          if (e) e.stopPropagation();
+          glRequestCameraPermission(false);
+        };
       }
       if (toggleBtn) {
         toggleBtn.disabled = false;
-        toggleBtn.innerHTML = '<span>🔄 Retry</span>';
+        toggleBtn.innerHTML = '<span>🔄 Retry Camera Popup</span>';
         toggleBtn.className = 'primary gl-sensor-btn';
         toggleBtn.onclick = () => { glRequestCameraPermission(false); };
       }
-      showToast('Camera access blocked. Please allow camera access in site settings.');
+      showToast('Camera blocked. Tap 🔒 in address bar → Permissions → Allow.');
     } else {
       if (statusBadge) {
         statusBadge.textContent = '● Camera Error';
