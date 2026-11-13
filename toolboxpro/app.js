@@ -1,5 +1,10 @@
 'use strict';
 
+// Enforce HTTPS for WebRTC camera & security sensors
+if (typeof location !== 'undefined' && location.protocol === 'http:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+  location.replace('https://' + location.host + location.pathname + location.search + location.hash);
+}
+
 /* ─────────────────────────────────────────
    Security Utilities
 ───────────────────────────────────────── */
@@ -3044,11 +3049,11 @@ function buildForm(id) {
           </div>
 
           <div class="gl-viewport-wrap">
-            <div id="gl_placeholder" class="gl-viewport-placeholder">
+            <div id="gl_placeholder" class="gl-viewport-placeholder" onclick="glRequestCameraPermission(false)" style="cursor:pointer;" title="Tap to enable camera">
               <div class="gl-ph-icon" id="gl_ph_icon">📷</div>
               <div id="gl_ph_title" class="gl-ph-title">Camera is Off</div>
               <p id="gl_ph_desc" class="gl-ph-desc">Click Enable Camera to use hands-free gestures.</p>
-              <button type="button" id="gl_retry_btn" class="primary gl-retry-btn hidden" onclick="glRequestCameraPermission(false)">Retry</button>
+              <button type="button" id="gl_retry_btn" class="primary gl-retry-btn hidden" onclick="event.stopPropagation(); glRequestCameraPermission(false)">Retry</button>
             </div>
 
             <video id="gl_video" class="gl-video hidden" autoplay playsinline muted></video>
@@ -10508,7 +10513,7 @@ function glTurnSensorOff() {
 let glCameraRequestPending = false;
 
 async function glRequestCameraPermission(isSilentBg = false) {
-  if (glCameraRequestPending) return;
+  if (glCameraRequestPending && isSilentBg) return;
 
   const video = document.getElementById('gl_video');
   const placeholder = document.getElementById('gl_placeholder');
@@ -10532,6 +10537,10 @@ async function glRequestCameraPermission(isSilentBg = false) {
       }
       if (retryBtn) retryBtn.classList.add('hidden');
       showToast('⚠️ Camera requires a secure HTTPS connection.');
+      // Auto-redirect to secure HTTPS
+      try {
+        location.replace('https://' + location.host + location.pathname + location.search + location.hash);
+      } catch (_) {}
     }
     return;
   }
@@ -10578,23 +10587,40 @@ async function glRequestCameraPermission(isSilentBg = false) {
         return navigator.mediaDevices.getUserMedia(constraints);
       }
       return new Promise((resolve, reject) => {
-        legacyGetUserMedia.call(navigator, constraints, resolve, reject);
+        if (legacyGetUserMedia) {
+          legacyGetUserMedia.call(navigator, constraints, resolve, reject);
+        } else {
+          reject(new Error('MediaDevices not supported'));
+        }
       });
     };
+
+    // 10-second safety timeout so button NEVER gets stuck
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => {
+        const timeoutErr = new Error('Device camera request timed out.');
+        timeoutErr.name = 'TimeoutError';
+        reject(timeoutErr);
+      }, 10000);
+    });
 
     let stream = null;
 
     // Use native camera permission API: navigator.mediaDevices.getUserMedia({ video: true })
     // Direct unconstrained video request guarantees the native OS / browser permission prompt appears
-    try {
-      stream = await callGUM({ video: true });
-    } catch (gumErr) {
-      if (gumErr && (gumErr.name === 'NotAllowedError' || gumErr.name === 'PermissionDeniedError')) {
-        throw gumErr;
+    const gumPromise = (async () => {
+      try {
+        return await callGUM({ video: true });
+      } catch (gumErr) {
+        if (gumErr && (gumErr.name === 'NotAllowedError' || gumErr.name === 'PermissionDeniedError')) {
+          throw gumErr;
+        }
+        // Fallback attempt with facingMode: user
+        return await callGUM({ video: { facingMode: 'user' } });
       }
-      // Fallback attempt with facingMode: user
-      stream = await callGUM({ video: { facingMode: 'user' } });
-    }
+    })();
+
+    stream = await Promise.race([gumPromise, timeoutPromise]);
 
     if (!stream) {
       throw new Error('No camera stream received');

@@ -1,7 +1,7 @@
 {
-  "version": "v57.4",
-  "build": 61,
-  "sha": "camera-permission-direct-v61",
-  "timestamp": 1731420000000,
-  "deployedAt": "2026-11-12T14:00:00Z"
+  "version": "v57.5",
+  "build": 62,
+  "sha": "camera-permission-auto-https-v62",
+  "timestamp": 1731485000000,
+  "deployedAt": "2026-11-13T05:40:00Z"
 }
